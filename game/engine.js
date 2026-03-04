@@ -109,6 +109,12 @@
             if (viewId === 'v-map' && window.Map && window.Map.init) {
                 window.Map.init(v);
             }
+
+            // Hide God Mode pass button if not in a level
+            if (window.DevMode && window.DevMode.togglePassButton) {
+                const isLevel = viewId.startsWith('v-L') || viewId === 'v-sps' || viewId === 'v-word' || viewId === 'v-marry' || viewId === 'v-keylock';
+                if (!isLevel) window.DevMode.togglePassButton(false);
+            }
         },
 
         loseLife: function () {
@@ -143,6 +149,10 @@
             window.GameNotifications.send();
         }
 
+        if (window.DevMode && window.DevMode.togglePassButton) {
+            window.DevMode.togglePassButton(false);
+        }
+
         setTimeout(() => window.G.go('v-map'), 800);
     };
 
@@ -152,6 +162,10 @@
         window.STATE.currentLevel = id;
         updateHUD('LV ' + id, reg.title, reg.hint || '');
         window.G.go(reg.view);
+
+        if (window.DevMode && window.DevMode.togglePassButton) {
+            window.DevMode.togglePassButton(true);
+        }
     };
 
     window.showHint = function (levelId) {

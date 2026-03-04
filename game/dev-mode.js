@@ -81,6 +81,25 @@ window.DevMode = (function () {
         border-radius: 5px; object-fit: contain; display: flex; align-items: center; justify-content: center;
       }
       .asset-label { font-size: 12px; font-weight: bold; color: #555; }
+      
+      .pass-btn {
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        z-index: 10000;
+        background: var(--gold);
+        color: white;
+        border: 4px solid white;
+        border-radius: 50px;
+        padding: 15px 25px;
+        font-family: 'Fredoka', cursive;
+        font-size: 18px;
+        cursor: pointer;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: none;
+      }
+      .pass-btn:hover { transform: scale(1.1); background: var(--amber); }
     `;
     const style = document.createElement('style');
     style.textContent = css;
@@ -154,10 +173,11 @@ window.DevMode = (function () {
           `).join('')}
         </div>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-           <button class="dev-btn" style="background:var(--rose);" onclick="window.DevMode.skipToFinal()">⏩ SKIP TO FINAL</button>
-           <button class="dev-btn" style="background:var(--ink);" onclick="window.DevMode.resetAll()">🗑️ RESET ALL</button>
-           <button class="dev-btn" style="background:var(--purple); grid-column: span 2;" onclick="window.DevMode.openAssetManager()">🎨 ASSET MANAGER</button>
-           <button class="dev-btn" style="background:#555; grid-column: span 2; margin-top:10px;" onclick="document.getElementById('dev-panel').classList.remove('active')">CLOSE</button>
+            <button class="dev-btn" style="background:var(--gold);" onclick="window.DevMode.randomLevel()">🎲 RANDOM LEVEL</button>
+            <button class="dev-btn" style="background:var(--rose);" onclick="window.DevMode.skipToFinal()">⏩ SKIP TO FINAL</button>
+            <button class="dev-btn" style="background:var(--ink);" onclick="window.DevMode.resetAll()">🗑️ RESET ALL</button>
+            <button class="dev-btn" style="background:var(--purple);" onclick="window.DevMode.openAssetManager()">🎨 ASSET MANAGER</button>
+            <button class="dev-btn" style="background:#555; grid-column: span 2; margin-top:10px;" onclick="document.getElementById('dev-panel').classList.remove('active')">CLOSE</button>
         </div>
       </div>
     `;
@@ -205,6 +225,29 @@ window.DevMode = (function () {
       if (typeof window.renderHearts === 'function') window.renderHearts();
       window.G.go('v-title');
       elPanel.classList.remove('active');
+    },
+    randomLevel: () => {
+      const regs = window.LEVEL_REGISTRY || [];
+      if (!regs.length) return;
+      const rand = regs[Math.floor(Math.random() * regs.length)];
+      window.launchLevel(rand.id);
+      elPanel.classList.remove('active');
+    },
+    togglePassButton: (show) => {
+      let btn = document.getElementById('dev-pass-btn');
+      if (!btn) {
+        btn = document.createElement('button');
+        btn.id = 'dev-pass-btn';
+        btn.className = 'pass-btn';
+        btn.innerHTML = '✨ PASS LEVEL';
+        btn.onclick = () => {
+          if (window.STATE.currentLevel) {
+            window.levelDone(window.STATE.currentLevel);
+          }
+        };
+        document.body.appendChild(btn);
+      }
+      btn.style.display = (show && window.STATE.devMode) ? 'block' : 'none';
     },
 
     // ── Asset Manager ─────────────────────────────────────────
