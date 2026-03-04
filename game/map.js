@@ -13,12 +13,14 @@ window.Map = (function () {
   function createStyle() {
     const css = `
       #v-map {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 40px;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        padding: 40px 20px !important;
         background: var(--parchment);
-        overflow-y: auto;
+        overflow-y: auto !important;
+        height: 100% !important;
       }
 
       /* Progress Section */
@@ -192,7 +194,10 @@ window.Map = (function () {
       <div class="level-list">
         ${levels.map((file, idx) => {
       const id = file.replace('level-', '').replace('.js', '');
-      const reg = (window.LEVEL_REGISTRY || []).find(r => String(r.id) === String(id));
+      const reg = (window.LEVEL_REGISTRY || []).find(r => {
+        return String(r.id).toLowerCase() === String(id).toLowerCase() ||
+          Number(r.id) === Number(id);
+      });
       const config = reg
         ? { title: reg.title, type: reg.type || 'trap', icon: reg.icon || '❓' }
         : { title: `Level ${id}`, type: 'trap', icon: '❓' };
