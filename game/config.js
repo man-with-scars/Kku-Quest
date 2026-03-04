@@ -3,7 +3,7 @@
 
 window.GAME_CONFIG = {
     // GitHub raw URL for level loading
-    GH_RAW: 'https://raw.githubusercontent.com/man-with-scars/Kku-Quest/main/levels/',
+    GH_RAW: 'https://raw.githubusercontent.com/man-with-scars/Kku-Quest/main/game/levels/',
     GH_TOKEN: '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',
     GH_REPO: 'man-with-scars/Kku-Quest',
     GH_BRANCH: 'main',

@@ -157,7 +157,10 @@
     };
 
     window.launchLevel = function (id) {
-        const reg = (window.LEVEL_REGISTRY || []).find(r => r.id == id);
+        const reg = (window.LEVEL_REGISTRY || []).find(r =>
+            String(r.id).toLowerCase() === String(id).toLowerCase() ||
+            Number(r.id) === Number(id)
+        );
         if (!reg) return;
         window.STATE.currentLevel = id;
         updateHUD('LV ' + id, reg.title, reg.hint || '');
@@ -406,7 +409,10 @@
             setTimeout(() => {
                 // Sort registry (assumes levels push themselves to LEVEL_REGISTRY)
                 window.LEVEL_REGISTRY.sort((a, b) => {
-                    return parseInt(a.id) - parseInt(b.id) || a.id.localeCompare(b.id);
+                    const idA = parseFloat(a.id);
+                    const idB = parseFloat(b.id);
+                    if (!isNaN(idA) && !isNaN(idB)) return idA - idB;
+                    return String(a.id).localeCompare(String(b.id));
                 });
 
                 const stage = document.getElementById('stage');

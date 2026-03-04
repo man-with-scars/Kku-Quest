@@ -409,14 +409,19 @@
             display: flex;
             gap: 14px;
             justify-content: center;
+            flex-wrap: wrap;
+            /* Allow wrapping */
         }
 
         /* ── Individual Tile ── */
         .tile {
             flex: 1;
-            min-width: 0;
-            height: 300px;
-            /* Fixed height for stability */
+            min-width: 200px;
+            /* Allow tiles to wrap on smaller screens */
+            min-height: 260px;
+            /* Base height */
+            height: auto;
+            /* Allow growth */
             background: var(--white-glass);
             border-radius: var(--tile-radius);
             box-shadow: var(--tile-shadow);
@@ -1171,7 +1176,7 @@
                     </div><!-- /.tile-row top -->
 
                     <!-- BOTTOM ROW: 2 tiles, centred -->
-                    <div class="tile-row" style="max-width: 68%; margin: 0 auto; width:100%;">
+                    <div class="tile-row" style="margin: 0 auto; width:100%;">
 
                         <!-- Upload -->
                         <div class="tile" id="tile-upload">
