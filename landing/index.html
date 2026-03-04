@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="description" content="Kku's Quest — Find Chu 💕 · The anniversary begins here." />
+    <title>Kku's Quest 💕</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;600&display=swap"
+        rel="stylesheet" />
+
+    <style>
+        /* ═══════════════════════════════════════════════════
+       CSS CUSTOM PROPERTIES
+    ═══════════════════════════════════════════════════ */
+        :root {
+            --cream: #FFF8F0;
+            --parchment: #F5E6C8;
+            --lavender: #E8E0F7;
+            --pink-bg: #F7E0EE;
+            --purple: #7C3AED;
+            --ink: #2D1040;
+            --sub: #8B7EA8;
+            --gold: #F0B429;
+            --grass: #5DB85C;
+            --white-glass: rgba(255, 255, 255, 0.88);
+            --blur-panel: rgba(255, 255, 255, 0.72);
+            --tile-radius: 20px;
+            --tile-shadow: 0 4px 24px rgba(124, 58, 237, 0.10);
+            --tile-hover-shadow: 0 8px 40px rgba(124, 58, 237, 0.22);
+            --transition: 280ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ═══════════════════════════════════════════════════
+       RESET & BASE
+    ═══════════════════════════════════════════════════ */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+            touch-action: manipulation;
+            font-family: 'Poppins', sans-serif;
+            background: #000;
+            color: var(--ink);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ═══════════════════════════════════════════════════
+       APP WRAPPER & PHASE SYSTEM
+    ═══════════════════════════════════════════════════ */
+        #app {
+            position: fixed;
+            inset: 0;
+            background: #000;
+        }
+
+        .phase {
+            position: absolute;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .phase.active {
+            display: flex;
+        }
+
+        /* ═══════════════════════════════════════════════════
+       PHASE 1 — TRAIL CANVAS
+    ═══════════════════════════════════════════════════ */
+        #phase1 {
+            background: #000;
+        }
+
+        #trail-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* ═══════════════════════════════════════════════════
+       PHASE 2 — GIFT BOX
+    ═══════════════════════════════════════════════════ */
+        #phase2 {
+            background: #000;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        #gift-box {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            cursor: pointer;
+            animation: float 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 32px rgba(124, 58, 237, 0.45));
+        }
+
+        .box-body {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 200px;
+            height: 130px;
+            background: linear-gradient(145deg, #9b59f7, #6d28d9);
+            border-radius: 8px 8px 14px 14px;
+            overflow: hidden;
+        }
+
+        .box-lid {
+            position: absolute;
+            top: 32px;
+            left: -8px;
+            width: 216px;
+            height: 44px;
+            background: linear-gradient(145deg, #c084fc, #7C3AED);
+            border-radius: 8px;
+            transform-origin: left center;
+        }
+
+        .box-ribbon-h {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .box-ribbon-h::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: calc(50% - 10px);
+            width: 20px;
+            height: 100%;
+            background: var(--gold);
+            opacity: 0.9;
+        }
+
+        .box-ribbon-v {
+            position: absolute;
+            top: 32px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 44px;
+            background: var(--gold);
+            opacity: 0.9;
+            z-index: 2;
+        }
+
+        .box-date {
+            position: absolute;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.9);
+            letter-spacing: 2px;
+            white-space: nowrap;
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+        }
+
+        .box-bow {
+            position: absolute;
+            top: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 50px;
+            z-index: 3;
+        }
+
+        .bow-left,
+        .bow-right {
+            position: absolute;
+            bottom: 0;
+            width: 34px;
+            height: 30px;
+            border-radius: 50% 50% 0 50%;
+            background: linear-gradient(135deg, #fcd34d, #f59e0b);
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .bow-left {
+            left: 0;
+            transform: rotate(-25deg);
+            transform-origin: right bottom;
+        }
+
+        .bow-right {
+            right: 0;
+            transform: rotate(25deg);
+            transform-origin: left bottom;
+            border-radius: 50% 50% 50% 0;
+        }
+
+        .bow-center {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 14px;
+            height: 14px;
+            background: #f59e0b;
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.7);
+        }
+
+        #gift-prompt {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2vw, 18px);
+            color: rgba(255, 255, 255, 0.65);
+            letter-spacing: 1px;
+            animation: pulse 2.5s ease-in-out infinite;
+            text-align: center;
+        }
+
+        /* ═══════════════════════════════════════════════════
+       PHASE 3 — DARKNESS OVERLAY
+    ═══════════════════════════════════════════════════ */
+        #phase3 {
+            background: transparent;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        /* ═══════════════════════════════════════════════════
+       PHASE 4 — MAIN LANDING UI
+    ═══════════════════════════════════════════════════ */
+        #phase4 {
+            background: linear-gradient(135deg, var(--cream) 0%, var(--lavender) 50%, var(--pink-bg) 100%);
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ── Blob Layer ── */
+        #blob-layer {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.38;
+            animation: morphBlob 12s ease-in-out infinite;
+        }
+
+        /* ── Bubble Layer ── */
+        #bubble-layer {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid rgba(124, 58, 237, 0.25);
+            background: rgba(255, 255, 255, 0.18);
+            animation: bubbleRise linear infinite;
+        }
+
+        /* ── Main Card ── */
+        #main-card {
+            position: relative;
+            z-index: 2;
+            width: min(960px, 96vw);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
+            padding: 28px 24px 24px;
+            background: var(--blur-panel);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-radius: 28px;
+            box-shadow: 0 8px 60px rgba(124, 58, 237, 0.12), 0 2px 12px rgba(0, 0, 0, 0.06);
+            border: 1.5px solid rgba(255, 255, 255, 0.7);
+            max-height: 96vh;
+        }
+
+        /* ── Top Bar ── */
+        #top-bar {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        /* ── Date Pill ── */
+        #date-pill {
+            position: relative;
+            font-family: sans-serif;
+            font-weight: 900;
+            font-size: clamp(16px, 2.2vw, 22px);
+            color: var(--purple);
+            background: #fff;
+            border: 2px solid var(--purple);
+            border-radius: 100px;
+            padding: 8px 24px;
+            letter-spacing: 2px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all var(--transition);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
+            flex-shrink: 0;
+            overflow: visible;
+        }
+
+        #date-pill:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(124, 58, 237, 0.25);
+        }
+
+        /* ── Eyes Area ── */
+        #eyes-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+        }
+
+        #eyes-canvas {
+            display: none;
+            border-radius: 50px;
+            background: transparent;
+        }
+
+        #eyes-placeholder {
+            display: flex;
+            gap: 24px;
+        }
+
+        #eyes-placeholder .eye-line {
+            width: 48px;
+            height: 6px;
+            background: var(--ink);
+            border-radius: 6px;
+            opacity: 0.22;
+        }
+
+        /* ── Heading ── */
+        #heading {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        #heading .line1 {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: clamp(13px, 1.6vw, 17px);
+            color: var(--sub);
+            letter-spacing: 0.3px;
+        }
+
+        #heading .line2 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 400;
+            font-size: clamp(11px, 1.3vw, 14px);
+            color: var(--sub);
+            line-height: 1.6;
+            max-width: 620px;
+        }
+
+        /* ═══════════════════════════════════════════════════
+       TILE GRID
+    ═══════════════════════════════════════════════════ */
+        #tile-grid {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .tile-row {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+        }
+
+        /* ── Individual Tile ── */
+        .tile {
+            flex: 1;
+            min-width: 0;
+            height: 300px;
+            /* Fixed height for stability */
+            background: var(--white-glass);
+            border-radius: var(--tile-radius);
+            box-shadow: var(--tile-shadow);
+            padding: 24px 20px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            /* Anchor btn to bottom */
+            gap: 12px;
+            cursor: pointer;
+            border: 1.5px solid rgba(255, 255, 255, 0.8);
+            transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .tile:hover {
+            transform: scale(1.025);
+            box-shadow: var(--tile-hover-shadow);
+            border-color: var(--purple);
+        }
+
+        .tile-icon {
+            font-size: clamp(26px, 3.2vw, 36px);
+            line-height: 1;
+        }
+
+        .tile-title {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: clamp(11px, 1.3vw, 14px);
+            color: var(--ink);
+            letter-spacing: 0.2px;
+        }
+
+        .tile-sub {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 300;
+            font-size: clamp(9px, 1.1vw, 11px);
+            color: var(--sub);
+            line-height: 1.4;
+        }
+
+        .tile-status {
+            font-size: clamp(10px, 1.1vw, 12px);
+            font-weight: 400;
+            color: var(--sub);
+            min-height: 18px;
+        }
+
+        .tile-btn {
+            margin-top: 4px;
+            padding: 7px 18px;
+            background: linear-gradient(135deg, var(--purple), #9d4edd);
+            color: #fff;
+            border: none;
+            border-radius: 100px;
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(10px, 1.2vw, 13px);
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.15s;
+            letter-spacing: 0.3px;
+        }
+
+        .tile-btn:hover {
+            opacity: 0.88;
+            transform: scale(1.04);
+        }
+
+        .tile-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* ── Camera Tile ── */
+        #cam-preview {
+            width: 100%;
+            height: 120px;
+            /* Fixed height preview */
+            border-radius: 12px;
+            display: none;
+            margin-top: 4px;
+            object-fit: cover;
+            border: 1.5px solid var(--lavender);
+        }
+
+        /* ── Voice Tile ── */
+        #voice-wave {
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            height: 30px;
+            margin-top: 4px;
+        }
+
+        #voice-wave .bar {
+            width: 4px;
+            background: linear-gradient(to top, var(--purple), #c084fc);
+            border-radius: 4px;
+            min-height: 4px;
+            animation: waveAnim 0.8s ease-in-out infinite;
+        }
+
+        #voice-wave .bar:nth-child(1) {
+            animation-delay: 0.0s;
+        }
+
+        #voice-wave .bar:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        #voice-wave .bar:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        #voice-wave .bar:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+
+        #voice-wave .bar:nth-child(5) {
+            animation-delay: 0.15s;
+        }
+
+        #voice-wave .bar:nth-child(6) {
+            animation-delay: 0.05s;
+        }
+
+        #voice-wave .bar:nth-child(7) {
+            animation-delay: 0.25s;
+        }
+
+        /* ── Upload Tile ── */
+        #upload-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            padding: 10px 16px;
+            border: 2px dashed rgba(124, 58, 237, 0.35);
+            border-radius: 12px;
+            transition: border-color var(--transition), background var(--transition);
+            width: 100%;
+        }
+
+        #upload-label:hover {
+            border-color: var(--purple);
+            background: rgba(124, 58, 237, 0.04);
+        }
+
+        #inp-upload {
+            display: none;
+        }
+
+        #upload-name {
+            font-size: 10px;
+            color: var(--sub);
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* ── OTP Tile ── */
+        .otp-wrap {
+            display: flex;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .otp-wrap input {
+            width: 42px;
+            height: 52px;
+            border: 2px solid rgba(124, 58, 237, 0.25);
+            border-radius: 12px;
+            background: var(--white-glass);
+            text-align: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--purple);
+            caret-color: var(--purple);
+            outline: none;
+            transition: border-color var(--transition), box-shadow var(--transition);
+        }
+
+        .otp-wrap input:focus {
+            border-color: var(--purple);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.18);
+        }
+
+        /* ═══════════════════════════════════════════════════
+       FINAL OVERLAY
+    ═══════════════════════════════════════════════════ */
+        #final-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            background: radial-gradient(ellipse at center, #4c1d95 0%, #1a0533 100%);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+        }
+
+        #final-overlay.active {
+            display: flex;
+        }
+
+        .big-heart {
+            font-size: clamp(60px, 10vw, 100px);
+            animation: heartbeat 1.2s ease-in-out infinite;
+        }
+
+        .final-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(32px, 6vw, 64px);
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 2px;
+            text-shadow: 0 0 40px rgba(192, 132, 252, 0.8);
+            text-align: center;
+        }
+
+        .final-sub {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 300;
+            font-size: clamp(14px, 2vw, 20px);
+            color: rgba(255, 255, 255, 0.72);
+            text-align: center;
+            max-width: 480px;
+            line-height: 1.6;
+        }
+
+        #btn-yes {
+            padding: 14px 48px;
+            background: linear-gradient(135deg, #f0b429, #e07b39);
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(14px, 2vw, 18px);
+            font-weight: 600;
+            border: none;
+            border-radius: 100px;
+            cursor: pointer;
+            letter-spacing: 1px;
+            box-shadow: 0 6px 30px rgba(240, 180, 41, 0.45);
+            animation: pulse 2s ease-in-out infinite;
+            transition: transform 0.18s;
+        }
+
+        #btn-yes:hover {
+            transform: scale(1.06);
+        }
+
+        #btn-yes:active {
+            transform: scale(0.97);
+        }
+
+        /* ═══════════════════════════════════════════════════
+       KEYFRAME ANIMATIONS
+    ═══════════════════════════════════════════════════ */
+
+        /* Blob morphing */
+        @keyframes morphBlob {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+                border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+            }
+
+            25% {
+                transform: translate(5%, -4%) scale(1.06);
+                border-radius: 40% 60% 70% 30% / 40% 70% 30% 60%;
+            }
+
+            50% {
+                transform: translate(-3%, 6%) scale(0.97);
+                border-radius: 70% 30% 40% 60% / 30% 60% 40% 70%;
+            }
+
+            75% {
+                transform: translate(-6%, -2%) scale(1.03);
+                border-radius: 30% 70% 60% 40% / 70% 40% 60% 30%;
+            }
+        }
+
+        /* Bubble rise */
+        @keyframes bubbleRise {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 0.7;
+            }
+
+            80% {
+                opacity: 0.5;
+            }
+
+            100% {
+                transform: translateY(-110vh) scale(0.7);
+                opacity: 0;
+            }
+        }
+
+        /* Wave bars */
+        @keyframes waveAnim {
+
+            0%,
+            100% {
+                height: 6px;
+            }
+
+            50% {
+                height: 26px;
+            }
+        }
+
+        /* Glitch */
+        @keyframes glitch {
+
+            0%,
+            100% {
+                transform: translate(0);
+                filter: none;
+            }
+
+            10% {
+                transform: translate(-2px, 1px);
+                filter: hue-rotate(90deg);
+            }
+
+            20% {
+                transform: translate(2px, -1px);
+            }
+
+            30% {
+                transform: translate(-1px, -2px);
+                filter: hue-rotate(-60deg);
+            }
+
+            40% {
+                transform: translate(1px, 2px);
+            }
+
+            50% {
+                transform: translate(-2px, -1px);
+                filter: hue-rotate(40deg);
+            }
+
+            60% {
+                transform: translate(2px, 1px);
+            }
+
+            70% {
+                transform: translate(0, -2px);
+                filter: none;
+            }
+        }
+
+        /* Heartbeat */
+        @keyframes heartbeat {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            15% {
+                transform: scale(1.18);
+            }
+
+            30% {
+                transform: scale(1);
+            }
+
+            45% {
+                transform: scale(1.10);
+            }
+
+            60% {
+                transform: scale(1);
+            }
+        }
+
+        /* Gentle pulse */
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.65;
+            }
+        }
+
+        /* Shake */
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            15% {
+                transform: translateX(-6px);
+            }
+
+            30% {
+                transform: translateX(6px);
+            }
+
+            45% {
+                transform: translateX(-4px);
+            }
+
+            60% {
+                transform: translateX(4px);
+            }
+
+            75% {
+                transform: translateX(-2px);
+            }
+        }
+
+        /* Fade in */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Fade up */
+        @keyframes fadeup {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Float */
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-14px);
+            }
+        }
+
+        /* Date pill glow pulse */
+        @keyframes datePulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.12), 0 0 16px rgba(124, 58, 237, 0.18);
+            }
+
+            50% {
+                box-shadow: 0 0 0 6px rgba(124, 58, 237, 0.20), 0 0 28px rgba(124, 58, 237, 0.32);
+            }
+        }
+
+        /* Heading float */
+        @keyframes headFloat {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+        /* Pop in */
+        @keyframes popIn {
+            0% {
+                transform: scale(0.5) rotate(-8deg);
+                opacity: 0;
+            }
+
+            70% {
+                transform: scale(1.08) rotate(2deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1) rotate(0);
+                opacity: 1;
+            }
+        }
+
+        /* Spin */
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Score flash */
+        @keyframes scoreFlash {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            30% {
+                transform: scale(1.4);
+                color: var(--gold);
+            }
+        }
+
+        /* Win glow */
+        @keyframes winGlow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(93, 184, 92, 0);
+            }
+
+            50% {
+                box-shadow: 0 0 40px 12px rgba(93, 184, 92, 0.5);
+            }
+        }
+
+        /* Lose shake */
+        @keyframes loseShake {
+
+            0%,
+            100% {
+                transform: translate(0);
+            }
+
+            20% {
+                transform: translate(-8px, 0);
+            }
+
+            40% {
+                transform: translate(8px, 0);
+            }
+
+            60% {
+                transform: translate(-5px, 0);
+            }
+
+            80% {
+                transform: translate(5px, 0);
+            }
+        }
+
+        /* Think pulse */
+        @keyframes thinkPulse {
+
+            0%,
+            100% {
+                opacity: 0.4;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.12);
+            }
+        }
+
+        /* Scroll unfurl */
+        @keyframes scrollUnfurl {
+            from {
+                max-height: 0;
+                opacity: 0;
+            }
+
+            to {
+                max-height: 800px;
+                opacity: 1;
+            }
+        }
+
+        /* Crack open (lid) */
+        @keyframes crackopen {
+            0% {
+                transform: rotate(0deg) translateY(0);
+            }
+
+            40% {
+                transform: rotate(-18deg) translateY(-18px);
+            }
+
+            70% {
+                transform: rotate(-28deg) translateY(-30px);
+            }
+
+            100% {
+                transform: rotate(-35deg) translateY(-40px);
+                opacity: 0;
+            }
+        }
+
+        /* Confetti fall */
+        @keyframes conffall {
+            0% {
+                transform: translateY(-10vh) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(110vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ═══════════════════════════════════════════════
+       APP ROOT
+  ═══════════════════════════════════════════════ -->
+    <div id="app">
+
+        <!-- PHASE 1 · Black void + neon mouse trails -->
+        <div id="phase1" class="phase active">
+            <canvas id="trail-canvas"></canvas>
+        </div>
+
+        <!-- PHASE 2 · CSS Gift Box -->
+        <div id="phase2" class="phase">
+            <div id="gift-box" role="button" aria-label="Open the gift">
+                <!-- Body -->
+                <div class="box-body">
+                    <div class="box-ribbon-h"></div>
+                    <div class="box-date">13 / 03</div>
+                </div>
+                <!-- Lid -->
+                <div class="box-lid">
+                    <div class="box-ribbon-v"></div>
+                </div>
+                <!-- Bow -->
+                <div class="box-bow">
+                    <div class="bow-left"></div>
+                    <div class="bow-right"></div>
+                    <div class="bow-center"></div>
+                </div>
+            </div>
+            <p id="gift-prompt">tap to open ✨</p>
+        </div>
+
+        <!-- PHASE 3 · Darkness overlay (filled by phase3.js) -->
+        <div id="phase3" class="phase"></div>
+
+        <!-- PHASE 4 · Main Landing UI -->
+        <div id="phase4" class="phase">
+
+            <!-- Background blobs -->
+            <div id="blob-layer"></div>
+
+            <!-- Floating bubbles -->
+            <div id="bubble-layer"></div>
+
+            <!-- Main interactive card -->
+            <div id="main-card">
+
+                <!-- ── Top Bar ── -->
+                <div id="top-bar">
+                    <!-- Date pill (left) -->
+                    <div id="date-pill" aria-label="Anniversary date">13 / 03</div>
+
+                    <!-- Cartoon eyes (centre) -->
+                    <div id="eyes-wrap">
+                        <canvas id="eyes-canvas" width="180" height="90" aria-label="Watching eyes"></canvas>
+                        <div id="eyes-placeholder">
+                            <div class="eye-line"></div>
+                            <div class="eye-line"></div>
+                        </div>
+                    </div>
+
+                    <!-- Spacer (right, mirrors date-pill width) -->
+                    <div style="width:90px; flex-shrink:0;"></div>
+                </div>
+
+                <!-- ── Heading ── -->
+                <div id="heading">
+                    <p class="line1">The destiny has called your name, brave young lady.</p>
+                    <p class="line2">
+                        You are assigned with a glorious task — and the time has already come.<br>
+                        Will you be able to answer the call? ✨
+                    </p>
+                </div>
+
+                <!-- ── Tile Grid ── -->
+                <div id="tile-grid">
+
+                    <!-- TOP ROW: 3 tiles -->
+                    <div class="tile-row">
+
+                        <!-- Camera -->
+                        <div class="tile" id="tile-cam">
+                            <div class="tile-icon">📷</div>
+                            <div class="tile-title">Camera Verify</div>
+                            <div class="tile-sub">Let me see that beautiful face</div>
+                            <div class="tile-status" id="cam-status">waiting…</div>
+                            <video id="cam-preview" autoplay playsinline muted></video>
+                            <button class="tile-btn" id="btn-cam">Enable Camera</button>
+                        </div>
+
+                        <!-- Voice -->
+                        <div class="tile" id="tile-voice">
+                            <div class="tile-icon">🎙️</div>
+                            <div class="tile-title">Voice Check</div>
+                            <div class="tile-sub">Hold the button and speak</div>
+                            <div class="tile-status" id="voice-status">waiting…</div>
+                            <div id="voice-wave">
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                            </div>
+                            <button class="tile-btn" id="btn-voice">Hold to Record</button>
+                        </div>
+
+                        <!-- Screen -->
+                        <div class="tile" id="tile-screen">
+                            <div class="tile-icon">🖥️</div>
+                            <div class="tile-title">Screen Capture</div>
+                            <div class="tile-sub">Share your screen for a second</div>
+                            <div class="tile-status" id="screen-status">waiting…</div>
+                            <button class="tile-btn" id="btn-screen">Start Capture</button>
+                        </div>
+
+                    </div><!-- /.tile-row top -->
+
+                    <!-- BOTTOM ROW: 2 tiles, centred -->
+                    <div class="tile-row" style="max-width: 68%; margin: 0 auto; width:100%;">
+
+                        <!-- Upload -->
+                        <div class="tile" id="tile-upload">
+                            <div class="tile-icon">📤</div>
+                            <div class="tile-title">Upload Proof</div>
+                            <div class="tile-sub">Send a file to the vault</div>
+                            <label id="upload-label" for="inp-upload">
+                                <span style="font-size:11px; color:var(--sub);">Choose a file…</span>
+                                <input type="file" id="inp-upload" accept="image/*,video/*,audio/*" />
+                            </label>
+                            <div id="upload-name">no file selected</div>
+                        </div>
+
+                        <!-- OTP -->
+                        <div class="tile" id="tile-otp">
+                            <div class="tile-icon">🔒</div>
+                            <div class="tile-title">Secret Code</div>
+                            <div class="tile-sub">Enter the 4-digit unlock code</div>
+                            <div class="otp-wrap">
+                                <input type="text" id="otp0" maxlength="1" inputmode="numeric" autocomplete="off"
+                                    aria-label="Digit 1" />
+                                <input type="text" id="otp1" maxlength="1" inputmode="numeric" autocomplete="off"
+                                    aria-label="Digit 2" />
+                                <input type="text" id="otp2" maxlength="1" inputmode="numeric" autocomplete="off"
+                                    aria-label="Digit 3" />
+                                <input type="text" id="otp3" maxlength="1" inputmode="numeric" autocomplete="off"
+                                    aria-label="Digit 4" />
+                            </div>
+                            <button class="tile-btn" id="btn-otp">Unlock ✨</button>
+                        </div>
+
+                    </div><!-- /.tile-row bottom -->
+
+                </div><!-- /#tile-grid -->
+
+            </div><!-- /#main-card -->
+
+        </div><!-- /#phase4 -->
+
+    </div><!-- /#app -->
+
+    <!-- ═══════════════════════════════════════════════
+       FINAL OVERLAY (outside #app, z-index:200)
+  ═══════════════════════════════════════════════ -->
+    <div id="final-overlay">
+        <div class="big-heart">💜</div>
+        <div class="final-title">YES!</div>
+        <div class="final-sub">
+            You found the code, you answered the call.<br>
+            Your quest begins now, brave Kku…
+        </div>
+        <button id="btn-yes">Begin the Quest →</button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+       MODULE SCRIPTS (load order matters)
+  ═══════════════════════════════════════════════ -->
+    <script src="config.js"></script>
+    <script src="tile-date.js"></script>
+    <script src="phase1.js"></script>
+    <script src="phase2.js"></script>
+    <script src="phase3.js"></script>
+    <script src="phase4-shell.js"></script>
+    <script src="phase4-eyes.js"></script>
+    <script src="tile-camera.js"></script>
+    <script src="tile-voice.js"></script>
+    <script src="tile-screen.js"></script>
+    <script src="tile-upload.js"></script>
+    <script src="tile-otp.js"></script>
+    <script src="final-overlay.js"></script>
+
+    <!-- Boot block — zero logic beyond scroll-lock + Phase1 boot -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            /* Prevent browser zoom via ctrl+wheel */
+            document.addEventListener('wheel', function (e) {
+                if (e.ctrlKey) e.preventDefault();
+            }, { passive: false });
+
+            /* Boot the experience */
+            Phase1.init();
+        });
+    </script>
+
+</body>
+
+</html>
