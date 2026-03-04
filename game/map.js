@@ -192,7 +192,10 @@ window.Map = (function () {
       <div class="level-list">
         ${levels.map((file, idx) => {
       const id = file.replace('level-', '').replace('.js', '');
-      const config = C.LEVEL_METADATA[id] || { title: `Level ${id}`, type: 'trap', icon: '❓' };
+      const reg = (window.LEVEL_REGISTRY || []).find(r => String(r.id) === String(id));
+      const config = reg
+        ? { title: reg.title, type: reg.type || 'trap', icon: reg.icon || '❓' }
+        : { title: `Level ${id}`, type: 'trap', icon: '❓' };
       const isCompleted = S.completed.has(id);
       const isUnlocked = checkLock(id, idx);
 

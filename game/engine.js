@@ -104,6 +104,11 @@
             }
             v.classList.add('active');
             window.STATE.currentView = viewId;
+
+            // Render the map whenever we navigate to it
+            if (viewId === 'v-map' && window.Map && window.Map.init) {
+                window.Map.init(v);
+            }
         },
 
         loseLife: function () {
