@@ -1,0 +1,27 @@
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor folders
+.vscode/
+.idea/
+
+# Local notes (keep secrets off GitHub)
+*.env
+secrets.txt
+notes.txt
+
+# Node (if you ever add tooling)
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Keep these folders but ignore their runtime contents
+uploads/*
+!uploads/.gitkeep
+
+vault/*
+!vault/.gitkeep

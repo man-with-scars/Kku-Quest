@@ -1,0 +1,87 @@
+name: Deploy Kku-Quest to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:   # allows manual trigger from GitHub Actions tab
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify required files exist
+        run: |
+          echo "--- Checking required files ---"
+          
+          required_files=(
+            "landing/index.html"
+            "landing/config.js"
+            "game/index.html"
+            "game/config.js"
+            "game/engine.js"
+            "otp.txt"
+          )
+          
+          missing=0
+          for f in "${required_files[@]}"; do
+            if [ -f "$f" ]; then
+              echo "✅  $f"
+            else
+              echo "❌  MISSING: $f"
+              missing=$((missing + 1))
+            fi
+          done
+          
+          echo ""
+          echo "--- Checking level files ---"
+          level_count=$(find game/levels -name "*.js" 2>/dev/null | wc -l)
+          echo "Found $level_count level files in game/levels/"
+          
+          if [ $missing -gt 0 ]; then
+            echo ""
+            echo "⚠️  $missing required file(s) missing. Deploy will continue but game may not work correctly."
+          fi
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload site to Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'   # upload the entire repo root as the site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Print live URLs
+        run: |
+          echo ""
+          echo "🚀 Deployment complete!"
+          echo ""
+          echo "🌸 Landing page:"
+          echo "   ${{ steps.deployment.outputs.page_url }}landing/"
+          echo ""
+          echo "🎮 Game:"
+          echo "   ${{ steps.deployment.outputs.page_url }}game/"
+          echo ""
+          echo "🔑 OTP file (raw):"
+          echo "   https://raw.githubusercontent.com/${{ github.repository }}/main/otp.txt"
