@@ -295,30 +295,45 @@ window.Phase2 = (function () {
 
     function updateFireflies() {
         var W = window.innerWidth, H = window.innerHeight;
+        var mouseNear = (_mouse.x > -999); /* has mouse moved onto page */
+
         for (var i = 0; i < _fireflies.length; i++) {
             var f = _fireflies[i];
 
+            /* Vector toward the mouse */
+            var dx = _mouse.x - f.x;
+            var dy = _mouse.y - f.y;
+            var dist = Math.sqrt(dx * dx + dy * dy);
+
             if (f.isOrbit) {
+                /* Orbit fireflies: keep circling but ALSO gradually pull the
+                   orbit centre toward the cursor, so they spiral and swarm around it */
                 f.angle += 0.016;
+                if (mouseNear && dist > 0) {
+                    var pull = Math.min(dist, 200) / 200 * 0.8; /* max 0.8 px/frame drift */
+                    f.cx += (dx / dist) * pull;
+                    f.cy += (dy / dist) * pull;
+                }
                 f.x = f.cx + Math.cos(f.angle) * f.radius;
                 f.y = f.cy + Math.sin(f.angle) * f.radius;
             } else {
+                /* Drift / scout fireflies: steer toward mouse with a soft force */
                 f.vx += (Math.random() - 0.5) * 0.04;
                 f.vy += (Math.random() - 0.5) * 0.04;
+
+                if (mouseNear && dist > 0) {
+                    /* Attraction: stronger when mouse is far (up to ~300 px), fades to 0 up close */
+                    var attract = Math.min(dist, 300) / 300;
+                    var aStr = f.isScout ? 0.25 : 0.12;
+                    f.vx += (dx / dist) * attract * aStr;
+                    f.vy += (dy / dist) * attract * aStr;
+                }
+
                 var spd = Math.sqrt(f.vx * f.vx + f.vy * f.vy);
-                var cap = f.isScout ? 3.2 : 1.4;
+                var cap = f.isScout ? 3.2 : 1.6;
                 if (spd > cap) { f.vx = f.vx / spd * cap; f.vy = f.vy / spd * cap; }
                 f.vx *= 0.97; f.vy *= 0.97;
                 f.x += f.vx; f.y += f.vy;
-            }
-
-            /* Mouse repulsion */
-            var dx = f.x - _mouse.x, dy = f.y - _mouse.y;
-            var dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist > 0 && dist < 130) {
-                var force = (130 - dist) / 130 * 0.18;
-                f.vx += dx / dist * force;
-                f.vy += dy / dist * force;
             }
 
             /* Wrap */
