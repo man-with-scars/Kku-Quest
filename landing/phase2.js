@@ -12,7 +12,7 @@ window.Phase2 = (function () {
     var _isLocked = true;
     var _unlockTimer = null;
 
-    /* Dev-mode: persisted in sessionStorage so it survives hot-reload but resets on new session */
+    /* Dev-mode: persisted in sessionStorage */
     var _DEV_CODE = '00365';
     var _devUnlocked = (sessionStorage.getItem('devMode') === '1');
 
@@ -22,36 +22,40 @@ window.Phase2 = (function () {
         el.id = 'phase2-styles';
         el.textContent = [
             /*
-             * #phase2 is already: display:flex; flex-direction:column;
-             * align-items:center; justify-content:center  (from index.html)
-             * So we do NOT use position:absolute here – let flex do the centering.
+             * IMPORTANT: Do NOT set position on #phase2 here —
+             * it inherits position:absolute;inset:0 from .phase, which
+             * fills the whole viewport and lets flex-center work correctly.
              */
             '#phase2 {',
             '  background: radial-gradient(circle at center, #130223 0%, #000 70%) !important;',
-            '  animation: envPulse 4s ease-in-out infinite;',
-            '  overflow: hidden; position: relative;',
+            '  animation: envPulse2 5s ease-in-out infinite !important;',
+            '  overflow: hidden;',
             '}',
 
-            /* Gift-box: a normal flex child – width/height/cursor override */
+            /*
+             * Gift-box sits as a normal flex child of #phase2 (flex-column, centered).
+             * We do NOT use position:absolute — we let the parent flex layout centre it.
+             */
             '#gift-box {',
-            '  position: relative;',
-            '  width: 220px; height: 220px;',
-            '  cursor: pointer; z-index: 10;',
-            '  display: flex; align-items: center; justify-content: center;',
+            '  position: relative !important;',
+            '  width: 220px !important; height: 220px !important;',
+            '  cursor: pointer !important;',
+            '  display: flex !important; align-items: center !important; justify-content: center !important;',
             '  perspective: 900px;',
-            '  animation: boxFloat 3.5s ease-in-out infinite;',
-            '  filter: drop-shadow(0 0 28px rgba(124,58,237,0.45));',
-            '  transition: transform 0.5s cubic-bezier(0.175,0.885,0.32,1.275), filter 0.5s;',
+            '  animation: boxFloat2 3.5s ease-in-out infinite !important;',
+            '  filter: drop-shadow(0 0 28px rgba(124,58,237,0.5));',
+            '  transition: filter 0.5s;',
+            '  top: auto !important; left: auto !important; transform: none;',
             '}',
-            '#gift-box.locked { cursor: not-allowed; }',
-            '#gift-box.opening { pointer-events: none; animation: none; }',
-            '#gift-box:not(.locked):hover { filter: drop-shadow(0 0 44px rgba(168,85,247,0.7)); }',
+            '#gift-box.locked { cursor: not-allowed !important; }',
+            '#gift-box.opening { pointer-events: none !important; animation: none !important; }',
+            '#gift-box:not(.locked):hover { filter: drop-shadow(0 0 48px rgba(168,85,247,0.75)) !important; }',
 
-            /* 3-D World */
+            /* 3-D cube world */
             '.cube-world {',
             '  width: 160px; height: 160px; position: relative;',
             '  transform-style: preserve-3d;',
-            '  animation: orbitalRotate 12s linear infinite;',
+            '  animation: orbitalRotate2 12s linear infinite;',
             '  transition: transform 1.2s ease, animation-play-state 0.3s;',
             '}',
             '#gift-box.opening .cube-world {',
@@ -59,7 +63,7 @@ window.Phase2 = (function () {
             '  transform: rotateX(-12deg) rotateY(25deg) scale(1.1);',
             '}',
 
-            /* Faces – every face anchored at top:0 left:0 within cube-world */
+            /* Cube faces — half-size 80 px */
             '.face {',
             '  position: absolute; top: 0; left: 0;',
             '  width: 160px; height: 160px;',
@@ -71,25 +75,22 @@ window.Phase2 = (function () {
             '  display: flex; align-items: center; justify-content: center;',
             '  transition: transform 1.4s cubic-bezier(0.4,0,0.2,1), opacity 1s;',
             '}',
-
-            /* Cube half-size = 80 px */
             '.face.front  { transform: rotateY(  0deg) translateZ(80px); }',
             '.face.back   { transform: rotateY(180deg) translateZ(80px); }',
             '.face.right  { transform: rotateY( 90deg) translateZ(80px); }',
             '.face.left   { transform: rotateY(-90deg) translateZ(80px); }',
-            /* Lid – pivot at the midpoint of the face */
-            '.face.top    { transform: rotateX( 90deg) translateZ(80px); transform-origin: center center; }',
+            '.face.top    { transform: rotateX( 90deg) translateZ(80px); }',
             '.face.bottom { transform: rotateX(-90deg) translateZ(80px); }',
 
-            /* Lid opens: rotates further back and slides upward */
+            /* Lid opens upward */
             '#gift-box.opening .face.top {',
-            '  transform: rotateX(130deg) translateZ(80px) translateY(-60px);',
+            '  transform: rotateX(130deg) translateZ(80px) translateY(-55px);',
             '  opacity: 0.2;',
             '}',
 
             /* Engraved 13 */
             '.engraved-13 {',
-            '  font-family: "Poppins", sans-serif; font-weight: 800; font-size: 76px;',
+            '  font-family: "Poppins",sans-serif; font-weight: 800; font-size: 76px;',
             '  color: rgba(255,255,255,0.05);',
             '  text-shadow: -1px -1px 1px rgba(0,0,0,0.6), 1px 1px 1px rgba(255,255,255,0.18);',
             '  user-select: none; letter-spacing: -5px;',
@@ -105,7 +106,7 @@ window.Phase2 = (function () {
             '#gift-box.opening .ribbon-face { opacity: 0; }',
             '.rv-f { width:28px; height:160px; left:66px; transform: rotateY(  0deg) translateZ(81px); }',
             '.rv-b { width:28px; height:160px; left:66px; transform: rotateY(180deg) translateZ(81px); }',
-            '.rv-t { width:28px; height:160px; left:66px; transform: rotateX(90deg) translateZ(81px); }',
+            '.rv-t { width:28px; height:160px; left:66px; transform: rotateX( 90deg) translateZ(81px); }',
             '.rh-f { width:160px; height:28px; top:66px;  transform: rotateY(  0deg) translateZ(81px); }',
             '.rh-b { width:160px; height:28px; top:66px;  transform: rotateY(180deg) translateZ(81px); }',
             '.rh-l { width:160px; height:28px; top:66px;  transform: rotateY(-90deg) translateZ(81px); }',
@@ -136,53 +137,56 @@ window.Phase2 = (function () {
             '  box-shadow: 0 0 8px rgba(168,85,247,0.6);',
             '}',
 
-            /* ── Volumetric 3D Flame ──
-             * Three teardrop planes at 0 / 60 / 120 degrees.
-             * The container lives inside the cube and uses position:absolute.
-             * During opening we switch the container to position:fixed and
-             * grow it to 120vmax so it really fills the screen.
+            /*
+             * FLAME — Two 2-D teardrop planes arranged as a + cross (top-view).
+             * Plane A: rotateY(0deg)   — front / back axis
+             * Plane B: rotateY(90deg)  — left / right axis
+             * Together they form a + when seen from above, giving the illusion of volume.
              */
             '.magic-flame-container {',
             '  position: absolute; top: 50%; left: 50%;',
-            '  width: 0; height: 0;',   /* zero-size anchor */
+            '  width: 0; height: 0;',
             '  transform-style: preserve-3d;',
-            '  transition: none;',
             '}',
             '.flame-plane {',
             '  position: absolute;',
-            '  width: 46px; height: 74px;',
-            '  margin-left: -23px; margin-top: -74px;', /* anchor bottom-center at origin */
-            '  background: radial-gradient(ellipse at 50% 95%, #fff 0%, #fcd34d 28%, #f59e0b 55%, rgba(245,158,11,0) 80%);',
+            '  width: 52px; height: 80px;',
+            '  margin-left: -26px; margin-top: -80px;', /* bottom-center at container origin */
+            '  background: radial-gradient(ellipse at 50% 95%,',
+            '    rgba(255,255,255,0.9) 0%,',
+            '    rgba(252,211,77,0.85) 22%,',
+            '    rgba(245,158,11,0.75) 50%,',
+            '    rgba(245,158,11,0) 78%);',
             '  border-radius: 55% 55% 15% 15%;',
-            '  filter: blur(3px);',
+            '  filter: blur(3.5px);',
             '  mix-blend-mode: screen;',
             '}',
-            '.f-p1 { transform: rotateY(  0deg); animation: flameA 0.18s ease-in-out infinite alternate; }',
-            '.f-p2 { transform: rotateY( 60deg); animation: flameA 0.22s ease-in-out infinite alternate-reverse; }',
-            '.f-p3 { transform: rotateY(120deg); animation: flameA 0.26s ease-in-out infinite alternate; }',
-
-            '@keyframes flameA {',
+            /* Axis A – front-back plane */
+            '.f-pa {',
+            '  transform: rotateY(0deg);',
+            '  animation: flameWigA 0.18s ease-in-out infinite alternate;',
+            '}',
+            /* Axis B – left-right plane (perpendicular → forms the + cross) */
+            '.f-pb {',
+            '  transform: rotateY(90deg);',
+            '  animation: flameWigA 0.22s ease-in-out infinite alternate-reverse;',
+            '}',
+            '@keyframes flameWigA {',
             '  from { transform: rotateY(var(--fry,0deg)) scaleX(0.88) scaleY(0.94); opacity:.82; }',
             '  to   { transform: rotateY(var(--fry,0deg)) scaleX(1.12) scaleY(1.07); opacity:1;   }',
             '}',
-            '.f-p1 { --fry:  0deg; }',
-            '.f-p2 { --fry: 60deg; }',
-            '.f-p3 { --fry:120deg; }',
+            '.f-pa { --fry:  0deg; }',
+            '.f-pb { --fry: 90deg; }',
 
-            /*
-             * Opening ─ step 1: flame rises out of the box.
-             * We do this in JS by switching to position:fixed and animating
-             * a growing radial glow overlay instead of scaling the tiny planes,
-             * which avoids the "stops midway" artefact.
-             */
+            /* Fullscreen radial overlay (built in JS) */
             '.flame-overlay {',
             '  position: fixed; inset: 0; pointer-events: none; z-index: 900;',
-            '  background: radial-gradient(circle at var(--ox, 50%) var(--oy, 40%),',
-            '     #fff 0%, #fcd34d 15%, #f59e0b 35%, transparent 65%);',
-            '  opacity: 0; transition: opacity 0.15s ease;',
+            '  background: radial-gradient(circle at var(--ox,50%) var(--oy,40%),',
+            '    #fff 0%, #fcd34d 18%, #f59e0b 38%, rgba(0,0,0,0) 65%);',
+            '  opacity: 0; transition: opacity 0.12s ease;',
             '}',
 
-            /* Fireflies – fixed so translate starts at true screen (0,0) */
+            /* Fireflies: position:fixed so translate is relative to viewport (0,0) */
             '.firefly {',
             '  position: fixed; top: 0; left: 0;',
             '  border-radius: 50%; pointer-events: none;',
@@ -191,39 +195,44 @@ window.Phase2 = (function () {
             '  transition: opacity 1s ease; will-change: transform;',
             '}',
 
-            /* Prompt – flex child of #phase2, appears directly below box */
+            /* Prompt — flex child, appears directly below box */
             '#gift-prompt {',
-            '  font-family: "Playfair Display", serif; font-size: 15px;',
+            '  font-family: "Playfair Display",serif; font-size: 15px;',
             '  color: rgba(255,255,255,0.35); letter-spacing: 2px;',
-            '  animation: textGlow 2.5s ease-in-out infinite;',
+            '  animation: tGlow2 2.5s ease-in-out infinite;',
             '  text-align: center; max-width: 90vw;',
             '  transition: color 0.6s, letter-spacing 0.6s;',
             '}',
             '#gift-prompt.active { color: rgba(245,158,11,0.9); letter-spacing: 4px; }',
 
-            /* Tap feedback ring */
+            /* Tap ring */
             '.tap-ring {',
-            '  position: fixed; border-radius: 50%;',
-            '  border: 2px solid rgba(168,85,247,0.6);',
-            '  pointer-events: none; z-index: 50;',
-            '  animation: ringOut 0.5s ease-out forwards;',
+            '  position: fixed; border-radius: 50%; pointer-events: none; z-index: 50;',
+            '  border: 2px solid rgba(168,85,247,0.7);',
+            '  animation: ringOut2 0.55s ease-out forwards;',
             '}',
-            '@keyframes ringOut { from{width:0;height:0;opacity:.9} to{width:120px;height:120px;opacity:0;margin:-60px} }',
+            '@keyframes ringOut2 {',
+            '  from{width:0;height:0;margin:0;opacity:.9}',
+            '  to  {width:110px;height:110px;margin:-55px;opacity:0}',
+            '}',
 
-            /* Keyframes */
-            '@keyframes orbitalRotate { from{transform:rotateX(-15deg) rotateY(0deg)} to{transform:rotateX(-15deg) rotateY(360deg)} }',
-            '@keyframes boxFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }',
-            '@keyframes envPulse  { 0%,100%{background-size:100% 100%} 50%{background-size:110% 110%} }',
-            '@keyframes textGlow  { 0%,100%{opacity:.35;transform:scale(1)} 50%{opacity:.85;transform:scale(1.04)} }',
-
-            /* Dev-mode toast */
-            '#dev-toast {',
-            '  position: fixed; bottom: 20px; right: 20px; z-index: 9999;',
-            '  background: rgba(124,58,237,0.85); color:#fff;',
-            '  font-family:"Poppins",sans-serif; font-size:12px; padding:8px 14px;',
+            /* Dev toast */
+            '#dev-toast2 {',
+            '  position: fixed; bottom: 18px; right: 18px; z-index: 9999;',
+            '  background: rgba(109,40,217,0.9); color:#fff;',
+            '  font-family:"Poppins",sans-serif; font-size:12px; padding:7px 13px;',
             '  border-radius: 8px; pointer-events:none; opacity:0;',
             '  transition: opacity 0.4s;',
-            '}'
+            '}',
+
+            /* Keyframes */
+            '@keyframes orbitalRotate2 {',
+            '  from{transform:rotateX(-15deg) rotateY(  0deg)}',
+            '  to  {transform:rotateX(-15deg) rotateY(360deg)}',
+            '}',
+            '@keyframes boxFloat2 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-11px)} }',
+            '@keyframes envPulse2  { 0%,100%{opacity:.85} 50%{opacity:1} }',
+            '@keyframes tGlow2     { 0%,100%{opacity:.35;transform:scale(1)} 50%{opacity:.85;transform:scale(1.04)} }'
         ].join('\n');
         document.head.appendChild(el);
         return el;
@@ -244,8 +253,8 @@ window.Phase2 = (function () {
             _fireflies.push({
                 el: el,
                 x: Math.random() * W, y: Math.random() * H,
-                vx: (Math.random() - 0.5) * (scout ? 3.5 : 1.2),
-                vy: (Math.random() - 0.5) * (scout ? 3.5 : 1.2),
+                vx: (Math.random() - 0.5) * (scout ? 3.0 : 1.0),
+                vy: (Math.random() - 0.5) * (scout ? 3.0 : 1.0),
                 type: roll,
                 angle: Math.random() * Math.PI * 2,
                 radius: 30 + Math.random() * 70,
@@ -262,14 +271,14 @@ window.Phase2 = (function () {
         for (var i = 0; i < _fireflies.length; i++) {
             var f = _fireflies[i];
             if (f.type >= 0.05 && f.type < 0.18) {
-                f.angle += 0.018 + f.type * 0.01;
+                f.angle += 0.016 + f.type * 0.01;
                 f.x = f.cx + Math.cos(f.angle) * f.radius;
                 f.y = f.cy + Math.sin(f.angle) * f.radius;
             } else {
                 f.vx += (Math.random() - 0.5) * 0.04;
                 f.vy += (Math.random() - 0.5) * 0.04;
                 var spd = Math.sqrt(f.vx * f.vx + f.vy * f.vy);
-                var cap = (f.type < 0.05) ? 3.5 : 1.5;
+                var cap = (f.type < 0.05) ? 3.0 : 1.4;
                 if (spd > cap) { f.vx = f.vx / spd * cap; f.vy = f.vy / spd * cap; }
                 f.vx *= 0.97; f.vy *= 0.97;
                 f.x += f.vx; f.y += f.vy;
@@ -301,10 +310,10 @@ window.Phase2 = (function () {
             '  <div class="face right"></div>',
             '  <div class="face top"></div>',
             '  <div class="face bottom"></div>',
+            '  <!-- + Cross flame: two perpendicular 2D planes -->',
             '  <div class="magic-flame-container">',
-            '    <div class="flame-plane f-p1"></div>',
-            '    <div class="flame-plane f-p2"></div>',
-            '    <div class="flame-plane f-p3"></div>',
+            '    <div class="flame-plane f-pa"></div>',
+            '    <div class="flame-plane f-pb"></div>',
             '  </div>',
             '  <div class="cube-bow">',
             '    <div class="bow-loop left"></div>',
@@ -322,14 +331,12 @@ window.Phase2 = (function () {
         ].join('');
     }
 
-    /* ─── Dev toast helper ─── */
+    /* ─── Toast ─── */
     function showToast(msg) {
-        var t = document.getElementById('dev-toast') || (function () {
-            var el = document.createElement('div'); el.id = 'dev-toast';
-            document.body.appendChild(el); return el;
-        }());
+        var t = document.getElementById('dev-toast2');
+        if (!t) { t = document.createElement('div'); t.id = 'dev-toast2'; document.body.appendChild(t); }
         t.textContent = msg; t.style.opacity = '1';
-        setTimeout(function () { t.style.opacity = '0'; }, 2000);
+        setTimeout(function () { t.style.opacity = '0'; }, 2200);
     }
 
     /* ─── Init ─── */
@@ -343,7 +350,6 @@ window.Phase2 = (function () {
         var prompt = document.getElementById('gift-prompt');
         if (!phase2 || !box || !prompt) return;
 
-        /* Reset */
         box.className = 'locked';
         box.innerHTML = buildHTML();
         prompt.textContent = 'Wait\u2026 Chu has planned a gift for you.';
@@ -352,7 +358,7 @@ window.Phase2 = (function () {
         initFireflies();
         updateFireflies();
 
-        /* Unlock after exactly 7 seconds – hard lock in click handler */
+        /* Hard 7-second unlock */
         _unlockTimer = setTimeout(function () {
             _isLocked = false;
             box.classList.remove('locked');
@@ -360,36 +366,30 @@ window.Phase2 = (function () {
             prompt.classList.add('active');
         }, 7000);
 
-        /* Mouse tracking for firefly repulsion */
         window.addEventListener('mousemove', onMouseMove);
-
-        /* Box click */
         _onClickBox = onBoxClick;
         box.addEventListener('click', _onClickBox);
 
-        /* Dev / God-mode: Alt key */
+        /* Dev mode: Ctrl+M */
         _onKeyDown = onKeyDown;
         window.addEventListener('keydown', _onKeyDown);
     }
 
-    /* ─── Mouse ─── */
     function onMouseMove(e) { _mouse.x = e.clientX; _mouse.y = e.clientY; }
 
-    /* ─── Click ─── */
     function onBoxClick(e) {
-        if (_isLocked) return; /* Hard 7-s block */
+        if (_isLocked) return; /* hard block */
 
-        /* Visual tap ring */
         spawnRing(e.clientX, e.clientY);
-
         _tapCount++;
+
         if (_tapCount >= 3) {
             triggerOpening();
         } else {
             var deg = (Math.random() * 10 - 5).toFixed(1);
             var box = document.getElementById('gift-box');
-            box.style.transform = 'translateY(-12px) scale(1.08) rotate(' + deg + 'deg)';
-            setTimeout(function () { box.style.transform = ''; }, 230);
+            box.style.transform = 'translateY(-10px) scale(1.07) rotate(' + deg + 'deg)';
+            setTimeout(function () { box.style.transform = ''; }, 220);
         }
     }
 
@@ -398,10 +398,10 @@ window.Phase2 = (function () {
         r.className = 'tap-ring';
         r.style.left = x + 'px'; r.style.top = y + 'px';
         document.body.appendChild(r);
-        setTimeout(function () { if (r.parentNode) r.parentNode.removeChild(r); }, 600);
+        setTimeout(function () { if (r.parentNode) r.parentNode.removeChild(r); }, 650);
     }
 
-    /* ─── Opening Cinematic ─── */
+    /* ─── Cinematic Opening ─── */
     function triggerOpening() {
         var box = document.getElementById('gift-box');
         var prompt = document.getElementById('gift-prompt');
@@ -410,48 +410,42 @@ window.Phase2 = (function () {
         box.classList.add('opening');
         if (prompt) prompt.style.opacity = '0';
 
-        /* Build flame overlay anchored to box center in viewport */
+        /* Build fullscreen overlay anchored to box centre */
         var overlay = document.createElement('div');
         overlay.className = 'flame-overlay';
         var rect = box.getBoundingClientRect();
-        var cx = ((rect.left + rect.right) / 2 / window.innerWidth * 100).toFixed(1) + '%';
-        var cy = ((rect.top + rect.bottom) / 2 / window.innerHeight * 100).toFixed(1) + '%';
-        overlay.style.setProperty('--ox', cx);
-        overlay.style.setProperty('--oy', cy);
+        overlay.style.setProperty('--ox', ((rect.left + rect.right) / 2 / window.innerWidth * 100).toFixed(1) + '%');
+        overlay.style.setProperty('--oy', ((rect.top + rect.bottom) / 2 / window.innerHeight * 100).toFixed(1) + '%');
         document.body.appendChild(overlay);
 
-        /* Ramp opacity: 0 → 0.4 (rise), then 0.4 → 1 (overwhelm) */
         var start = null;
-        var RISE_MS = 2000, FILL_MS = 1500;
-        function animOverlay(ts) {
+        var RISE = 2000, FILL = 1600;
+        function anim(ts) {
             if (!start) start = ts;
-            var elapsed = ts - start;
-            if (elapsed < RISE_MS) {
-                overlay.style.opacity = (elapsed / RISE_MS * 0.5).toFixed(3);
-                requestAnimationFrame(animOverlay);
-            } else if (elapsed < RISE_MS + FILL_MS) {
-                var t2 = (elapsed - RISE_MS) / FILL_MS;
-                overlay.style.opacity = (0.5 + t2 * 0.5).toFixed(3);
-                requestAnimationFrame(animOverlay);
+            var e = ts - start;
+            if (e < RISE) {
+                overlay.style.opacity = (e / RISE * 0.45).toFixed(3);
+                requestAnimationFrame(anim);
+            } else if (e < RISE + FILL) {
+                overlay.style.opacity = (0.45 + (e - RISE) / FILL * 0.55).toFixed(3);
+                requestAnimationFrame(anim);
             } else {
                 overlay.style.opacity = '1';
-                /* Hand off to Phase 3 */
                 setTimeout(function () {
                     Phase2.destroy();
                     if (window.Phase3) window.Phase3.init(window.innerWidth / 2, window.innerHeight / 2);
-                }, 300);
+                }, 280);
             }
         }
-        requestAnimationFrame(animOverlay);
+        requestAnimationFrame(anim);
     }
 
-    /* ─── Dev / God mode ─── */
+    /* ─── Dev mode: Ctrl+M ─── */
     function onKeyDown(e) {
-        if (e.key !== 'Alt') return;
+        if (!(e.ctrlKey && (e.key === 'm' || e.key === 'M'))) return;
         e.preventDefault();
 
         if (!_devUnlocked) {
-            /* First-time verification */
             var code = window.prompt('Dev Access Code:');
             if (code === null) return;
             if (code.trim() === _DEV_CODE) {
@@ -464,8 +458,8 @@ window.Phase2 = (function () {
             return;
         }
 
-        /* Already unlocked – skip to next phase */
-        showToast('\u23E9 Skipping to next phase\u2026');
+        /* Skip forward one phase */
+        showToast('\u23E9 Skipping\u2026');
         clearTimeout(_unlockTimer);
         _isLocked = false;
         triggerOpening();
@@ -485,9 +479,6 @@ window.Phase2 = (function () {
         _styleEl = null;
         _onClickBox = null;
         _onKeyDown = null;
-        var phase2 = document.getElementById('phase2');
-        if (phase2) phase2.style.background = '';
-        /* Remove lingering overlays */
         var ov = document.querySelector('.flame-overlay');
         if (ov && ov.parentNode) ov.parentNode.removeChild(ov);
     }
