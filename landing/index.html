@@ -1073,6 +1073,194 @@
             }
         }
     </style>
+
+    <!-- ═══ PHASE 4 REFINEMENTS OVERRIDE ═══ -->
+    <style>
+        /* ── 1. No scroll on main card ── */
+        #main-card {
+            overflow: hidden !important;
+            overflow-y: hidden !important;
+            max-height: 96vh;
+        }
+
+        /* ── 2. Smaller tiles ── */
+        .tile {
+            min-height: 190px !important;
+            padding: 16px 14px 14px !important;
+            gap: 8px !important;
+        }
+
+        /* ── 3. Remove waveform idle animation ── */
+        #voice-wave {
+            display: none !important;
+        }
+
+        /* ── 4. Subtle animated gradient background on phase4 ── */
+        #phase4 {
+            background: linear-gradient(135deg,
+                    #f5f0ff 0%, #ede8fc 25%,
+                    #fce8f3 50%, #e8f4ff 75%,
+                    #f5f0ff 100%) !important;
+            background-size: 400% 400% !important;
+            animation: subtleBgShift 18s ease-in-out infinite !important;
+        }
+
+        @keyframes subtleBgShift {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* ── 5. Golden 3D Embossed Destiny Text ── */
+        #heading {
+            padding-bottom: 6px !important;
+        }
+
+        #heading .line1 {
+            font-family: 'Playfair Display', serif !important;
+            font-style: italic !important;
+            font-size: clamp(15px, 1.8vw, 19px) !important;
+            font-weight: 700 !important;
+            /* Gold tones with subtle emboss — stays readable on white */
+            color: #b8860b !important;
+            background: linear-gradient(135deg,
+                    #d4a017 0%, #f0c040 30%,
+                    #c8860a 60%, #e8b020 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            /* Layered shadow for 3D emboss feel */
+            filter: drop-shadow(0 1px 0 rgba(180, 110, 0, 0.35)) drop-shadow(0 2px 1px rgba(100, 60, 0, 0.25)) drop-shadow(0 0 12px rgba(240, 180, 40, 0.3)) !important;
+            animation: destinyPulse 3.5s ease-in-out infinite,
+                destinyWiggle 6s ease-in-out infinite !important;
+            letter-spacing: 0.5px !important;
+        }
+
+        #heading .line2 {
+            font-family: 'Playfair Display', serif !important;
+            font-size: clamp(12px, 1.4vw, 15px) !important;
+            font-weight: 600 !important;
+            background: linear-gradient(135deg,
+                    #b8860b 0%, #d4a017 40%,
+                    #a07010 70%, #c89020 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            filter: drop-shadow(0 1px 0 rgba(160, 100, 0, 0.3)) drop-shadow(0 0 10px rgba(220, 160, 30, 0.25)) !important;
+            animation: destinyPulse 3.5s ease-in-out infinite 0.5s !important;
+            line-height: 1.7 !important;
+        }
+
+        /* Shimmer highlight that sweeps across the text */
+        #heading .line1::after,
+        #heading .line2::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg,
+                    transparent 20%, rgba(255, 240, 160, 0.6) 50%, transparent 80%);
+            animation: destinyShimmer 4s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        #heading .line1,
+        #heading .line2 {
+            position: relative;
+            overflow: visible;
+        }
+
+        @keyframes destinyPulse {
+
+            0%,
+            100% {
+                filter: drop-shadow(0 1px 0 rgba(180, 110, 0, 0.35)) drop-shadow(0 2px 1px rgba(100, 60, 0, 0.25)) drop-shadow(0 0 10px rgba(220, 160, 30, 0.25));
+            }
+
+            50% {
+                filter: drop-shadow(0 1px 0 rgba(200, 130, 0, 0.5)) drop-shadow(0 2px 2px rgba(100, 60, 0, 0.35)) drop-shadow(0 0 22px rgba(240, 190, 60, 0.55));
+            }
+        }
+
+        @keyframes destinyWiggle {
+
+            0%,
+            100% {
+                transform: rotate(0deg);
+            }
+
+            10% {
+                transform: rotate(-0.4deg) scale(1.005);
+            }
+
+            20% {
+                transform: rotate(0.4deg) scale(1.008);
+            }
+
+            30% {
+                transform: rotate(-0.3deg);
+            }
+
+            40% {
+                transform: rotate(0.3deg);
+            }
+
+            50% {
+                transform: rotate(0deg) scale(1.003);
+            }
+        }
+
+        @keyframes destinyShimmer {
+            0% {
+                transform: translateX(-120%);
+            }
+
+            60% {
+                transform: translateX(120%);
+            }
+
+            100% {
+                transform: translateX(120%);
+            }
+        }
+
+        /* ── 6. Tap hints above date pill — make them visible ── */
+        .tap-hint,
+        [class*="tap-hint"],
+        #date-pill::before {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        /* Date pill pulse to act as its own tap hint */
+        #date-pill {
+            animation: datePulse 2s ease-in-out infinite, dateTapHint 2.5s ease-in-out infinite !important;
+        }
+
+        @keyframes dateTapHint {
+
+            0%,
+            100% {
+                transform: scale(1) translateY(0);
+            }
+
+            40% {
+                transform: scale(1.04) translateY(-3px);
+            }
+
+            60% {
+                transform: scale(0.98) translateY(1px);
+            }
+        }
+    </style>
 </head>
 
 <body>
