@@ -305,7 +305,25 @@
             border-radius: 28px;
             box-shadow: 0 8px 60px rgba(124, 58, 237, 0.12), 0 2px 12px rgba(0, 0, 0, 0.06);
             border: 1.5px solid rgba(255, 255, 255, 0.7);
-            max-height: 96vh;
+            max-height: 92vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: var(--purple) transparent;
+        }
+
+        #main-card::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #main-card::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #main-card::-webkit-scrollbar-thumb {
+            background-color: var(--purple);
+            border-radius: 20px;
+            border: transparent;
         }
 
         /* ── Top Bar ── */
@@ -315,6 +333,7 @@
             align-items: center;
             justify-content: space-between;
             gap: 12px;
+            flex-shrink: 0;
         }
 
         /* ── Date Pill ── */
@@ -376,6 +395,8 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
+            padding-bottom: 10px;
+            flex-shrink: 0;
         }
 
         #heading .line1 {
