@@ -11,6 +11,8 @@ window.Phase2 = (function () {
     var _rafId = null;
     var _isLocked = true;
     var _unlockTimer = null;
+    var _wiggleRaf = null;
+    var _curTx = 0, _curTy = 0; /* smooth tilt target */
 
     var _DEV_CODE = '00365';
     var _devUnlocked = (sessionStorage.getItem('devMode') === '1');
@@ -20,36 +22,38 @@ window.Phase2 = (function () {
         var el = document.createElement('style');
         el.id = 'phase2-styles';
         el.textContent = [
-            /* Environment — do NOT set position, let .phase handle it */
             '#phase2 {',
             '  background: radial-gradient(circle at center, #0d0020 0%, #000 75%) !important;',
             '  overflow: hidden;',
             '}',
 
-            /* Box: flex child of #phase2 column-flex container */
+            /* Box: normal flex child — let parent column-flex centre it */
             '#gift-box {',
             '  position: relative !important;',
             '  top: auto !important; left: auto !important;',
-            '  width: 220px !important; height: 220px !important;',
-            '  transform: none !important; cursor: pointer !important;',
+            '  width: 220px !important; height: 240px !important;',
+            '  cursor: pointer !important;',
             '  display: flex !important; align-items: center !important; justify-content: center !important;',
-            '  perspective: 900px;',
-            '  animation: boxFloat2 3.5s ease-in-out infinite !important;',
-            '  filter: drop-shadow(0 0 32px rgba(124,58,237,0.55));',
-            '  transition: filter 0.5s;',
+            '  perspective: 800px;',
+            '  will-change: transform;',
+            /* Springy elastic transition for the rubbery feel */
+            '  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.4s;',
+            '  animation: boxFloat2 3.8s ease-in-out infinite !important;',
+            '  filter: drop-shadow(0 0 30px rgba(124,58,237,0.5));',
             '}',
             '#gift-box.locked { cursor: not-allowed !important; }',
-            '#gift-box.opening { pointer-events: none !important; animation: none !important; }',
+            '#gift-box.opening { pointer-events: none !important; animation: none !important;',
+            '  transition: transform 1.2s ease !important; }',
+            '#gift-box:not(.locked):hover { filter: drop-shadow(0 0 52px rgba(200,130,250,0.8)) !important; }',
 
-            /* Rotating 3D cube */
+            /* Fixed 3D angle — no rotation animation, just a natural isometric look */
             '.cube-world {',
             '  width: 160px; height: 160px; position: relative;',
             '  transform-style: preserve-3d;',
-            '  animation: orbitalRotate2 12s linear infinite;',
+            '  transform: rotateX(-18deg) rotateY(-15deg);', /* fixed pleasant 3/4 angle */
             '  transition: transform 1.2s ease;',
             '}',
             '#gift-box.opening .cube-world {',
-            '  animation-play-state: paused;',
             '  transform: rotateX(-12deg) rotateY(25deg) scale(1.1);',
             '}',
 
@@ -57,24 +61,13 @@ window.Phase2 = (function () {
             '.face {',
             '  position: absolute; top: 0; left: 0;',
             '  width: 160px; height: 160px;',
-            '  background: rgba(100,35,210,0.15);',
-            '  backdrop-filter: blur(8px);',
+            '  background: rgba(100,35,210,0.14);',
+            '  backdrop-filter: blur(10px);',
             '  border: 1.5px solid rgba(255,255,255,0.22);',
+            '  box-shadow: inset 0 0 30px rgba(200,120,10,0.08);',
             '  pointer-events: none; box-sizing: border-box;',
-            '  display: flex; align-items: center; justify-content: center;',
             '  transition: transform 1.4s cubic-bezier(0.4,0,0.2,1), opacity 1s;',
             '}',
-
-            /* Give each inner wall a warm inner-glow tint to simulate 3D ambient light */
-            '.face::after {',
-            '  content: ""; position: absolute; inset: 0;',
-            '  background: radial-gradient(circle at center, rgba(240,160,20,0.12) 0%, rgba(124,58,237,0.05) 60%, transparent 100%);',
-            '  animation: innerGlowFace 3s ease-in-out infinite alternate;',
-            '}',
-            '@keyframes innerGlowFace {',
-            '  from { opacity:.5; } to { opacity:1; }',
-            '}',
-
             '.face.front  { transform: rotateY(  0deg) translateZ(80px); }',
             '.face.back   { transform: rotateY(180deg) translateZ(80px); }',
             '.face.right  { transform: rotateY( 90deg) translateZ(80px); }',
@@ -83,56 +76,79 @@ window.Phase2 = (function () {
             '.face.bottom { transform: rotateX(-90deg) translateZ(80px); }',
             '#gift-box.opening .face.top {',
             '  transform: rotateX(130deg) translateZ(80px) translateY(-55px);',
-            '  opacity: 0.2;',
+            '  opacity: 0.15;',
             '}',
 
-            /* ── Prominent golden "13" on the front face ── */
+            /* ── Golden "13" — Own 3D plane at z=84px, in FRONT of ribbons (z=81) ── */
+            '.num-13-plane {',
+            '  position: absolute; top: 0; left: 0;',
+            '  width: 160px; height: 160px;',
+            '  pointer-events: none; box-sizing: border-box;',
+            '  display: flex; align-items: center; justify-content: center;',
+            '  transform: rotateY(0deg) translateZ(84px);', /* 3px in front of ribbons */
+            '  transition: transform 1.4s cubic-bezier(0.4,0,0.2,1);',
+            '}',
+            '#gift-box.opening .num-13-plane {',
+            '  transform: rotateY(0deg) translateZ(84px) translateY(-40px);',
+            '  opacity: 0;',
+            '}',
             '.golden-13 {',
-            '  font-family: "Poppins", sans-serif; font-weight: 900;',
-            '  font-size: 88px; line-height: 1;',
+            '  font-family: "Poppins",sans-serif; font-weight: 900; font-size: 90px; line-height: 1;',
             '  color: #F0B429;',
             '  text-shadow:',
-            '    0 0 8px  rgba(240,180,41,1),',
-            '    0 0 24px rgba(245,158,11,0.9),',
-            '    0 0 60px rgba(245,100,0,0.5),',
-            '    2px 2px 0px rgba(0,0,0,0.4);',
+            '    0 0 6px  rgba(255,230,100,1),',
+            '    0 0 22px rgba(245,158,11,0.95),',
+            '    0 0 55px rgba(245,100, 0,0.6),',
+            '    3px 3px 0 rgba(0,0,0,0.35);',
             '  user-select: none; letter-spacing: -4px;',
-            '  animation: goldenPulse 2.8s ease-in-out infinite;',
-            '  position: relative; z-index: 2;',
+            '  animation: goldenPulse 3s ease-in-out infinite;',
             '}',
             '@keyframes goldenPulse {',
-            '  0%,100% { text-shadow: 0 0 8px rgba(240,180,41,1), 0 0 24px rgba(245,158,11,0.9), 0 0 60px rgba(245,100,0,0.5), 2px 2px 0 rgba(0,0,0,0.4); }',
-            '  50%     { text-shadow: 0 0 14px rgba(255,200,80,1), 0 0 40px rgba(245,158,11,1), 0 0 90px rgba(245,120,0,0.7), 2px 2px 0 rgba(0,0,0,0.4); }',
+            '  0%,100% { text-shadow: 0 0 6px rgba(255,230,100,1), 0 0 22px rgba(245,158,11,.95), 0 0 55px rgba(245,100,0,.6), 3px 3px 0 rgba(0,0,0,0.35); }',
+            '  50%     { text-shadow: 0 0 12px rgba(255,240,120,1), 0 0 40px rgba(245,180,40,1),  0 0 90px rgba(245,120,0,.8), 3px 3px 0 rgba(0,0,0,0.35); }',
             '}',
 
-            /* ── Volumetric 3D ambient glow inside the cube ──
-               A central sphere element that radiates in ALL directions.
-               Because the faces are translucent, this light bleeds through
-               and illuminates each glass wall from inside — creating the
-               illusion of a 3D light source.
-            */
-            '.glow-core {',
+            /*
+             * ── 3D Volumetric Ambient Glow ──
+             * Three glow spheres placed at different Z depths inside the cube.
+             * At the fixed isometric angle, they layer to create genuine visual depth.
+             * - glow-far:  z=-40px  → large, warm, dim  (back of box)
+             * - glow-mid:  z=  0px  → medium, amber core (centre)
+             * - glow-near: z=+35px  → small, brighter, white-hot (front, near the "13")
+             */
+            '.glow-layer {',
             '  position: absolute; top: 50%; left: 50%;',
-            '  width: 70px; height: 70px;',
-            '  transform: translate(-50%, -50%);',
             '  border-radius: 50%;',
-            '  background: radial-gradient(circle,',
-            '    rgba(255,220,100,0.95) 0%,',
-            '    rgba(245,158,11,0.7)   35%,',
-            '    rgba(220,80,0,0.3)     65%,',
-            '    transparent 100%);',
-            '  filter: blur(14px);',
-            /* Box-shadow radiates glow toward every inner face */
-            '  box-shadow:',
-            '    0   0  60px 30px rgba(245,158,11,0.55),',
-            '    0   0 100px 50px rgba(240,130, 10,0.3);',
-            '  animation: glowPulse 2.8s ease-in-out infinite;',
-            '  z-index: 1;',
+            '  pointer-events: none;',
+            '}',
+            '.glow-far {',
+            '  width: 130px; height: 100px; margin: -50px 0 0 -65px;',
+            '  transform: translateZ(-40px);',
+            '  background: radial-gradient(circle, rgba(200,80,5,0.7) 0%, transparent 72%);',
+            '  filter: blur(20px);',
+            '  animation: glowPulse 3s ease-in-out infinite;',
+            '}',
+            '.glow-mid {',
+            '  width: 90px; height: 75px; margin: -37px 0 0 -45px;',
+            '  transform: translateZ(0px);',
+            '  background: radial-gradient(circle, rgba(245,158,11,0.85) 0%, transparent 70%);',
+            '  filter: blur(13px);',
+            '  animation: glowPulse 3s ease-in-out infinite 0.4s;',
+            '}',
+            '.glow-near {',
+            '  width: 55px; height: 48px; margin: -24px 0 0 -27px;',
+            '  transform: translateZ(35px);',
+            '  background: radial-gradient(circle, rgba(255,230,120,0.95) 0%, transparent 68%);',
+            '  filter: blur(8px);',
+            '  animation: glowPulse 3s ease-in-out infinite 0.8s;',
             '}',
             '@keyframes glowPulse {',
-            '  0%,100% { transform: translate(-50%,-50%) scale(1);   opacity:.85; }',
-            '  50%     { transform: translate(-50%,-50%) scale(1.18); opacity:1;   }',
+            '  0%,100% { transform: translateZ(var(--gz,0px)) scale(1);   opacity:.88; }',
+            '  50%     { transform: translateZ(var(--gz,0px)) scale(1.18); opacity:1;   }',
             '}',
+            '.glow-far  { --gz: -40px; }',
+            '.glow-mid  { --gz:   0px; }',
+            '.glow-near { --gz:  35px; }',
 
             /* Ribbons */
             '.ribbon-face {',
@@ -154,11 +170,10 @@ window.Phase2 = (function () {
             '.cube-bow {',
             '  position: absolute; top: -22px; left: 50%;',
             '  transform: translateX(-50%) translateZ(82px);',
-            '  width: 104px; height: 44px;',
-            '  transform-style: preserve-3d;',
+            '  width: 104px; height: 44px; transform-style: preserve-3d;',
             '  transition: opacity 0.7s, transform 0.7s;',
             '}',
-            '#gift-box.opening .cube-bow { opacity: 0; transform: translateX(-50%) translateZ(82px) translateY(-50px) rotateX(40deg); }',
+            '#gift-box.opening .cube-bow { opacity: 0; transform: translateX(-50%) translateZ(82px) translateY(-50px); }',
             '.bow-loop {',
             '  position: absolute; width: 48px; height: 36px;',
             '  background: linear-gradient(135deg,#c084fc,#7C3AED,#9333ea);',
@@ -175,12 +190,23 @@ window.Phase2 = (function () {
             '  box-shadow: 0 0 10px rgba(168,85,247,0.8);',
             '}',
 
-            /* Fullscreen overlay for the opening */
+            /* Wiggle animation for tap feedback */
+            '@keyframes wiggleBox {',
+            '  0%   { transform: rotate(0deg) scale(1); }',
+            '  20%  { transform: rotate(-5deg) scale(1.06); }',
+            '  40%  { transform: rotate(5deg) scale(1.04); }',
+            '  60%  { transform: rotate(-3deg) scale(1.02); }',
+            '  80%  { transform: rotate(2deg) scale(1.01); }',
+            '  100% { transform: rotate(0deg) scale(1); }',
+            '}',
+            '#gift-box.wiggle { animation: wiggleBox 0.5s cubic-bezier(0.36,0.07,0.19,0.97) !important; }',
+
+            /* Fullscreen overlay for opening */
             '.flame-overlay {',
             '  position: fixed; inset: 0; pointer-events: none; z-index: 900;',
             '  background: radial-gradient(circle at var(--ox,50%) var(--oy,40%),',
             '    #fff 0%, #fcd34d 18%, #f59e0b 38%, rgba(0,0,0,0) 65%);',
-            '  opacity: 0; transition: opacity 0.12s ease;',
+            '  opacity: 0; transition: opacity 0.1s ease;',
             '}',
 
             /* Fireflies */
@@ -188,43 +214,41 @@ window.Phase2 = (function () {
             '  position: fixed; top: 0; left: 0;',
             '  border-radius: 50%; pointer-events: none;',
             '  background: #fcd34d; opacity: 0;',
-            '  box-shadow: 0 0 6px 1px rgba(252,211,77,0.8);',
+            '  box-shadow: 0 0 6px 1px rgba(252,211,77,0.85);',
             '  transition: opacity 1s ease; will-change: transform;',
             '}',
 
             /* Prompt */
             '#gift-prompt {',
-            '  font-family: "Playfair Display",serif; font-size: 15px;',
-            '  color: rgba(255,255,255,0.35); letter-spacing: 2px;',
-            '  animation: tGlow2 2.5s ease-in-out infinite;',
-            '  text-align: center; max-width: 90vw;',
-            '  transition: color 0.6s, letter-spacing 0.6s;',
+            '  font-family:"Playfair Display",serif; font-size:15px;',
+            '  color:rgba(255,255,255,0.35); letter-spacing:2px;',
+            '  animation:tGlow2 2.5s ease-in-out infinite;',
+            '  text-align:center; max-width:90vw; transition:color .6s,letter-spacing .6s;',
             '}',
-            '#gift-prompt.active { color: rgba(240,180,41,0.95); letter-spacing: 4px; }',
+            '#gift-prompt.active { color:rgba(240,180,41,0.95); letter-spacing:4px; }',
 
             /* Tap ring */
             '.tap-ring {',
-            '  position: fixed; border-radius: 50%; pointer-events: none; z-index: 50;',
-            '  border: 2px solid rgba(168,85,247,0.7);',
-            '  animation: ringOut2 0.55s ease-out forwards;',
+            '  position:fixed; border-radius:50%; pointer-events:none; z-index:50;',
+            '  border:2px solid rgba(168,85,247,0.75);',
+            '  animation:ringOut2 0.55s ease-out forwards;',
             '}',
-            '@keyframes ringOut2 { from{width:0;height:0;margin:0;opacity:.9} to{width:110px;height:110px;margin:-55px;opacity:0} }',
+            '@keyframes ringOut2 {',
+            '  from{width:0;height:0;margin:0;opacity:.9}',
+            '  to{width:100px;height:100px;margin:-50px;opacity:0}',
+            '}',
 
             /* Dev toast */
             '#dev-toast2 {',
-            '  position: fixed; bottom: 18px; right: 18px; z-index: 9999;',
-            '  background: rgba(109,40,217,0.9); color:#fff;',
+            '  position:fixed; bottom:18px; right:18px; z-index:9999;',
+            '  background:rgba(109,40,217,0.9); color:#fff;',
             '  font-family:"Poppins",sans-serif; font-size:12px; padding:7px 13px;',
-            '  border-radius: 8px; pointer-events:none; opacity:0; transition: opacity 0.4s;',
+            '  border-radius:8px; pointer-events:none; opacity:0; transition:opacity .4s;',
             '}',
 
             /* Keyframes */
-            '@keyframes orbitalRotate2 {',
-            '  from { transform: rotateX(-15deg) rotateY(  0deg); }',
-            '  to   { transform: rotateX(-15deg) rotateY(360deg); }',
-            '}',
-            '@keyframes boxFloat2 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-11px)} }',
-            '@keyframes tGlow2     { 0%,100%{opacity:.35;transform:scale(1)} 50%{opacity:.85;transform:scale(1.04)} }'
+            '@keyframes boxFloat2 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }',
+            '@keyframes tGlow2 { 0%,100%{opacity:.35;transform:scale(1)} 50%{opacity:.85;transform:scale(1.04)} }'
         ].join('\n');
         document.head.appendChild(el);
         return el;
@@ -234,25 +258,34 @@ window.Phase2 = (function () {
     function initFireflies() {
         var phase2 = document.getElementById('phase2');
         var W = window.innerWidth, H = window.innerHeight;
+
         for (var i = 0; i < 55; i++) {
             var roll = Math.random();
-            var size = (roll < 0.10) ? (4.5 + Math.random() * 2.5) : (2 + Math.random() * 2);
+            var isScout = roll < 0.05;
+            var isOrbit = roll >= 0.05 && roll < 0.18;
+            var isGiant = roll >= 0.18 && roll < 0.28;
+            var size = isGiant ? (4.5 + Math.random() * 2.5) : (2 + Math.random() * 2);
+
             var el = document.createElement('div');
             el.className = 'firefly';
             el.style.width = el.style.height = size + 'px';
             phase2.appendChild(el);
-            var scout = roll < 0.05;
+
             _fireflies.push({
                 el: el,
-                x: Math.random() * W, y: Math.random() * H,
-                vx: (Math.random() - 0.5) * (scout ? 3.0 : 1.0),
-                vy: (Math.random() - 0.5) * (scout ? 3.0 : 1.0),
-                type: roll,
+                x: Math.random() * W,
+                y: Math.random() * H,
+                vx: (Math.random() - 0.5) * (isScout ? 3.2 : 1.0),
+                vy: (Math.random() - 0.5) * (isScout ? 3.2 : 1.0),
+                isScout: isScout,
+                isOrbit: isOrbit,
                 angle: Math.random() * Math.PI * 2,
                 radius: 30 + Math.random() * 70,
-                cx: Math.random() * W, cy: Math.random() * H
+                cx: Math.random() * W,
+                cy: Math.random() * H
             });
         }
+
         setTimeout(function () {
             _fireflies.forEach(function (f) {
                 f.el.style.opacity = (Math.random() * 0.55 + 0.2).toFixed(2);
@@ -264,25 +297,31 @@ window.Phase2 = (function () {
         var W = window.innerWidth, H = window.innerHeight;
         for (var i = 0; i < _fireflies.length; i++) {
             var f = _fireflies[i];
-            if (f.type >= 0.05 && f.type < 0.18) {
-                f.angle += 0.016 + f.type * 0.01;
+
+            if (f.isOrbit) {
+                f.angle += 0.016;
                 f.x = f.cx + Math.cos(f.angle) * f.radius;
                 f.y = f.cy + Math.sin(f.angle) * f.radius;
             } else {
                 f.vx += (Math.random() - 0.5) * 0.04;
                 f.vy += (Math.random() - 0.5) * 0.04;
                 var spd = Math.sqrt(f.vx * f.vx + f.vy * f.vy);
-                var cap = scout ? 3 : 1.4;
+                var cap = f.isScout ? 3.2 : 1.4;
                 if (spd > cap) { f.vx = f.vx / spd * cap; f.vy = f.vy / spd * cap; }
                 f.vx *= 0.97; f.vy *= 0.97;
                 f.x += f.vx; f.y += f.vy;
             }
+
+            /* Mouse repulsion */
             var dx = f.x - _mouse.x, dy = f.y - _mouse.y;
             var dist = Math.sqrt(dx * dx + dy * dy);
             if (dist > 0 && dist < 130) {
                 var force = (130 - dist) / 130 * 0.18;
-                f.vx += dx / dist * force; f.vy += dy / dist * force;
+                f.vx += dx / dist * force;
+                f.vy += dy / dist * force;
             }
+
+            /* Wrap */
             if (f.x < -10) { f.x = W + 10; f.cx = f.x; } if (f.x > W + 10) { f.x = -10; f.cx = f.x; }
             if (f.y < -10) { f.y = H + 10; f.cy = f.y; } if (f.y > H + 10) { f.y = -10; f.cy = f.y; }
             f.el.style.transform = 'translate3d(' + (f.x | 0) + 'px,' + (f.y | 0) + 'px,0)';
@@ -294,25 +333,19 @@ window.Phase2 = (function () {
     function buildHTML() {
         return [
             '<div class="cube-world">',
-            '  <!-- Six glass faces -->',
-            '  <div class="face front"><div class="golden-13">13</div></div>',
+            '  <div class="face front"></div>',
             '  <div class="face back"></div>',
             '  <div class="face left"></div>',
             '  <div class="face right"></div>',
             '  <div class="face top"></div>',
             '  <div class="face bottom"></div>',
-
-            '  <!-- 3D Ambient Glow — illuminates all inner walls -->',
-            '  <div class="glow-core"></div>',
-
-            '  <!-- Bow -->',
-            '  <div class="cube-bow">',
-            '    <div class="bow-loop left"></div>',
-            '    <div class="bow-loop right"></div>',
-            '    <div class="bow-center"></div>',
-            '  </div>',
-
-            '  <!-- Ribbons -->',
+            /* "13" on its own plane at z=84, in front of ribbons (z=81) */
+            '  <div class="num-13-plane"><div class="golden-13">13</div></div>',
+            /* 3D layered ambient glow */
+            '  <div class="glow-layer glow-far"></div>',
+            '  <div class="glow-layer glow-mid"></div>',
+            '  <div class="glow-layer glow-near"></div>',
+            /* Ribbons */
             '  <div class="ribbon-face rv-f"></div>',
             '  <div class="ribbon-face rv-b"></div>',
             '  <div class="ribbon-face rv-t"></div>',
@@ -320,8 +353,47 @@ window.Phase2 = (function () {
             '  <div class="ribbon-face rh-b"></div>',
             '  <div class="ribbon-face rh-l"></div>',
             '  <div class="ribbon-face rh-r"></div>',
+            /* Bow */
+            '  <div class="cube-bow">',
+            '    <div class="bow-loop left"></div>',
+            '    <div class="bow-loop right"></div>',
+            '    <div class="bow-center"></div>',
+            '  </div>',
             '</div>'
         ].join('');
+    }
+
+    /* ─── Rubbery parallax tilt on mouse ─── */
+    function startWiggle(box) {
+        /* Track mouse and tilt cube-world toward cursor for parallax depth feel */
+        function onBoxMouseMove(e) {
+            var rect = box.getBoundingClientRect();
+            var cx = rect.left + rect.width / 2;
+            var cy = rect.top + rect.height / 2;
+            var dx = (e.clientX - cx) / (rect.width / 2); /* -1..1 */
+            var dy = (e.clientY - cy) / (rect.height / 2); /* -1..1 */
+            var world = box.querySelector('.cube-world');
+            if (world) {
+                world.style.transition = 'transform 0.15s ease';
+                world.style.transform = 'rotateX(' + (-18 + dy * -8) + 'deg) rotateY(' + (-15 + dx * 10) + 'deg)';
+            }
+        }
+        function onBoxMouseLeave() {
+            var world = box.querySelector('.cube-world');
+            if (world) {
+                world.style.transition = 'transform 0.6s cubic-bezier(0.34,1.56,0.64,1)';
+                world.style.transform = 'rotateX(-18deg) rotateY(-15deg)';
+            }
+        }
+        box._mmove = onBoxMouseMove;
+        box._mleave = onBoxMouseLeave;
+        box.addEventListener('mousemove', box._mmove);
+        box.addEventListener('mouseleave', box._mleave);
+    }
+
+    function stopWiggle(box) {
+        if (box._mmove) box.removeEventListener('mousemove', box._mmove);
+        if (box._mleave) box.removeEventListener('mouseleave', box._mleave);
     }
 
     /* ─── Toast ─── */
@@ -350,6 +422,7 @@ window.Phase2 = (function () {
 
         initFireflies();
         updateFireflies();
+        startWiggle(box);
 
         _unlockTimer = setTimeout(function () {
             _isLocked = false;
@@ -370,15 +443,16 @@ window.Phase2 = (function () {
     function onBoxClick(e) {
         if (_isLocked) return;
         spawnRing(e.clientX, e.clientY);
+
+        /* Rubbery wiggle feedback */
+        var box = document.getElementById('gift-box');
+        box.classList.remove('wiggle');
+        void box.offsetWidth; /* reflow to restart animation */
+        box.classList.add('wiggle');
+        setTimeout(function () { box.classList.remove('wiggle'); }, 520);
+
         _tapCount++;
-        if (_tapCount >= 3) {
-            triggerOpening();
-        } else {
-            var box = document.getElementById('gift-box');
-            var deg = (Math.random() * 10 - 5).toFixed(1);
-            box.style.transform = 'translateY(-10px) scale(1.07) rotate(' + deg + 'deg)';
-            setTimeout(function () { box.style.transform = ''; }, 220);
-        }
+        if (_tapCount >= 3) { triggerOpening(); }
     }
 
     function spawnRing(x, y) {
@@ -395,14 +469,10 @@ window.Phase2 = (function () {
         var prompt = document.getElementById('gift-prompt');
         if (!box) return;
 
+        stopWiggle(box);
         box.classList.add('opening');
         if (prompt) prompt.style.opacity = '0';
 
-        /* Intensify the glow core before overlay */
-        var core = box.querySelector('.glow-core');
-        if (core) { core.style.filter = 'blur(20px)'; core.style.transform = 'translate(-50%,-50%) scale(2)'; }
-
-        /* Fullscreen radial overlay */
         var overlay = document.createElement('div');
         overlay.className = 'flame-overlay';
         var rect = box.getBoundingClientRect();
@@ -410,7 +480,7 @@ window.Phase2 = (function () {
         overlay.style.setProperty('--oy', ((rect.top + rect.bottom) / 2 / window.innerHeight * 100).toFixed(1) + '%');
         document.body.appendChild(overlay);
 
-        var start = null, RISE = 2000, FILL = 1500;
+        var start = null, RISE = 2100, FILL = 1500;
         function anim(ts) {
             if (!start) start = ts;
             var e = ts - start;
@@ -437,7 +507,7 @@ window.Phase2 = (function () {
         e.preventDefault();
         if (!_devUnlocked) {
             var code = window.prompt('Dev Access Code:');
-            if (code === null) return;
+            if (!code) return;
             if (code.trim() === _DEV_CODE) {
                 _devUnlocked = true;
                 sessionStorage.setItem('devMode', '1');
@@ -458,7 +528,10 @@ window.Phase2 = (function () {
         window.removeEventListener('mousemove', onMouseMove);
         window.removeEventListener('keydown', _onKeyDown);
         var box = document.getElementById('gift-box');
-        if (box && _onClickBox) box.removeEventListener('click', _onClickBox);
+        if (box) {
+            stopWiggle(box);
+            if (_onClickBox) box.removeEventListener('click', _onClickBox);
+        }
         if (_styleEl && _styleEl.parentNode) _styleEl.parentNode.removeChild(_styleEl);
         if (_rafId) cancelAnimationFrame(_rafId);
         if (_unlockTimer) clearTimeout(_unlockTimer);
