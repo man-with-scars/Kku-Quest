@@ -452,4 +452,20 @@
         }
     };
 
+    // ── Global Dev Skip (Ctrl+M) ──────────────────────────────
+    document.addEventListener('keydown', function (e) {
+        if (e.ctrlKey && (e.key === 'm' || e.key === 'M')) {
+            e.preventDefault();
+            const code = prompt("Dev Access Code:");
+            if (code === "00365") {
+                window.STATE.devMode = true;
+                if (window.STATE.currentLevel) {
+                    window.levelDone(window.STATE.currentLevel);
+                } else if (window.DevMode && window.DevMode.openPanel) {
+                    window.DevMode.openPanel();
+                }
+            }
+        }
+    });
+
 }());

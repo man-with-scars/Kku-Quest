@@ -69,16 +69,16 @@ window.TileDate = (function () {
             }
             
             .hint-bubble {
-                position: absolute; top: -45px; left: 50%; transform: translateX(-50%);
+                position: absolute; top: calc(100% + 12px); left: 50%; transform: translateX(-50%);
                 background: #7C3AED; color: white; padding: 4px 12px; border-radius: 12px;
                 font-size: 11px; font-weight: 600; white-space: nowrap;
-                animation: fadeup 0.5s forwards; z-index: 100;
+                animation: fadeup 0.5s forwards; z-index: 1000;
                 box-shadow: 0 4px 10px rgba(124, 58, 237, 0.3);
             }
             .hint-bubble::after {
-                content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
+                content: ''; position: absolute; top: -6px; left: 50%; transform: translateX(-50%);
                 border-left: 6px solid transparent; border-right: 6px solid transparent;
-                border-top: 6px solid #7C3AED;
+                border-bottom: 6px solid #7C3AED;
             }
         `;
         document.head.appendChild(el);

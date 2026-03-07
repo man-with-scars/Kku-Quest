@@ -516,27 +516,8 @@ window.Phase2 = (function () {
         requestAnimationFrame(anim);
     }
 
-    /* ─── Dev mode: Ctrl+M ─── */
-    function onKeyDown(e) {
-        if (!(e.ctrlKey && (e.key === 'm' || e.key === 'M'))) return;
-        e.preventDefault();
-        if (!_devUnlocked) {
-            var code = window.prompt('Dev Access Code:');
-            if (!code) return;
-            if (code.trim() === _DEV_CODE) {
-                _devUnlocked = true;
-                sessionStorage.setItem('devMode', '1');
-                showToast('\uD83D\uDD13 Dev Mode Unlocked');
-            } else {
-                showToast('\u274C Wrong code');
-            }
-            return;
-        }
-        showToast('\u23E9 Skipping\u2026');
-        clearTimeout(_unlockTimer);
-        _isLocked = false;
-        triggerOpening();
-    }
+    /* ─── Dev mode: Handled globally in index.html ─── */
+    function onKeyDown(e) { }
 
     /* ─── Destroy ─── */
     function destroy() {

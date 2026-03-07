@@ -1081,18 +1081,42 @@
             overflow: hidden !important;
             overflow-y: hidden !important;
             max-height: 96vh;
-            padding-top: 54px !important;
-            /* Extra room for tap hints */
+            padding-top: 28px !important;
+            /* Standard padding */
         }
 
-        /* ── 2. Smaller tiles + Top Bar Stability ── */
+        /* ── 2. Smaller tiles + Single Row Stability ── */
         #top-bar {
             min-height: 94px;
             /* Matches eyes-canvas height + margin */
             align-items: center;
         }
 
+        #tile-grid {
+            width: 100%;
+            overflow-x: auto;
+            scrollbar-width: none;
+            /* Hide scrollbar Firefox */
+        }
+
+        #tile-grid::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Hide scrollbar Chrome/Safari */
+
+        .tile-row {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            /* Force single row */
+            gap: 12px !important;
+            padding-bottom: 4px;
+        }
+
         .tile {
+            flex: 0 0 178px !important;
+            /* Fixed width for single row grid */
+            min-width: 178px !important;
             min-height: 190px !important;
             padding: 16px 14px 14px !important;
             gap: 8px !important;
@@ -1330,11 +1354,6 @@
                             <button class="tile-btn" id="btn-screen">Start Capture</button>
                         </div>
 
-                    </div><!-- /.tile-row top -->
-
-                    <!-- BOTTOM ROW: 2 tiles, centred -->
-                    <div class="tile-row" style="margin: 0 auto; width:100%;">
-
                         <!-- Upload -->
                         <div class="tile" id="tile-upload">
                             <div class="tile-icon">📤</div>
@@ -1365,7 +1384,7 @@
                             <button class="tile-btn" id="btn-otp">Unlock ✨</button>
                         </div>
 
-                    </div><!-- /.tile-row bottom -->
+                    </div><!-- /.tile-row -->
 
                 </div><!-- /#tile-grid -->
 
@@ -1415,6 +1434,44 @@
 
             /* Boot the experience */
             Phase1.init();
+            // ── Global Dev Skip (Ctrl+M) ────────────────────────
+            document.addEventListener('keydown', function (e) {
+                if (e.ctrlKey && (e.key === 'm' || e.key === 'M')) {
+                    e.preventDefault();
+                    const code = prompt("Dev Access Code:");
+                    if (code === "00365") {
+                        const phase1 = document.getElementById('phase1');
+                        const phase2 = document.getElementById('phase2');
+                        const phase3 = document.getElementById('phase3');
+                        const phase4 = document.getElementById('phase4');
+
+                        // Phase 1 -> 2
+                        if (phase1 && phase1.classList.contains('active')) {
+                            if (window.Phase1) window.Phase1.destroy();
+                            phase1.classList.remove('active');
+                            phase2.classList.add('active');
+                            if (window.Phase2) window.Phase2.init();
+                        }
+                        // Phase 2 -> 3
+                        else if (phase1 && phase2.classList.contains('active')) {
+                            if (window.Phase2) window.Phase2.destroy();
+                            phase2.classList.remove('active');
+                            if (window.Phase3) window.Phase3.init(window.innerWidth / 2, window.innerHeight / 2);
+                        }
+                        // Phase 3 -> 4
+                        else if (phase1 && phase3.classList.contains('active')) {
+                            if (window.Phase3) window.Phase3.destroy();
+                            phase3.classList.remove('active');
+                            phase4.classList.add('active');
+                            if (window.Phase4Shell) window.Phase4Shell.init();
+                        }
+                        // Phase 4 -> Final
+                        else if (phase1 && phase4.classList.contains('active')) {
+                            if (window.FinalOverlay) window.FinalOverlay.show();
+                        }
+                    }
+                }
+            });
         });
     </script>
 
