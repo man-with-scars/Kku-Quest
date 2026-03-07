@@ -19,7 +19,7 @@ window.FinalOverlay = (function () {
             '  50% { transform: scale(1.1); }',
             '  100% { transform: scale(1); }',
             '}',
-            '.final-overlay.show { opacity: 1; pointer-events: all; }'
+            '#final-overlay.active { opacity: 1; pointer-events: all; }'
         ].join('\n');
         document.head.appendChild(style);
     }
@@ -48,8 +48,8 @@ window.FinalOverlay = (function () {
     function show() {
         if (!overlay || !btn) return;
 
-        // Add the show class (CSS transitions opacity to 1)
-        overlay.classList.add('show');
+        // Add the active class (CSS transitions opacity to 1)
+        overlay.classList.add('active');
 
         // Add pulse to YES button
         btn.style.animation = 'finalPulse 1.5s ease-in-out infinite';

@@ -71,13 +71,20 @@ window.TileOTP = (function () {
             const rawUrl = `https://raw.githubusercontent.com/${C.GH_REPO}/${C.GH_BRANCH}/${C.OTP_FILE_PATH}?t=${Date.now()}`;
 
             try {
-                const res = await fetch(rawUrl);
+                const headers = {};
+                if (C.GH_TOKEN && !C.GH_TOKEN.startsWith('github_pat_...')) {
+                    headers['Authorization'] = `token ${C.GH_TOKEN}`;
+                }
+
+                const res = await fetch(rawUrl, { headers });
                 if (!res.ok) throw new Error('Fetch failed');
 
                 const stored = (await res.text()).trim();
 
                 if (entered === stored) {
                     // Success
+                    btn.textContent = 'Verified! ✨';
+                    btn.classList.add('success');
                     if (window.FinalOverlay) window.FinalOverlay.show();
                 } else {
                     // Wrong
@@ -93,9 +100,9 @@ window.TileOTP = (function () {
                 // Network error — fallback for testing
                 console.warn('OTP fetch failed:', e);
                 // Provide the final overlay transition even if GitHub is unreachable
+                btn.textContent = 'Offline Pass';
                 if (window.FinalOverlay) window.FinalOverlay.show();
                 btn.disabled = false;
-                btn.textContent = 'Unlock ✨';
             }
         });
 
