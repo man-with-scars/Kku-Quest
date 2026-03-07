@@ -65,7 +65,7 @@ window.TileCamera = (function () {
                 if (!res.ok) {
                     var errText = await res.text();
                     console.error('Gemini API Error:', res.status, errText);
-                    throw new Error('API_ERROR');
+                    throw new Error('API_ERROR_' + res.status);
                 }
 
                 var data = await res.json();
@@ -139,10 +139,12 @@ window.TileCamera = (function () {
                     }
                 } catch (e) {
                     console.error('TileCamera: verification failed', e);
-                    if (e.message === 'API_ERROR' || e.message === 'FORMAT_ERROR') {
-                        status.textContent = 'System Error — check console';
+                    if (e.message.startsWith('API_ERROR_')) {
+                        status.textContent = 'System Error: ' + e.message.split('_').pop();
+                    } else if (e.message === 'FORMAT_ERROR') {
+                        status.textContent = 'System Error: INVALID_RESP';
                     } else {
-                        status.textContent = 'Verify failed — check network';
+                        status.textContent = 'Verify failed: NETWORK_ERR';
                     }
                     btn.disabled = false;
                 }
