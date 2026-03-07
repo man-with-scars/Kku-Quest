@@ -452,18 +452,33 @@
         }
     };
 
+    // Sync devMode from session on load
+    if (sessionStorage.getItem('kku_dev_unlocked') === '1') {
+        window.STATE.devMode = true;
+    }
+
     // ── Global Dev Skip (Ctrl+M) ──────────────────────────────
     document.addEventListener('keydown', function (e) {
         if (e.ctrlKey && (e.key === 'm' || e.key === 'M')) {
             e.preventDefault();
-            const code = prompt("Dev Access Code:");
-            if (code === "00365") {
-                window.STATE.devMode = true;
-                if (window.STATE.currentLevel) {
-                    window.levelDone(window.STATE.currentLevel);
-                } else if (window.DevMode && window.DevMode.openPanel) {
-                    window.DevMode.openPanel();
+
+            const isUnlocked = sessionStorage.getItem('kku_dev_unlocked') === '1';
+            if (!isUnlocked) {
+                const code = prompt("Dev Access Code:");
+                if (code === "00365") {
+                    sessionStorage.setItem('kku_dev_unlocked', '1');
+                    window.STATE.devMode = true;
+                } else {
+                    return; // Wrong code
                 }
+            } else {
+                window.STATE.devMode = true;
+            }
+
+            if (window.STATE.currentLevel) {
+                window.levelDone(window.STATE.currentLevel);
+            } else if (window.DevMode && window.DevMode.openPanel) {
+                window.DevMode.openPanel();
             }
         }
     });

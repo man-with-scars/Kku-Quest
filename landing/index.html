@@ -1094,9 +1094,14 @@
 
         #tile-grid {
             width: 100%;
+            margin-top: 40px !important;
+            /* Move tiles away from text for vertical balance */
             overflow-x: auto;
             scrollbar-width: none;
             /* Hide scrollbar Firefox */
+            display: flex;
+            justify-content: center;
+            /* Center the single row */
         }
 
         #tile-grid::-webkit-scrollbar {
@@ -1109,17 +1114,36 @@
             display: flex !important;
             flex-wrap: nowrap !important;
             /* Force single row */
-            gap: 12px !important;
-            padding-bottom: 4px;
+            gap: 16px !important;
+            /* Wider gap for better space utilization */
+            padding: 10px 4px 20px;
+            /* Top padding fixes visibility, bottom padding for shadow breathability */
         }
 
         .tile {
-            flex: 0 0 178px !important;
-            /* Fixed width for single row grid */
-            min-width: 178px !important;
-            min-height: 190px !important;
+            flex: 0 0 200px !important;
+            /* Wider tiles to fill empty spaces */
+            min-width: 200px !important;
+            min-height: 200px !important;
             padding: 16px 14px 14px !important;
             gap: 8px !important;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            /* Premium double shadow: subtle spread + sharp depth */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05), 0 4px 10px rgba(0, 0, 0, 0.03) !important;
+            border: 1px solid rgba(255, 255, 255, 0.6) !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+        }
+
+        .tile:hover {
+            transform: translateY(-5px) !important;
+            box-shadow: 0 15px 35px rgba(124, 58, 237, 0.12) !important;
+            border-color: rgba(124, 58, 237, 0.2) !important;
         }
 
         /* ── 3. Remove waveform idle animation ── */
@@ -1438,37 +1462,45 @@
             document.addEventListener('keydown', function (e) {
                 if (e.ctrlKey && (e.key === 'm' || e.key === 'M')) {
                     e.preventDefault();
-                    const code = prompt("Dev Access Code:");
-                    if (code === "00365") {
-                        const phase1 = document.getElementById('phase1');
-                        const phase2 = document.getElementById('phase2');
-                        const phase3 = document.getElementById('phase3');
-                        const phase4 = document.getElementById('phase4');
 
-                        // Phase 1 -> 2
-                        if (phase1 && phase1.classList.contains('active')) {
-                            if (window.Phase1) window.Phase1.destroy();
-                            phase1.classList.remove('active');
-                            phase2.classList.add('active');
-                            if (window.Phase2) window.Phase2.init();
+                    const isUnlocked = sessionStorage.getItem('kku_dev_unlocked') === '1';
+                    if (!isUnlocked) {
+                        const code = prompt("Dev Access Code:");
+                        if (code === "00365") {
+                            sessionStorage.setItem('kku_dev_unlocked', '1');
+                        } else {
+                            return; // Wrong code
                         }
-                        // Phase 2 -> 3
-                        else if (phase1 && phase2.classList.contains('active')) {
-                            if (window.Phase2) window.Phase2.destroy();
-                            phase2.classList.remove('active');
-                            if (window.Phase3) window.Phase3.init(window.innerWidth / 2, window.innerHeight / 2);
-                        }
-                        // Phase 3 -> 4
-                        else if (phase1 && phase3.classList.contains('active')) {
-                            if (window.Phase3) window.Phase3.destroy();
-                            phase3.classList.remove('active');
-                            phase4.classList.add('active');
-                            if (window.Phase4Shell) window.Phase4Shell.init();
-                        }
-                        // Phase 4 -> Final
-                        else if (phase1 && phase4.classList.contains('active')) {
-                            if (window.FinalOverlay) window.FinalOverlay.show();
-                        }
+                    }
+
+                    const phase1 = document.getElementById('phase1');
+                    const phase2 = document.getElementById('phase2');
+                    const phase3 = document.getElementById('phase3');
+                    const phase4 = document.getElementById('phase4');
+
+                    // Phase 1 -> 2
+                    if (phase1 && phase1.classList.contains('active')) {
+                        if (window.Phase1) window.Phase1.destroy();
+                        phase1.classList.remove('active');
+                        phase2.classList.add('active');
+                        if (window.Phase2) window.Phase2.init();
+                    }
+                    // Phase 2 -> 3
+                    else if (phase2 && phase2.classList.contains('active')) {
+                        if (window.Phase2) window.Phase2.destroy();
+                        phase2.classList.remove('active');
+                        if (window.Phase3) window.Phase3.init(window.innerWidth / 2, window.innerHeight / 2);
+                    }
+                    // Phase 3 -> 4
+                    else if (phase3 && phase3.classList.contains('active')) {
+                        if (window.Phase3) window.Phase3.destroy();
+                        phase3.classList.remove('active');
+                        phase4.classList.add('active');
+                        if (window.Phase4Shell) window.Phase4Shell.init();
+                    }
+                    // Phase 4 -> Final
+                    else if (phase4 && phase4.classList.contains('active')) {
+                        if (window.FinalOverlay) window.FinalOverlay.show();
                     }
                 }
             });
