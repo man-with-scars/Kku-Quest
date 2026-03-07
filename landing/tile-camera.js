@@ -140,7 +140,14 @@ window.TileCamera = (function () {
                 } catch (e) {
                     console.error('TileCamera: verification failed', e);
                     if (e.message.startsWith('API_ERROR_')) {
-                        status.textContent = 'System Error: ' + e.message.split('_').pop();
+                        var code = e.message.split('_').pop();
+                        if (code === '403') {
+                            status.textContent = 'API Key Error (403)';
+                        } else if (code === '404') {
+                            status.textContent = 'Model Not Found (404)';
+                        } else {
+                            status.textContent = 'System Error: ' + code;
+                        }
                     } else if (e.message === 'FORMAT_ERROR') {
                         status.textContent = 'System Error: INVALID_RESP';
                     } else {
