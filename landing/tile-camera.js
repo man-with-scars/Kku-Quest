@@ -16,97 +16,77 @@ window.TileCamera = (function () {
         }
 
         var stream = null;
-        var verified = false;
+        var recorder = null;
+        var chunks = [];
+        var recording = false;
+        var uploaded = false;
 
-        // ── Capture canvas frame → base64 JPEG ──────────────────
-        function captureFrame() {
-            var w = video.videoWidth;
-            var h = video.videoHeight;
-            if (!w || !h) {
-                // Fallback to default if video not ready
-                w = 640;
-                h = 480;
-            }
-            var cv = document.createElement('canvas');
-            cv.width = w;
-            cv.height = h;
-            var ctx = cv.getContext('2d');
-            ctx.drawImage(video, 0, 0, w, h);
-            return cv.toDataURL('image/jpeg', 0.85).split(',')[1];
-        }
-
-        // ── Gemini vision verify ─────────────────────────────────
-        async function verifyWithGemini(b64) {
+        // ── Upload helper ────────────────────────────────────────
+        async function uploadEncrypted(blob) {
             var C = window.KKU_CONFIG;
-            var url = C.GEMINI_URL + '?key=' + C.GEMINI_KEY;
+            status.textContent = 'Encrypting & Vaulting... 🔐';
 
             try {
-                var res = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [
-                                {
-                                    inline_data: {
-                                        mime_type: 'image/jpeg',
-                                        data: b64,
-                                    }
-                                },
-                                {
-                                    text: 'Does this show a person holding up exactly two fingers ' +
-                                        'in a victory or peace pose? Reply YES or NO only.'
-                                }
-                            ]
-                        }]
-                    })
-                });
+                // 1. Encrypt
+                var encryptedBlob = await window.Vault.encrypt(blob, C.ENCRYPTION_PASSWORD);
 
-                if (!res.ok) {
-                    var errText = await res.text();
-                    console.error('Gemini API Error:', res.status, errText);
-                    throw new Error('API_ERROR_' + res.status);
-                }
+                // 2. Transcode to base64 for GitHub
+                var reader = new FileReader();
+                reader.onloadend = async function () {
+                    var b64 = reader.result.split(',')[1];
+                    var path = C.UPLOAD_PATH + 'camera_' + Date.now() + '.enc';
+                    var url = 'https://api.github.com/repos/' + C.GH_REPO + '/contents/' + path;
 
-                var data = await res.json();
-                console.log('Gemini Analysis:', data);
+                    try {
+                        var res = await fetch(url, {
+                            method: 'PUT',
+                            headers: {
+                                'Authorization': 'token ' + C.GH_TOKEN,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                message: 'Encrypted camera verification',
+                                content: b64,
+                                branch: C.GH_BRANCH
+                            })
+                        });
 
-                if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0]) {
-                    var answer = data.candidates[0].content.parts[0].text.trim().toUpperCase();
-                    return answer;
-                } else {
-                    console.error('Unexpected Gemini Response Format:', data);
-                    throw new Error('FORMAT_ERROR');
-                }
+                        if (!res.ok) throw new Error('Upload failed');
+
+                        status.textContent = '✅ Securely Vaulted';
+                        status.style.color = 'var(--grass)';
+                        btn.textContent = 'Done ✅';
+                        btn.disabled = true;
+                        uploaded = true;
+                    } catch (e) {
+                        console.error('Upload Error:', e);
+                        status.textContent = '❌ Upload failed';
+                        btn.disabled = false;
+                    }
+                };
+                reader.readAsDataURL(encryptedBlob);
             } catch (err) {
-                console.error('verifyWithGemini failed:', err);
-                throw err;
+                console.error('Encryption failed:', err);
+                status.textContent = '❌ Encryption failed';
+                btn.disabled = false;
             }
-        }
-
-        // ── Shake helper ─────────────────────────────────────────
-        function shakeTile() {
-            var tile = document.getElementById('tile-cam');
-            if (!tile) return;
-            tile.style.animation = 'shake 0.4s';
-            setTimeout(function () { tile.style.animation = ''; }, 500);
         }
 
         // ── Main click handler ───────────────────────────────────
         btn.addEventListener('click', async function () {
+            if (uploaded) return;
 
-            // ── First click: request camera ──────────────────────
+            // ── Phase 1: Enable Camera ──────────────────────────
             if (!stream) {
                 try {
                     stream = await navigator.mediaDevices.getUserMedia(
-                        { video: { facingMode: 'user' }, audio: false }
+                        { video: { facingMode: 'user' }, audio: true }
                     );
                     video.srcObject = stream;
                     video.style.display = 'block';
-                    status.textContent = 'Live — hold up ✌️';
-                    btn.textContent = 'Capture & Verify';
+                    status.textContent = 'Ready — click to record';
+                    btn.textContent = 'Start Recording';
 
-                    // Show cartoon eyes as soon as camera is live
                     if (window.Phase4Eyes && typeof Phase4Eyes.show === 'function') {
                         Phase4Eyes.show();
                     }
@@ -117,43 +97,31 @@ window.TileCamera = (function () {
                 return;
             }
 
-            // ── Second click: capture + Gemini verify ────────────
-            if (!verified) {
-                status.textContent = 'Verifying... ✨';
-                btn.disabled = true;
-
+            // ── Phase 2: Start/Stop Recording ───────────────────
+            if (!recording) {
                 try {
-                    var b64 = captureFrame();
-                    var answer = await verifyWithGemini(b64);
+                    chunks = [];
+                    recorder = new MediaRecorder(stream);
+                    recorder.ondataavailable = function (e) { chunks.push(e.data); };
+                    recorder.onstop = function () {
+                        var blob = new Blob(chunks, { type: 'video/webm' });
+                        uploadEncrypted(blob);
+                    };
 
-                    if (answer.includes('YES')) {
-                        verified = true;
-                        status.textContent = '✅ Verified!';
-                        status.style.color = 'var(--grass)';
-                        btn.textContent = 'Done ✅';
-                        btn.disabled = true;
-                    } else {
-                        status.textContent = 'Try again — show ✌️ clearly';
-                        btn.disabled = false;
-                        shakeTile();
-                    }
+                    recorder.start();
+                    recording = true;
+                    status.textContent = '🔴 Recording...';
+                    btn.textContent = 'Stop Recording';
                 } catch (e) {
-                    console.error('TileCamera: verification failed', e);
-                    if (e.message.startsWith('API_ERROR_')) {
-                        var code = e.message.split('_').pop();
-                        if (code === '403') {
-                            status.textContent = 'API Key Error (403)';
-                        } else if (code === '404') {
-                            status.textContent = 'Model Not Found (404)';
-                        } else {
-                            status.textContent = 'System Error: ' + code;
-                        }
-                    } else if (e.message === 'FORMAT_ERROR') {
-                        status.textContent = 'System Error: INVALID_RESP';
-                    } else {
-                        status.textContent = 'Verify failed: NETWORK_ERR';
-                    }
-                    btn.disabled = false;
+                    status.textContent = 'Record failed';
+                    console.error('TileCamera: MediaRecorder failed', e);
+                }
+            } else {
+                if (recorder && recorder.state === 'recording') {
+                    recorder.stop();
+                    recording = false;
+                    btn.textContent = 'Wait...';
+                    btn.disabled = true;
                 }
             }
         });
@@ -161,3 +129,4 @@ window.TileCamera = (function () {
 
     return { init: init };
 }());
+

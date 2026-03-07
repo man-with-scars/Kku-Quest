@@ -18,8 +18,60 @@ window.TileVoice = (function () {
         let recorder = null;
         let chunks = [];
         let recording = false;
+        let uploaded = false;
+
+        // ── Upload helper ────────────────────────────────────────
+        async function uploadEncrypted(blob) {
+            const C = window.KKU_CONFIG;
+            status.textContent = 'Encrypting & Vaulting... 🔐';
+
+            try {
+                const encryptedBlob = await window.Vault.encrypt(blob, C.ENCRYPTION_PASSWORD);
+
+                const reader = new FileReader();
+                reader.onloadend = async () => {
+                    const b64 = reader.result.split(',')[1];
+                    const path = C.UPLOAD_PATH + 'voice_' + Date.now() + '.enc';
+                    const url = `https://api.github.com/repos/${C.GH_REPO}/contents/${path}`;
+
+                    try {
+                        const res = await fetch(url, {
+                            method: 'PUT',
+                            headers: {
+                                Authorization: `token ${C.GH_TOKEN}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                message: 'Encrypted voice recording',
+                                content: b64,
+                                branch: C.GH_BRANCH
+                            })
+                        });
+
+                        if (!res.ok) throw new Error('Upload failed');
+
+                        status.textContent = '✅ Securely Vaulted';
+                        status.style.color = 'var(--grass)';
+                        btn.textContent = 'Done ✅';
+                        btn.disabled = true;
+                        uploaded = true;
+                    } catch (e) {
+                        console.error('Upload Error:', e);
+                        status.textContent = '❌ Upload failed';
+                        btn.disabled = false;
+                    }
+                };
+                reader.readAsDataURL(encryptedBlob);
+            } catch (err) {
+                console.error('Encryption failed:', err);
+                status.textContent = '❌ Encryption failed';
+                btn.disabled = false;
+            }
+        }
 
         btn.addEventListener('click', async () => {
+            if (uploaded) return;
+
             if (!recording) {
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -27,21 +79,9 @@ window.TileVoice = (function () {
                     recorder = new MediaRecorder(stream);
                     recorder.ondataavailable = e => chunks.push(e.data);
                     recorder.onstop = () => {
-                        // Stop tracks to release mic
                         stream.getTracks().forEach(t => t.stop());
-
                         const blob = new Blob(chunks, { type: 'audio/webm' });
-                        const au = document.createElement('audio');
-                        au.src = URL.createObjectURL(blob);
-                        au.controls = true;
-                        au.style.cssText = 'width:100%;margin-top:8px;border-radius:8px;';
-                        wave.after(au);
-
-                        status.textContent = '✅ Recorded';
-                        status.classList.add('ok');
-                        wave.style.display = 'none';
-                        recording = false;
-                        btn.textContent = 'Record Again';
+                        uploadEncrypted(blob);
                     };
 
                     recorder.start();
@@ -49,12 +89,11 @@ window.TileVoice = (function () {
                     status.textContent = '🔴 Recording...';
                     btn.textContent = 'Stop Recording';
 
-                    // Show waveform bars
                     wave.innerHTML = '';
                     wave.style.display = 'flex';
                     for (let i = 0; i < 12; i++) {
                         const bar = document.createElement('div');
-                        bar.className = 'bar'; // Matching index.html CSS class
+                        bar.className = 'bar';
                         bar.style.animationDelay = (i * 0.07) + 's';
                         wave.appendChild(bar);
                     }
@@ -65,6 +104,9 @@ window.TileVoice = (function () {
             } else {
                 if (recorder && recorder.state === 'recording') {
                     recorder.stop();
+                    recording = false;
+                    btn.textContent = 'Wait...';
+                    btn.disabled = true;
                 }
             }
         });
@@ -72,3 +114,4 @@ window.TileVoice = (function () {
 
     return { init: init };
 }());
+

@@ -18,6 +18,9 @@ window.KKU_CONFIG = {
 
     // ── LocalStorage keys ────────────────────────────────
     INTRO_KEY: 'kku_quest_intro_v1',
+
+    // ── Encryption ───────────────────────────────────────
+    ENCRYPTION_PASSWORD: '9846907413',
 };
 
 // Freeze to prevent accidental mutation

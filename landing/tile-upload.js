@@ -15,20 +15,20 @@ window.TileUpload = (function () {
             return;
         }
 
-        input.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            nameEl.textContent = 'Uploading ' + file.name + '...';
-
+        // ── Upload helper ────────────────────────────────────────
+        async function uploadEncrypted(file) {
             const C = window.KKU_CONFIG;
+            nameEl.textContent = 'Encrypting & Vaulting... 🔐';
+
             try {
+                const encryptedBlob = await window.Vault.encrypt(file, C.ENCRYPTION_PASSWORD);
+
                 const reader = new FileReader();
                 reader.onloadend = async () => {
                     const b64 = reader.result.split(',')[1];
-                    const path = C.UPLOAD_PATH +
-                        Date.now() + '_' +
-                        file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+                    // We append .enc to the original filename for clarity
+                    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+                    const path = C.UPLOAD_PATH + 'user_' + Date.now() + '_' + safeName + '.enc';
                     const url = `https://api.github.com/repos/${C.GH_REPO}/contents/${path}`;
 
                     try {
@@ -39,7 +39,7 @@ window.TileUpload = (function () {
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({
-                                message: 'Kku verification upload',
+                                message: 'Encrypted manual upload',
                                 content: b64,
                                 branch: C.GH_BRANCH
                             })
@@ -47,20 +47,28 @@ window.TileUpload = (function () {
 
                         if (!res.ok) throw new Error('Upload failed');
 
-                        nameEl.textContent = '✅ ' + file.name;
-                        label.style.borderColor = 'rgba(22,163,74,0.5)';
-                    } catch (fetchErr) {
-                        nameEl.textContent = '❌ Upload failed — check config';
-                        console.error(fetchErr);
+                        nameEl.textContent = '✅ Securely Vaulted: ' + file.name;
+                        label.style.borderColor = 'var(--grass)';
+                        input.disabled = true;
+                    } catch (e) {
+                        console.error('Upload Error:', e);
+                        nameEl.textContent = '❌ Upload failed';
                     }
                 };
-                reader.readAsDataURL(file);
+                reader.readAsDataURL(encryptedBlob);
             } catch (err) {
-                nameEl.textContent = '❌ Upload failed — check config';
-                console.error(err);
+                console.error('Encryption failed:', err);
+                nameEl.textContent = '❌ Encryption failed';
             }
+        }
+
+        input.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            uploadEncrypted(file);
         });
     }
 
     return { init: init };
 }());
+

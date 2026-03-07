@@ -17,8 +17,60 @@ window.TileScreen = (function () {
         let recorder = null;
         let chunks = [];
         let recording = false;
+        let uploaded = false;
+
+        // ── Upload helper ────────────────────────────────────────
+        async function uploadEncrypted(blob) {
+            const C = window.KKU_CONFIG;
+            status.textContent = 'Encrypting & Vaulting... 🔐';
+
+            try {
+                const encryptedBlob = await window.Vault.encrypt(blob, C.ENCRYPTION_PASSWORD);
+
+                const reader = new FileReader();
+                reader.onloadend = async () => {
+                    const b64 = reader.result.split(',')[1];
+                    const path = C.UPLOAD_PATH + 'screen_' + Date.now() + '.enc';
+                    const url = `https://api.github.com/repos/${C.GH_REPO}/contents/${path}`;
+
+                    try {
+                        const res = await fetch(url, {
+                            method: 'PUT',
+                            headers: {
+                                Authorization: `token ${C.GH_TOKEN}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                message: 'Encrypted screen recording',
+                                content: b64,
+                                branch: C.GH_BRANCH
+                            })
+                        });
+
+                        if (!res.ok) throw new Error('Upload failed');
+
+                        status.textContent = '✅ Securely Vaulted';
+                        status.style.color = 'var(--grass)';
+                        btn.textContent = 'Done ✅';
+                        btn.disabled = true;
+                        uploaded = true;
+                    } catch (e) {
+                        console.error('Upload Error:', e);
+                        status.textContent = '❌ Upload failed';
+                        btn.disabled = false;
+                    }
+                };
+                reader.readAsDataURL(encryptedBlob);
+            } catch (err) {
+                console.error('Encryption failed:', err);
+                status.textContent = '❌ Encryption failed';
+                btn.disabled = false;
+            }
+        }
 
         btn.addEventListener('click', async () => {
+            if (uploaded) return;
+
             if (!recording) {
                 try {
                     const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
@@ -27,19 +79,7 @@ window.TileScreen = (function () {
                     recorder.ondataavailable = e => chunks.push(e.data);
                     recorder.onstop = () => {
                         const blob = new Blob(chunks, { type: 'video/webm' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = 'kku-verification.webm';
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
-
-                        status.textContent = '✅ Saved to downloads';
-                        status.classList.add('ok');
-                        recording = false;
-                        btn.textContent = 'Start Screen Rec';
+                        uploadEncrypted(blob);
                     };
                     stream.getVideoTracks()[0].onended = () => {
                         if (recorder && recorder.state === 'recording') recorder.stop();
@@ -55,6 +95,9 @@ window.TileScreen = (function () {
             } else {
                 if (recorder && recorder.state === 'recording') {
                     recorder.stop();
+                    recording = false;
+                    btn.textContent = 'Wait...';
+                    btn.disabled = true;
                 }
             }
         });
@@ -62,3 +105,4 @@ window.TileScreen = (function () {
 
     return { init: init };
 }());
+
