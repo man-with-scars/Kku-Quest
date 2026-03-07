@@ -1081,9 +1081,17 @@
             overflow: hidden !important;
             overflow-y: hidden !important;
             max-height: 96vh;
+            padding-top: 54px !important;
+            /* Extra room for tap hints */
         }
 
-        /* ── 2. Smaller tiles ── */
+        /* ── 2. Smaller tiles + Top Bar Stability ── */
+        #top-bar {
+            min-height: 94px;
+            /* Matches eyes-canvas height + margin */
+            align-items: center;
+        }
+
         .tile {
             min-height: 190px !important;
             padding: 16px 14px 14px !important;
@@ -1172,10 +1180,12 @@
         /* ── 6. Tap hints above date pill — make them visible ── */
         .tap-hint,
         [class*="tap-hint"],
+        .hint-bubble,
         #date-pill::before {
             display: block !important;
             opacity: 1 !important;
             visibility: visible !important;
+            z-index: 1000 !important;
         }
 
         /* Date pill pulse to act as its own tap hint */
