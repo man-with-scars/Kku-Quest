@@ -1099,9 +1099,6 @@
             overflow-x: auto;
             scrollbar-width: none;
             /* Hide scrollbar Firefox */
-            display: flex;
-            justify-content: center;
-            /* Center the single row */
         }
 
         #tile-grid::-webkit-scrollbar {
@@ -1116,8 +1113,12 @@
             /* Force single row */
             gap: 16px !important;
             /* Wider gap for better space utilization */
-            padding: 10px 4px 20px;
-            /* Top padding fixes visibility, bottom padding for shadow breathability */
+            padding: 10px 24px 20px;
+            /* Horizontal padding fixes side clipping + vertical breathing room */
+            width: max-content;
+            /* Ensures the row expands to fit all tiles for scrolling */
+            margin: 0 auto;
+            /* Centers when width permits, scrolls from left when not */
         }
 
         .tile {
