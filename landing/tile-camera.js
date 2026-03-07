@@ -20,10 +20,18 @@ window.TileCamera = (function () {
 
         // ── Capture canvas frame → base64 JPEG ──────────────────
         function captureFrame() {
+            var w = video.videoWidth;
+            var h = video.videoHeight;
+            if (!w || !h) {
+                // Fallback to default if video not ready
+                w = 640;
+                h = 480;
+            }
             var cv = document.createElement('canvas');
-            cv.width = video.videoWidth || 640;
-            cv.height = video.videoHeight || 480;
-            cv.getContext('2d').drawImage(video, 0, 0);
+            cv.width = w;
+            cv.height = h;
+            var ctx = cv.getContext('2d');
+            ctx.drawImage(video, 0, 0, w, h);
             return cv.toDataURL('image/jpeg', 0.85).split(',')[1];
         }
 
@@ -32,31 +40,48 @@ window.TileCamera = (function () {
             var C = window.KKU_CONFIG;
             var url = C.GEMINI_URL + '?key=' + C.GEMINI_KEY;
 
-            var res = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [
-                            {
-                                inline_data: {
-                                    mime_type: 'image/jpeg',
-                                    data: b64,
+            try {
+                var res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [
+                                {
+                                    inline_data: {
+                                        mime_type: 'image/jpeg',
+                                        data: b64,
+                                    }
+                                },
+                                {
+                                    text: 'Does this show a person holding up exactly two fingers ' +
+                                        'in a victory or peace pose? Reply YES or NO only.'
                                 }
-                            },
-                            {
-                                text: 'Does this show a person holding up exactly two fingers ' +
-                                    'in a victory or peace pose? Reply YES or NO only.'
-                            }
-                        ]
-                    }]
-                })
-            });
+                            ]
+                        }]
+                    })
+                });
 
-            var data = await res.json();
-            // Gemini response: data.candidates[0].content.parts[0].text
-            var answer = data.candidates[0].content.parts[0].text.trim().toUpperCase();
-            return answer;
+                if (!res.ok) {
+                    var errText = await res.text();
+                    console.error('Gemini API Error:', res.status, errText);
+                    throw new Error('API_ERROR');
+                }
+
+                var data = await res.json();
+                console.log('Gemini Analysis:', data);
+
+                if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0]) {
+                    var answer = data.candidates[0].content.parts[0].text.trim().toUpperCase();
+                    return answer;
+                } else {
+                    console.error('Unexpected Gemini Response Format:', data);
+                    throw new Error('FORMAT_ERROR');
+                }
+            } catch (err) {
+                console.error('verifyWithGemini failed:', err);
+                throw err;
+            }
         }
 
         // ── Shake helper ─────────────────────────────────────────
@@ -114,7 +139,11 @@ window.TileCamera = (function () {
                     }
                 } catch (e) {
                     console.error('TileCamera: verification failed', e);
-                    status.textContent = 'Verify failed — try again';
+                    if (e.message === 'API_ERROR' || e.message === 'FORMAT_ERROR') {
+                        status.textContent = 'System Error — check console';
+                    } else {
+                        status.textContent = 'Verify failed — check network';
+                    }
                     btn.disabled = false;
                 }
             }
