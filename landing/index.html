@@ -1129,16 +1129,14 @@
             font-style: italic !important;
             font-size: clamp(15px, 1.8vw, 19px) !important;
             font-weight: 700 !important;
-            /* Gold tones with subtle emboss — stays readable on white */
-            color: #b8860b !important;
+            /* Deep dark amber — readable on white, still rich */
             background: linear-gradient(135deg,
-                    #d4a017 0%, #f0c040 30%,
-                    #c8860a 60%, #e8b020 100%) !important;
+                    #5a2800 0%, #8b4c00 30%,
+                    #6b3800 60%, #7a4200 100%) !important;
             -webkit-background-clip: text !important;
             -webkit-text-fill-color: transparent !important;
             background-clip: text !important;
-            /* Layered shadow for 3D emboss feel */
-            filter: drop-shadow(0 1px 0 rgba(180, 110, 0, 0.35)) drop-shadow(0 2px 1px rgba(100, 60, 0, 0.25)) drop-shadow(0 0 12px rgba(240, 180, 40, 0.3)) !important;
+            filter: drop-shadow(0 1px 0 rgba(120, 70, 0, 0.4)) drop-shadow(0 2px 1px rgba(80, 40, 0, 0.3)) !important;
             animation: destinyPulse 3.5s ease-in-out infinite,
                 destinyWiggle 6s ease-in-out infinite !important;
             letter-spacing: 0.5px !important;
@@ -1149,86 +1147,26 @@
             font-size: clamp(12px, 1.4vw, 15px) !important;
             font-weight: 600 !important;
             background: linear-gradient(135deg,
-                    #b8860b 0%, #d4a017 40%,
-                    #a07010 70%, #c89020 100%) !important;
+                    #4a2000 0%, #7a3c00 40%,
+                    #5c2e00 70%, #6e3800 100%) !important;
             -webkit-background-clip: text !important;
             -webkit-text-fill-color: transparent !important;
             background-clip: text !important;
-            filter: drop-shadow(0 1px 0 rgba(160, 100, 0, 0.3)) drop-shadow(0 0 10px rgba(220, 160, 30, 0.25)) !important;
+            filter: drop-shadow(0 1px 0 rgba(100, 55, 0, 0.35)) !important;
             animation: destinyPulse 3.5s ease-in-out infinite 0.5s !important;
             line-height: 1.7 !important;
         }
 
-        /* Shimmer highlight that sweeps across the text */
+        /* Remove shimmer — lines stand on their own */
         #heading .line1::after,
         #heading .line2::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(90deg,
-                    transparent 20%, rgba(255, 240, 160, 0.6) 50%, transparent 80%);
-            animation: destinyShimmer 4s ease-in-out infinite;
-            pointer-events: none;
+            content: none !important;
         }
 
         #heading .line1,
         #heading .line2 {
             position: relative;
             overflow: visible;
-        }
-
-        @keyframes destinyPulse {
-
-            0%,
-            100% {
-                filter: drop-shadow(0 1px 0 rgba(180, 110, 0, 0.35)) drop-shadow(0 2px 1px rgba(100, 60, 0, 0.25)) drop-shadow(0 0 10px rgba(220, 160, 30, 0.25));
-            }
-
-            50% {
-                filter: drop-shadow(0 1px 0 rgba(200, 130, 0, 0.5)) drop-shadow(0 2px 2px rgba(100, 60, 0, 0.35)) drop-shadow(0 0 22px rgba(240, 190, 60, 0.55));
-            }
-        }
-
-        @keyframes destinyWiggle {
-
-            0%,
-            100% {
-                transform: rotate(0deg);
-            }
-
-            10% {
-                transform: rotate(-0.4deg) scale(1.005);
-            }
-
-            20% {
-                transform: rotate(0.4deg) scale(1.008);
-            }
-
-            30% {
-                transform: rotate(-0.3deg);
-            }
-
-            40% {
-                transform: rotate(0.3deg);
-            }
-
-            50% {
-                transform: rotate(0deg) scale(1.003);
-            }
-        }
-
-        @keyframes destinyShimmer {
-            0% {
-                transform: translateX(-120%);
-            }
-
-            60% {
-                transform: translateX(120%);
-            }
-
-            100% {
-                transform: translateX(120%);
-            }
         }
 
         /* ── 6. Tap hints above date pill — make them visible ── */

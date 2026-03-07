@@ -310,7 +310,7 @@ window.Phase2 = (function () {
                    orbit centre toward the cursor, so they spiral and swarm around it */
                 f.angle += 0.016;
                 if (mouseNear && dist > 0) {
-                    var pull = Math.min(dist, 200) / 200 * 0.8; /* max 0.8 px/frame drift */
+                    var pull = Math.min(dist, 400) / 400 * 0.08; /* max 0.08 px/frame — very gentle */
                     f.cx += (dx / dist) * pull;
                     f.cy += (dy / dist) * pull;
                 }
@@ -321,10 +321,10 @@ window.Phase2 = (function () {
                 f.vx += (Math.random() - 0.5) * 0.04;
                 f.vy += (Math.random() - 0.5) * 0.04;
 
-                if (mouseNear && dist > 0) {
-                    /* Attraction: stronger when mouse is far (up to ~300 px), fades to 0 up close */
-                    var attract = Math.min(dist, 300) / 300;
-                    var aStr = f.isScout ? 0.25 : 0.12;
+                if (mouseNear && dist > 0 && dist < 500) {
+                    /* Very weak attraction — moths drifting toward a distant candle */
+                    var attract = (500 - dist) / 500;
+                    var aStr = f.isScout ? 0.025 : 0.008;
                     f.vx += (dx / dist) * attract * aStr;
                     f.vy += (dy / dist) * attract * aStr;
                 }
