@@ -11,7 +11,7 @@ window.KKU_CONFIG = {
 
     // ── Gemini API (used for camera vision verification) ──
     GEMINI_KEY: 'AIzaSyD0GDtK1zVli7UiDMyiwQyhQjuIXY8D_qY',
-    GEMINI_URL: 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent',
+    GEMINI_URL: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent',
 
     // ── App navigation ───────────────────────────────────
     GAME_URL: '../game/index.html',
