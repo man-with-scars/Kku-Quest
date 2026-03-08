@@ -9,6 +9,7 @@ window.TileDate = (function () {
     var assets = null;
     var isBusy = false;
     var clickCount = 0;
+    var wasTapped = false;
 
     function createStyle() {
         var el = document.createElement('style');
@@ -113,6 +114,8 @@ window.TileDate = (function () {
         if (isBusy) return;
         isBusy = true;
         clickCount++;
+        wasTapped = true;
+        document.dispatchEvent(new CustomEvent('kku:task-completed', { detail: 'date-tap' }));
 
         var acts = ['wink', 'smile', 'laugh', 'walle', 'cowboy', 'kiss', 'confetti'];
         var type = acts[Math.floor(Math.random() * acts.length)];
@@ -308,5 +311,8 @@ window.TileDate = (function () {
         startClickbait();
     }
 
-    return { init: init };
+    return {
+        init: init,
+        wasTapped: function () { return wasTapped; }
+    };
 }());

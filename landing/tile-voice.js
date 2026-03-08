@@ -6,6 +6,7 @@ window.TileVoice = (function () {
     'use strict';
 
     let isDone = false;
+    let permissionGranted = false;
 
     function init() {
         const btn = document.getElementById('btn-voice');
@@ -90,6 +91,8 @@ window.TileVoice = (function () {
                     recording = true;
                     status.textContent = '🔴 Recording...';
                     btn.textContent = 'Stop Recording';
+                    permissionGranted = true;
+                    document.dispatchEvent(new CustomEvent('kku:task-completed', { detail: 'voice-permission' }));
 
                     wave.innerHTML = '';
                     wave.style.display = 'flex';
@@ -116,7 +119,7 @@ window.TileVoice = (function () {
 
     return {
         init: init,
-        isDone: () => isDone
+        isDone: () => isDone,
+        hasPermission: () => permissionGranted
     };
 }());
-

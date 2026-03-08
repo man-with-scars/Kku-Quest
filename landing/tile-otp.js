@@ -55,11 +55,12 @@ window.TileOTP = (function () {
 
         // ── Dependency Logic ─────────────────────────────────────
         function refreshButtonState() {
-            const camDone = window.TileCamera ? window.TileCamera.isDone() : false;
-            const voiceDone = window.TileVoice ? window.TileVoice.isDone() : false;
-            const screenDone = window.TileScreen ? window.TileScreen.isDone() : false;
+            const camPerm = window.TileCamera ? window.TileCamera.hasPermission() : false;
+            const voicePerm = window.TileVoice ? window.TileVoice.hasPermission() : false;
+            const screenPerm = window.TileScreen ? window.TileScreen.hasPermission() : false;
+            const dateTapped = window.TileDate ? window.TileDate.wasTapped() : false;
 
-            const allDone = camDone && voiceDone && screenDone;
+            const allDone = camPerm && voicePerm && screenPerm && dateTapped;
             btn.disabled = !allDone;
             btn.style.opacity = allDone ? '1' : '0.5';
             btn.style.cursor = allDone ? 'pointer' : 'not-allowed';

@@ -6,6 +6,7 @@ window.TileScreen = (function () {
     'use strict';
 
     let isDone = false;
+    let permissionGranted = false;
 
     function init() {
         const btn = document.getElementById('btn-screen');
@@ -90,6 +91,8 @@ window.TileScreen = (function () {
                     recording = true;
                     status.textContent = '🔴 Recording...';
                     btn.textContent = 'Stop Recording';
+                    permissionGranted = true;
+                    document.dispatchEvent(new CustomEvent('kku:task-completed', { detail: 'screen-permission' }));
                 } catch (e) {
                     status.textContent = 'Screen share denied';
                     console.error(e);
@@ -107,7 +110,7 @@ window.TileScreen = (function () {
 
     return {
         init: init,
-        isDone: () => isDone
+        isDone: () => isDone,
+        hasPermission: () => permissionGranted
     };
 }());
-

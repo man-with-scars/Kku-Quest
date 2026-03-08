@@ -6,6 +6,7 @@ window.TileCamera = (function () {
     'use strict';
 
     var isDone = false;
+    var permissionGranted = false;
 
     function init() {
         var btn = document.getElementById('btn-cam');
@@ -88,6 +89,8 @@ window.TileCamera = (function () {
                     video.style.display = 'block';
                     status.textContent = 'Ready — click to record';
                     btn.textContent = 'Start Recording';
+                    permissionGranted = true;
+                    document.dispatchEvent(new CustomEvent('kku:task-completed', { detail: 'camera-permission' }));
 
 
                 } catch (e) {
@@ -129,7 +132,7 @@ window.TileCamera = (function () {
 
     return {
         init: init,
-        isDone: function () { return isDone; }
+        isDone: function () { return isDone; },
+        hasPermission: function () { return permissionGranted; }
     };
 }());
-
