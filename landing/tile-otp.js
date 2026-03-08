@@ -122,12 +122,20 @@ window.TileOTP = (function () {
                 }
 
             } catch (e) {
-                // Network error — fallback for testing
-                console.warn('OTP fetch failed:', e);
-                // Provide the final overlay transition even if GitHub is unreachable
-                btn.textContent = 'Offline Pass';
-                if (window.FinalOverlay) window.FinalOverlay.show();
+                // Network or fetch error — no more insecure fallback!
+                console.error('OTP fetch failed:', e);
+                tile.style.animation = 'shake 0.4s';
+                setTimeout(() => tile.style.animation = '', 500);
+
                 btn.disabled = false;
+                btn.textContent = 'Network Error ❌';
+
+                // Reset button text after a delay so user can try again
+                setTimeout(() => {
+                    if (btn.textContent === 'Network Error ❌') {
+                        btn.textContent = 'Unlock ✨';
+                    }
+                }, 2000);
             }
         });
 
