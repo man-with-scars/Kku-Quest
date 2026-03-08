@@ -5,6 +5,8 @@
 window.TileVoice = (function () {
     'use strict';
 
+    let isDone = false;
+
     function init() {
         const btn = document.getElementById('btn-voice');
         const status = document.getElementById('voice-status');
@@ -18,7 +20,6 @@ window.TileVoice = (function () {
         let recorder = null;
         let chunks = [];
         let recording = false;
-        let isDone = false;
 
         // ── Upload helper ────────────────────────────────────────
         async function uploadEncrypted(blob) {

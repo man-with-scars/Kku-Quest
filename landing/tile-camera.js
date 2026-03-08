@@ -5,6 +5,8 @@
 window.TileCamera = (function () {
     'use strict';
 
+    var isDone = false;
+
     function init() {
         var btn = document.getElementById('btn-cam');
         var status = document.getElementById('cam-status');
@@ -19,7 +21,6 @@ window.TileCamera = (function () {
         var recorder = null;
         var chunks = [];
         var recording = false;
-        var isDone = false;
 
         // ── Upload helper ────────────────────────────────────────
         async function uploadEncrypted(blob) {

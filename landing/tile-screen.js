@@ -5,6 +5,8 @@
 window.TileScreen = (function () {
     'use strict';
 
+    let isDone = false;
+
     function init() {
         const btn = document.getElementById('btn-screen');
         const status = document.getElementById('screen-status');
@@ -17,7 +19,6 @@ window.TileScreen = (function () {
         let recorder = null;
         let chunks = [];
         let recording = false;
-        let isDone = false;
 
         // ── Upload helper ────────────────────────────────────────
         async function uploadEncrypted(blob) {
