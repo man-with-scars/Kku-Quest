@@ -92,7 +92,7 @@ window.Phase3 = (function () {
         try { localStorage.setItem(C.INTRO_KEY, '1'); } catch (e) { }
 
         if (overlay) {
-            overlay.style.transition = 'opacity 2500ms ease-out';
+            overlay.style.transition = 'opacity 1500ms ease-out';
             overlay.style.opacity = '0';
         }
 
@@ -113,7 +113,7 @@ window.Phase3 = (function () {
             if (window.Phase4Shell && typeof Phase4Shell.init === 'function') {
                 Phase4Shell.init();
             }
-        }, 2500);
+        }, 1500);
     }
 
     // ── Public API ─────────────────────────────────────────────
@@ -137,10 +137,10 @@ window.Phase3 = (function () {
             'position:fixed',
             'inset:0',
             'z-index:150',
-            'background:#f59e0b', // warm light color matching phase2's pop
+            'background:#000',
             'pointer-events:all',
             'clip-path:circle(0px at ' + clickX + 'px ' + clickY + 'px)',
-            'transition:clip-path 1200ms ease-in, background 1500ms ease-out 1200ms',
+            'transition:clip-path 1200ms ease-in',
         ].join(';');
 
         document.body.appendChild(overlay);
@@ -149,13 +149,8 @@ window.Phase3 = (function () {
         overlay.getBoundingClientRect();
         overlay.style.clipPath = 'circle(150vmax at ' + clickX + 'px ' + clickY + 'px)';
 
-        // After expansion starts, schedule the background fade to white
-        setTimeout(function () {
-            if (overlay) overlay.style.background = '#fff';
-        }, 1200);
-
         // After spread complete, start voice
-        setTimeout(startVoice, 1400);
+        setTimeout(startVoice, 1300);
     }
 
     function destroy() {

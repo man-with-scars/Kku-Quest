@@ -205,7 +205,7 @@ window.Phase2 = (function () {
             '.flame-overlay {',
             '  position: fixed; inset: 0; pointer-events: none; z-index: 900;',
             '    background: radial-gradient(circle at var(--ox,50%) var(--oy,40%),',
-            '    #fff 0%, #fff 5%, #fcd34d 20%, #f59e0b 50%, #d97706 75%, transparent 100%);',
+            '    #fff 0%, #fcd34d 18%, #f59e0b 38%, rgba(0,0,0,0) 65%);',
             '  opacity: 0; transition: opacity 0.1s ease;',
             '}',
 
