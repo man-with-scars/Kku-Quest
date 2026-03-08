@@ -1445,6 +1445,55 @@
             /* Boot the experience */
             Phase1.init();
 
+            // ── Global Dev Skip (Ctrl+M) ────────────────────────
+            document.addEventListener('keydown', function (e) {
+                if (e.ctrlKey && (e.key === 'm' || e.key === 'M')) {
+                    // Safety: Disallow during Phase 4 as per user request
+                    const phase4 = document.getElementById('phase4');
+                    if (phase4 && phase4.classList.contains('active')) {
+                        console.warn("Dev Shortcut disabled in Verification Phase");
+                        return;
+                    }
+
+                    e.preventDefault();
+
+                    const isUnlocked = sessionStorage.getItem('kku_dev_unlocked') === '1';
+                    if (!isUnlocked) {
+                        const code = prompt("Dev Access Code:");
+                        if (code === "00365") {
+                            sessionStorage.setItem('kku_dev_unlocked', '1');
+                        } else {
+                            return; // Wrong code
+                        }
+                    }
+
+                    const phase1 = document.getElementById('phase1');
+                    const phase2 = document.getElementById('phase2');
+                    const phase3 = document.getElementById('phase3');
+
+                    // Phase 1 -> 2
+                    if (phase1 && phase1.classList.contains('active')) {
+                        if (window.Phase1) window.Phase1.destroy();
+                        phase1.classList.remove('active');
+                        document.getElementById('phase2').classList.add('active');
+                        if (window.Phase2) window.Phase2.init();
+                    }
+                    // Phase 2 -> 3
+                    else if (document.getElementById('phase2').classList.contains('active')) {
+                        if (window.Phase2) window.Phase2.destroy();
+                        document.getElementById('phase2').classList.remove('active');
+                        if (window.Phase3) window.Phase3.init(window.innerWidth / 2, window.innerHeight / 2);
+                    }
+                    // Phase 3 -> 4
+                    else if (phase3 && phase3.classList.contains('active')) {
+                        if (window.Phase3) window.Phase3.destroy();
+                        phase3.classList.remove('active');
+                        document.getElementById('phase4').classList.add('active');
+                        if (window.Phase4Shell) window.Phase4Shell.init();
+                    }
+                }
+            });
+
             // ── Diagnostic Tool ──────────────────────────────────────────
             const btn = document.getElementById('btn-check-github');
             const status = document.getElementById('diag-status');

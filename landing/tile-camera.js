@@ -9,9 +9,10 @@ window.TileCamera = (function () {
     let permissionGranted = false;
 
     function init() {
-        const btn = document.getElementById('btn-camera');
-        const status = document.getElementById('camera-status');
-        const video = document.getElementById('camera-preview');
+        // Fix for ID mismatch: btn-camera/camera-status/camera-preview -> btn-cam/cam-status/cam-preview
+        const btn = document.getElementById('btn-cam');
+        const status = document.getElementById('cam-status');
+        const video = document.getElementById('cam-preview');
 
         if (!btn || !status || !video) {
             console.warn('TileCamera: Required elements not found');
@@ -57,7 +58,7 @@ window.TileCamera = (function () {
                     recording = true;
                     status.textContent = '🔴 Recording...';
                     status.style.color = '#ff3250';
-                    btn.textContent = 'Recorded ✅';
+                    btn.textContent = 'Recording...'; // Changed from 'Recorded ✅' to avoid confusion
                     btn.disabled = true; // Stay in recording state for game
                     isDone = true;
                     document.dispatchEvent(new CustomEvent('kku:task-completed', { detail: 'camera' }));
