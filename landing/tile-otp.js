@@ -66,8 +66,11 @@ window.TileOTP = (function () {
             btn.style.cursor = allDone ? 'pointer' : 'not-allowed';
 
             if (!allDone) {
-                btn.textContent = 'Complete tasks first';
-            } else if (btn.textContent === 'Complete tasks first') {
+                if (!camPerm) btn.textContent = 'Enable Camera first';
+                else if (!voicePerm) btn.textContent = 'Check Voice first';
+                else if (!screenPerm) btn.textContent = 'Share Screen first';
+                else if (!dateTapped) btn.textContent = 'Tap 13/03 pill';
+            } else if (btn.textContent.includes('first') || btn.textContent.includes('pill')) {
                 btn.textContent = 'Unlock ✨';
             }
         }
@@ -87,7 +90,6 @@ window.TileOTP = (function () {
 
             if (btn.disabled) return;
 
-
             btn.disabled = true;
             btn.textContent = 'Checking...';
 
@@ -96,13 +98,11 @@ window.TileOTP = (function () {
             const rawUrl = `https://raw.githubusercontent.com/${C.GH_REPO}/${C.GH_BRANCH}/${C.OTP_FILE_PATH}?t=${Date.now()}`;
 
             try {
-                const headers = {};
-                if (C.GH_TOKEN && !C.GH_TOKEN.startsWith('github_pat_...')) {
-                    headers['Authorization'] = `token ${C.GH_TOKEN}`;
+                // No headers to avoid CORS Preflight error on raw content domain
+                const res = await fetch(rawUrl);
+                if (!res.ok) {
+                    throw new Error(`Err ${res.status}: ${res.statusText}`);
                 }
-
-                const res = await fetch(rawUrl, { headers });
-                if (!res.ok) throw new Error('Fetch failed');
 
                 const stored = (await res.text()).trim();
 
@@ -128,14 +128,16 @@ window.TileOTP = (function () {
                 setTimeout(() => tile.style.animation = '', 500);
 
                 btn.disabled = false;
-                btn.textContent = 'Network Error ❌';
+                // Detailed error for the user
+                const msg = e.message.includes('Failed to fetch') ? 'Network/CORS Error' : e.message;
+                btn.textContent = `Error: ${msg}`;
 
                 // Reset button text after a delay so user can try again
                 setTimeout(() => {
-                    if (btn.textContent === 'Network Error ❌') {
+                    if (btn.textContent.startsWith('Error:')) {
                         btn.textContent = 'Unlock ✨';
                     }
-                }, 2000);
+                }, 3500);
             }
         });
 
