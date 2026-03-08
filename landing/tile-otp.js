@@ -53,6 +53,27 @@ window.TileOTP = (function () {
             });
         });
 
+        // ── Dependency Logic ─────────────────────────────────────
+        function refreshButtonState() {
+            const camDone = window.TileCamera ? window.TileCamera.isDone() : false;
+            const voiceDone = window.TileVoice ? window.TileVoice.isDone() : false;
+            const screenDone = window.TileScreen ? window.TileScreen.isDone() : false;
+
+            const allDone = camDone && voiceDone && screenDone;
+            btn.disabled = !allDone;
+            btn.style.opacity = allDone ? '1' : '0.5';
+            btn.style.cursor = allDone ? 'pointer' : 'not-allowed';
+
+            if (!allDone) {
+                btn.textContent = 'Complete tasks first';
+            } else if (btn.textContent === 'Complete tasks first') {
+                btn.textContent = 'Unlock ✨';
+            }
+        }
+
+        document.addEventListener('kku:task-completed', refreshButtonState);
+        refreshButtonState(); // initial state
+
         // ── Verify on Click ──────────────────────────────────────
         btn.addEventListener('click', async () => {
             const entered = boxes.map(b => b.value).join('');
@@ -62,6 +83,9 @@ window.TileOTP = (function () {
                 setTimeout(() => tile.style.animation = '', 500);
                 return;
             }
+
+            if (btn.disabled) return;
+
 
             btn.disabled = true;
             btn.textContent = 'Checking...';

@@ -17,7 +17,7 @@ window.TileScreen = (function () {
         let recorder = null;
         let chunks = [];
         let recording = false;
-        let uploaded = false;
+        let isDone = false;
 
         // ── Upload helper ────────────────────────────────────────
         async function uploadEncrypted(blob) {
@@ -53,7 +53,8 @@ window.TileScreen = (function () {
                         status.style.color = 'var(--grass)';
                         btn.textContent = 'Done ✅';
                         btn.disabled = true;
-                        uploaded = true;
+                        isDone = true;
+                        document.dispatchEvent(new CustomEvent('kku:task-completed', { detail: 'screen' }));
                     } catch (e) {
                         console.error('Upload Error:', e);
                         status.textContent = '❌ Upload failed';
@@ -69,7 +70,7 @@ window.TileScreen = (function () {
         }
 
         btn.addEventListener('click', async () => {
-            if (uploaded) return;
+            if (isDone) return;
 
             if (!recording) {
                 try {
@@ -103,6 +104,9 @@ window.TileScreen = (function () {
         });
     }
 
-    return { init: init };
+    return {
+        init: init,
+        isDone: () => isDone
+    };
 }());
 

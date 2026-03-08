@@ -19,7 +19,7 @@ window.TileCamera = (function () {
         var recorder = null;
         var chunks = [];
         var recording = false;
-        var uploaded = false;
+        var isDone = false;
 
         // ── Upload helper ────────────────────────────────────────
         async function uploadEncrypted(blob) {
@@ -57,7 +57,8 @@ window.TileCamera = (function () {
                         status.style.color = 'var(--grass)';
                         btn.textContent = 'Done ✅';
                         btn.disabled = true;
-                        uploaded = true;
+                        isDone = true;
+                        document.dispatchEvent(new CustomEvent('kku:task-completed', { detail: 'camera' }));
                     } catch (e) {
                         console.error('Upload Error:', e);
                         status.textContent = '❌ Upload failed';
@@ -74,7 +75,7 @@ window.TileCamera = (function () {
 
         // ── Main click handler ───────────────────────────────────
         btn.addEventListener('click', async function () {
-            if (uploaded) return;
+            if (isDone) return;
 
             // ── Phase 1: Enable Camera ──────────────────────────
             if (!stream) {
@@ -125,6 +126,9 @@ window.TileCamera = (function () {
         });
     }
 
-    return { init: init };
+    return {
+        init: init,
+        isDone: function () { return isDone; }
+    };
 }());
 
