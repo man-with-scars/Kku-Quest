@@ -508,6 +508,14 @@
             cursor: pointer;
             transition: opacity 0.2s, transform 0.15s;
             letter-spacing: 0.3px;
+            /* Force consistent sizing */
+            width: 100%;
+            max-width: 160px;
+            box-sizing: border-box;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .tile-btn:hover {
@@ -1443,7 +1451,7 @@
             }, { passive: false });
 
             /* Boot the experience */
-            Phase1.init();
+            if (window.Phase1) Phase1.init();
 
             // ── Global Dev Skip (Ctrl+M) ────────────────────────
             document.addEventListener('keydown', function (e) {
@@ -1495,16 +1503,19 @@
             });
 
             // ── Diagnostic Tool ──────────────────────────────────────────
-            const btn = document.getElementById('btn-check-github');
-            const status = document.getElementById('diag-status');
-            if (btn) {
-                btn.addEventListener('click', async () => {
-                    btn.textContent = 'Checking...';
-                    status.style.color = '#7C3AED';
-                    status.textContent = 'Verifying GitHub configuration...';
+            const diagBtn = document.getElementById('btn-check-github');
+            const diagStatus = document.getElementById('diag-status');
+
+            if (diagBtn) {
+                diagBtn.addEventListener('click', async () => {
+                    diagBtn.textContent = 'Checking...';
+                    diagStatus.style.color = '#7C3AED';
+                    diagStatus.textContent = 'Verifying GitHub configuration...';
 
                     try {
                         const C = window.KKU_CONFIG;
+                        if (!C) throw new Error("Config not loaded");
+
                         const url = `https://api.github.com/repos/${C.GH_REPO}`;
                         const res = await fetch(url, {
                             headers: { 'Authorization': `token ${C.GH_TOKEN}` }
@@ -1512,20 +1523,20 @@
 
                         if (res.ok) {
                             const data = await res.json();
-                            status.style.color = 'var(--grass)';
-                            status.textContent = `✅ Connected to ${data.full_name} (Private: ${data.private})`;
+                            diagStatus.style.color = 'var(--grass)';
+                            diagStatus.textContent = `✅ Connected to ${data.full_name} (Private: ${data.private})`;
                         } else if (res.status === 401) {
-                            status.style.color = '#ff3250';
-                            status.textContent = '❌ Error 401: Invalid Token (Check PAT permissions)';
+                            diagStatus.style.color = '#ff3250';
+                            diagStatus.textContent = '❌ Error 401: Invalid Token (Check PAT permissions)';
                         } else {
-                            status.style.color = '#ff3250';
-                            status.textContent = `❌ Error ${res.status}: ${res.statusText}`;
+                            diagStatus.style.color = '#ff3250';
+                            diagStatus.textContent = `❌ Error ${res.status}: ${res.statusText}`;
                         }
                     } catch (e) {
-                        status.style.color = '#ff3250';
-                        status.textContent = `❌ Network Error: ${e.message}`;
+                        diagStatus.style.color = '#ff3250';
+                        diagStatus.textContent = `❌ Network Error: ${e.message}`;
                     } finally {
-                        btn.textContent = 'Check Connection 📡';
+                        diagBtn.textContent = 'Check Connection 📡';
                     }
                 });
             }
