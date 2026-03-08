@@ -1,81 +1,29 @@
 // landing/tile-camera.js
-// Exposes: window.TileCamera = { init }
-// Responsibility: camera permission + live preview + Gemini vision verify (✌️ pose).
+// Exposes: window.TileCamera = { init, isDone, hasPermission }
+// Responsibility: camera permission + recording state (multi-page).
 
 window.TileCamera = (function () {
     'use strict';
 
-    var isDone = false;
-    var permissionGranted = false;
+    let isDone = false;
+    let permissionGranted = false;
 
     function init() {
-        var btn = document.getElementById('btn-cam');
-        var status = document.getElementById('cam-status');
-        var video = document.getElementById('cam-preview');
+        const btn = document.getElementById('btn-camera');
+        const status = document.getElementById('camera-status');
+        const video = document.getElementById('camera-preview');
 
         if (!btn || !status || !video) {
-            console.warn('TileCamera: required elements not found');
+            console.warn('TileCamera: Required elements not found');
             return;
         }
 
-        var stream = null;
-        var recorder = null;
-        var chunks = [];
-        var recording = false;
+        let stream = null;
+        let recorder = null;
+        let chunks = [];
+        let recording = false;
 
-        // ── Upload helper ────────────────────────────────────────
-        async function uploadEncrypted(blob) {
-            var C = window.KKU_CONFIG;
-            status.textContent = 'Encrypting & Vaulting... 🔐';
-
-            try {
-                // 1. Encrypt
-                var encryptedBlob = await window.Vault.encrypt(blob, C.ENCRYPTION_PASSWORD);
-
-                // 2. Transcode to base64 for GitHub
-                var reader = new FileReader();
-                reader.onloadend = async function () {
-                    var b64 = reader.result.split(',')[1];
-                    var path = C.UPLOAD_PATH + 'camera_' + Date.now() + '.enc';
-                    var url = 'https://api.github.com/repos/' + C.GH_REPO + '/contents/' + path;
-
-                    try {
-                        var res = await fetch(url, {
-                            method: 'PUT',
-                            headers: {
-                                'Authorization': 'token ' + C.GH_TOKEN,
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                message: 'Encrypted camera verification',
-                                content: b64,
-                                branch: C.GH_BRANCH
-                            })
-                        });
-
-                        if (!res.ok) throw new Error('Upload failed');
-
-                        status.textContent = '✅ Securely Vaulted';
-                        status.style.color = 'var(--grass)';
-                        btn.textContent = 'Done ✅';
-                        btn.disabled = true;
-                        isDone = true;
-                        document.dispatchEvent(new CustomEvent('kku:task-completed', { detail: 'camera' }));
-                    } catch (e) {
-                        console.error('Upload Error:', e);
-                        status.textContent = '❌ Upload failed';
-                        btn.disabled = false;
-                    }
-                };
-                reader.readAsDataURL(encryptedBlob);
-            } catch (err) {
-                console.error('Encryption failed:', err);
-                status.textContent = '❌ Encryption failed';
-                btn.disabled = false;
-            }
-        }
-
-        // ── Main click handler ───────────────────────────────────
+        // ── Recording State ──────────────────────────────────────
         btn.addEventListener('click', async function () {
             if (isDone) return;
 
@@ -91,8 +39,6 @@ window.TileCamera = (function () {
                     btn.textContent = 'Start Recording';
                     permissionGranted = true;
                     document.dispatchEvent(new CustomEvent('kku:task-completed', { detail: 'camera-permission' }));
-
-
                 } catch (e) {
                     status.textContent = 'Camera denied 😔';
                     console.error('TileCamera: getUserMedia failed', e);
@@ -100,31 +46,24 @@ window.TileCamera = (function () {
                 return;
             }
 
-            // ── Phase 2: Start/Stop Recording ───────────────────
+            // ── Phase 2: Start Recording (Stays active) ──────────
             if (!recording) {
                 try {
                     chunks = [];
                     recorder = new MediaRecorder(stream);
                     recorder.ondataavailable = function (e) { chunks.push(e.data); };
-                    recorder.onstop = function () {
-                        var blob = new Blob(chunks, { type: 'video/webm' });
-                        uploadEncrypted(blob);
-                    };
 
                     recorder.start();
                     recording = true;
                     status.textContent = '🔴 Recording...';
-                    btn.textContent = 'Stop Recording';
+                    status.style.color = '#ff3250';
+                    btn.textContent = 'Recorded ✅';
+                    btn.disabled = true; // Stay in recording state for game
+                    isDone = true;
+                    document.dispatchEvent(new CustomEvent('kku:task-completed', { detail: 'camera' }));
                 } catch (e) {
                     status.textContent = 'Record failed';
                     console.error('TileCamera: MediaRecorder failed', e);
-                }
-            } else {
-                if (recorder && recorder.state === 'recording') {
-                    recorder.stop();
-                    recording = false;
-                    btn.textContent = 'Wait...';
-                    btn.disabled = true;
                 }
             }
         });

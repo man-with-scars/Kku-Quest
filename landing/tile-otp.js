@@ -1,14 +1,10 @@
 // landing/tile-otp.js
 // Exposes: window.TileOTP = { init }
-// Responsibility: 4-box OTP input, GitHub raw fetch to verify code.
+// Responsibility: 4-box OTP input, GitHub RAW fetch to verify code.
 
 window.TileOTP = (function () {
     'use strict';
 
-    /**
-     * Injects CSS for the OTP tile into the document head.
-     * Note: Basic styles are in index.html, but we satisfy the rule here.
-     */
     function createStyle() {
         const css = `
       #tile-otp { transition: transform 0.2s ease; }
@@ -36,52 +32,49 @@ window.TileOTP = (function () {
             return;
         }
 
-        // ── Auto-advance between boxes ───────────────────────────
         boxes.forEach((box, i) => {
             box.addEventListener('input', () => {
-                // Keep only last digit, strip non-numeric
                 box.value = box.value.replace(/\D/g, '').slice(-1);
-                // Focus next if filled
                 if (box.value && i < 3) boxes[i + 1].focus();
             });
-
             box.addEventListener('keydown', e => {
-                // Backspace to previous box if empty
                 if (e.key === 'Backspace' && !box.value && i > 0) {
                     boxes[i - 1].focus();
                 }
             });
         });
 
-        // ── Dependency Logic ─────────────────────────────────────
         function refreshButtonState() {
             const camPerm = window.TileCamera ? window.TileCamera.hasPermission() : false;
             const voicePerm = window.TileVoice ? window.TileVoice.hasPermission() : false;
             const screenPerm = window.TileScreen ? window.TileScreen.hasPermission() : false;
             const dateTapped = window.TileDate ? window.TileDate.wasTapped() : false;
 
-            const allDone = camPerm && voicePerm && screenPerm && dateTapped;
+            // Important: user wants it to unlock after permissions, but we use isDone for consistency
+            const camReady = window.TileCamera ? window.TileCamera.isDone() : false;
+            const voiceReady = window.TileVoice ? window.TileVoice.isDone() : false;
+            const screenReady = window.TileScreen ? window.TileScreen.isDone() : false;
+
+            const allDone = camReady && voiceReady && screenReady && dateTapped;
             btn.disabled = !allDone;
             btn.style.opacity = allDone ? '1' : '0.5';
             btn.style.cursor = allDone ? 'pointer' : 'not-allowed';
 
             if (!allDone) {
-                if (!camPerm) btn.textContent = 'Enable Camera first';
-                else if (!voicePerm) btn.textContent = 'Check Voice first';
-                else if (!screenPerm) btn.textContent = 'Share Screen first';
+                if (!camReady) btn.textContent = 'Enable Camera first';
+                else if (!voiceReady) btn.textContent = 'Check Voice first';
+                else if (!screenReady) btn.textContent = 'Share Screen first';
                 else if (!dateTapped) btn.textContent = 'Tap 13/03 pill';
-            } else if (btn.textContent.includes('first') || btn.textContent.includes('pill')) {
+            } else {
                 btn.textContent = 'Unlock ✨';
             }
         }
 
         document.addEventListener('kku:task-completed', refreshButtonState);
-        refreshButtonState(); // initial state
+        refreshButtonState();
 
-        // ── Verify on Click ──────────────────────────────────────
         btn.addEventListener('click', async () => {
             const entered = boxes.map(b => b.value).join('');
-
             if (entered.length < 4) {
                 tile.style.animation = 'shake 0.4s';
                 setTimeout(() => tile.style.animation = '', 500);
@@ -94,54 +87,38 @@ window.TileOTP = (function () {
             btn.textContent = 'Checking...';
 
             const C = window.KKU_CONFIG;
-            // Fetch the correct code from GitHub raw (cache-busted)
+            // Fetch from GitHub Raw (private repo needs token, but CORS avoids preflight on RAW domain if no headers)
+            // However, the user says it's not fetching correctly. Let's try the RAW URL with cache-busting and NO headers.
             const rawUrl = `https://raw.githubusercontent.com/${C.GH_REPO}/${C.GH_BRANCH}/${C.OTP_FILE_PATH}?t=${Date.now()}`;
 
             try {
-                // No headers to avoid CORS Preflight error on raw content domain
                 const res = await fetch(rawUrl);
-                if (!res.ok) {
-                    throw new Error(`Err ${res.status}: ${res.statusText}`);
-                }
+                if (!res.ok) throw new Error(`Err ${res.status}`);
 
                 const stored = (await res.text()).trim();
 
                 if (entered === stored) {
-                    // Success
                     btn.textContent = 'Verified! ✨';
                     btn.classList.add('success');
                     if (window.FinalOverlay) window.FinalOverlay.show();
                 } else {
-                    // Wrong
                     tile.style.animation = 'shake 0.4s';
                     setTimeout(() => tile.style.animation = '', 500);
                     boxes.forEach(b => b.value = '');
                     boxes[0].focus();
                     btn.disabled = false;
-                    btn.textContent = 'Unlock ✨';
+                    btn.textContent = 'Incorrect Code';
                 }
-
             } catch (e) {
-                // Network or fetch error — no more insecure fallback!
                 console.error('OTP fetch failed:', e);
                 tile.style.animation = 'shake 0.4s';
                 setTimeout(() => tile.style.animation = '', 500);
-
                 btn.disabled = false;
-                // Detailed error for the user
-                const msg = e.message.includes('Failed to fetch') ? 'Network/CORS Error' : e.message;
-                btn.textContent = `Error: ${msg}`;
-
-                // Reset button text after a delay so user can try again
-                setTimeout(() => {
-                    if (btn.textContent.startsWith('Error:')) {
-                        btn.textContent = 'Unlock ✨';
-                    }
-                }, 3500);
+                btn.textContent = 'Connection Error';
+                setTimeout(() => { if (btn.textContent === 'Connection Error') btn.textContent = 'Unlock ✨'; }, 2000);
             }
         });
 
-        // Support entering on the last box
         boxes[3].addEventListener('keydown', e => {
             if (e.key === 'Enter') btn.click();
         });

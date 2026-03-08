@@ -1,5 +1,5 @@
 // landing/tile-voice.js
-// Exposes: window.TileVoice = { init }
+// Exposes: window.TileVoice = { init, isDone, hasPermission }
 // Responsibility: audio recording + animated waveform bars.
 
 window.TileVoice = (function () {
@@ -22,56 +22,6 @@ window.TileVoice = (function () {
         let chunks = [];
         let recording = false;
 
-        // ── Upload helper ────────────────────────────────────────
-        async function uploadEncrypted(blob) {
-            const C = window.KKU_CONFIG;
-            status.textContent = 'Encrypting & Vaulting... 🔐';
-
-            try {
-                const encryptedBlob = await window.Vault.encrypt(blob, C.ENCRYPTION_PASSWORD);
-
-                const reader = new FileReader();
-                reader.onloadend = async () => {
-                    const b64 = reader.result.split(',')[1];
-                    const path = C.UPLOAD_PATH + 'voice_' + Date.now() + '.enc';
-                    const url = `https://api.github.com/repos/${C.GH_REPO}/contents/${path}`;
-
-                    try {
-                        const res = await fetch(url, {
-                            method: 'PUT',
-                            headers: {
-                                Authorization: `token ${C.GH_TOKEN}`,
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                message: 'Encrypted voice recording',
-                                content: b64,
-                                branch: C.GH_BRANCH
-                            })
-                        });
-
-                        if (!res.ok) throw new Error('Upload failed');
-
-                        status.textContent = '✅ Securely Vaulted';
-                        status.style.color = 'var(--grass)';
-                        btn.textContent = 'Done ✅';
-                        btn.disabled = true;
-                        isDone = true;
-                        document.dispatchEvent(new CustomEvent('kku:task-completed', { detail: 'voice' }));
-                    } catch (e) {
-                        console.error('Upload Error:', e);
-                        status.textContent = '❌ Upload failed';
-                        btn.disabled = false;
-                    }
-                };
-                reader.readAsDataURL(encryptedBlob);
-            } catch (err) {
-                console.error('Encryption failed:', err);
-                status.textContent = '❌ Encryption failed';
-                btn.disabled = false;
-            }
-        }
-
         btn.addEventListener('click', async () => {
             if (isDone) return;
 
@@ -81,18 +31,16 @@ window.TileVoice = (function () {
                     chunks = [];
                     recorder = new MediaRecorder(stream);
                     recorder.ondataavailable = e => chunks.push(e.data);
-                    recorder.onstop = () => {
-                        stream.getTracks().forEach(t => t.stop());
-                        const blob = new Blob(chunks, { type: 'audio/webm' });
-                        uploadEncrypted(blob);
-                    };
 
                     recorder.start();
                     recording = true;
                     status.textContent = '🔴 Recording...';
-                    btn.textContent = 'Stop Recording';
+                    status.style.color = '#ff3250';
+                    btn.textContent = 'Recorded ✅';
+                    btn.disabled = true;
                     permissionGranted = true;
-                    document.dispatchEvent(new CustomEvent('kku:task-completed', { detail: 'voice-permission' }));
+                    isDone = true;
+                    document.dispatchEvent(new CustomEvent('kku:task-completed', { detail: 'voice' }));
 
                     wave.innerHTML = '';
                     wave.style.display = 'flex';
@@ -105,13 +53,6 @@ window.TileVoice = (function () {
                 } catch (e) {
                     status.textContent = 'Mic denied';
                     console.error(e);
-                }
-            } else {
-                if (recorder && recorder.state === 'recording') {
-                    recorder.stop();
-                    recording = false;
-                    btn.textContent = 'Wait...';
-                    btn.disabled = true;
                 }
             }
         });

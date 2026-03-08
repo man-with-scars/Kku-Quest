@@ -1367,7 +1367,6 @@
                             <button class="tile-btn" id="btn-screen">Start Capture</button>
                         </div>
 
-
                         <!-- OTP -->
                         <div class="tile" id="tile-otp">
                             <div class="tile-icon">🔒</div>
@@ -1383,12 +1382,22 @@
                                 <input type="text" id="otp3" maxlength="1" inputmode="numeric" autocomplete="off"
                                     aria-label="Digit 4" />
                             </div>
-                            <button class="tile-btn" id="btn-otp">Unlock ✨</button>
+                            <button class="tile-btn opt-unlock" id="btn-otp">Complete tasks first</button>
                         </div>
 
                     </div><!-- /.tile-row -->
 
                 </div><!-- /#tile-grid -->
+
+                <!-- Diagnostic Button -->
+                <div style="margin-top: 40px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                    <button id="btn-check-github"
+                        style="background: transparent; border: 1px solid rgba(124, 58, 237, 0.3); color: #7C3AED; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                        Check Connection 📡
+                    </button>
+                    <div id="diag-status" style="font-size: 11px; font-weight: 500; height: 16px; color: #7C3AED;">
+                    </div>
+                </div>
 
             </div><!-- /#main-card -->
 
@@ -1435,52 +1444,42 @@
 
             /* Boot the experience */
             Phase1.init();
-            // ── Global Dev Skip (Ctrl+M) ────────────────────────
-            document.addEventListener('keydown', function (e) {
-                if (e.ctrlKey && (e.key === 'm' || e.key === 'M')) {
-                    e.preventDefault();
 
-                    const isUnlocked = sessionStorage.getItem('kku_dev_unlocked') === '1';
-                    if (!isUnlocked) {
-                        const code = prompt("Dev Access Code:");
-                        if (code === "00365") {
-                            sessionStorage.setItem('kku_dev_unlocked', '1');
+            // ── Diagnostic Tool ──────────────────────────────────────────
+            const btn = document.getElementById('btn-check-github');
+            const status = document.getElementById('diag-status');
+            if (btn) {
+                btn.addEventListener('click', async () => {
+                    btn.textContent = 'Checking...';
+                    status.style.color = '#7C3AED';
+                    status.textContent = 'Verifying GitHub configuration...';
+
+                    try {
+                        const C = window.KKU_CONFIG;
+                        const url = `https://api.github.com/repos/${C.GH_REPO}`;
+                        const res = await fetch(url, {
+                            headers: { 'Authorization': `token ${C.GH_TOKEN}` }
+                        });
+
+                        if (res.ok) {
+                            const data = await res.json();
+                            status.style.color = 'var(--grass)';
+                            status.textContent = `✅ Connected to ${data.full_name} (Private: ${data.private})`;
+                        } else if (res.status === 401) {
+                            status.style.color = '#ff3250';
+                            status.textContent = '❌ Error 401: Invalid Token (Check PAT permissions)';
                         } else {
-                            return; // Wrong code
+                            status.style.color = '#ff3250';
+                            status.textContent = `❌ Error ${res.status}: ${res.statusText}`;
                         }
+                    } catch (e) {
+                        status.style.color = '#ff3250';
+                        status.textContent = `❌ Network Error: ${e.message}`;
+                    } finally {
+                        btn.textContent = 'Check Connection 📡';
                     }
-
-                    const phase1 = document.getElementById('phase1');
-                    const phase2 = document.getElementById('phase2');
-                    const phase3 = document.getElementById('phase3');
-                    const phase4 = document.getElementById('phase4');
-
-                    // Phase 1 -> 2
-                    if (phase1 && phase1.classList.contains('active')) {
-                        if (window.Phase1) window.Phase1.destroy();
-                        phase1.classList.remove('active');
-                        phase2.classList.add('active');
-                        if (window.Phase2) window.Phase2.init();
-                    }
-                    // Phase 2 -> 3
-                    else if (phase2 && phase2.classList.contains('active')) {
-                        if (window.Phase2) window.Phase2.destroy();
-                        phase2.classList.remove('active');
-                        if (window.Phase3) window.Phase3.init(window.innerWidth / 2, window.innerHeight / 2);
-                    }
-                    // Phase 3 -> 4
-                    else if (phase3 && phase3.classList.contains('active')) {
-                        if (window.Phase3) window.Phase3.destroy();
-                        phase3.classList.remove('active');
-                        phase4.classList.add('active');
-                        if (window.Phase4Shell) window.Phase4Shell.init();
-                    }
-                    // Phase 4 -> Final
-                    else if (phase4 && phase4.classList.contains('active')) {
-                        if (window.FinalOverlay) window.FinalOverlay.show();
-                    }
-                }
-            });
+                });
+            }
         });
     </script>
 
