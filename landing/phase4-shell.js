@@ -153,7 +153,6 @@ window.Phase4Shell = (function () {
         if (window.TileCamera) { TileCamera.init(); }
         if (window.TileVoice) { TileVoice.init(); }
         if (window.TileScreen) { TileScreen.init(); }
-        if (window.TileUpload) { TileUpload.init(); }
         if (window.TileOTP) { TileOTP.init(); }
         if (window.FinalOverlay) { FinalOverlay.init(); }
         // Phase4Eyes is initialised by TileCamera after camera is verified

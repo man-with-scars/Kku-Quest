@@ -87,9 +87,7 @@ window.TileCamera = (function () {
                     status.textContent = 'Ready — click to record';
                     btn.textContent = 'Start Recording';
 
-                    if (window.Phase4Eyes && typeof Phase4Eyes.show === 'function') {
-                        Phase4Eyes.show();
-                    }
+
                 } catch (e) {
                     status.textContent = 'Camera denied 😔';
                     console.error('TileCamera: getUserMedia failed', e);

@@ -1087,8 +1087,8 @@
 
         /* ── 2. Smaller tiles + Single Row Stability ── */
         #top-bar {
-            min-height: 94px;
-            /* Matches eyes-canvas height + margin */
+            display: flex;
+            justify-content: center;
             align-items: center;
         }
 
@@ -1311,20 +1311,8 @@
 
                 <!-- ── Top Bar ── -->
                 <div id="top-bar">
-                    <!-- Date pill (left) -->
+                    <!-- Date pill (centered) -->
                     <div id="date-pill" aria-label="Anniversary date">13 / 03</div>
-
-                    <!-- Cartoon eyes (centre) -->
-                    <div id="eyes-wrap">
-                        <canvas id="eyes-canvas" width="180" height="90" aria-label="Watching eyes"></canvas>
-                        <div id="eyes-placeholder">
-                            <div class="eye-line"></div>
-                            <div class="eye-line"></div>
-                        </div>
-                    </div>
-
-                    <!-- Spacer (right, mirrors date-pill width) -->
-                    <div style="width:90px; flex-shrink:0;"></div>
                 </div>
 
                 <!-- ── Heading ── -->
@@ -1379,17 +1367,6 @@
                             <button class="tile-btn" id="btn-screen">Start Capture</button>
                         </div>
 
-                        <!-- Upload -->
-                        <div class="tile" id="tile-upload">
-                            <div class="tile-icon">📤</div>
-                            <div class="tile-title">Upload Proof</div>
-                            <div class="tile-sub">Send a file to the vault</div>
-                            <label id="upload-label" for="inp-upload">
-                                <span style="font-size:11px; color:var(--sub);">Choose a file…</span>
-                                <input type="file" id="inp-upload" accept="image/*,video/*,audio/*" />
-                            </label>
-                            <div id="upload-name">no file selected</div>
-                        </div>
 
                         <!-- OTP -->
                         <div class="tile" id="tile-otp">
@@ -1442,11 +1419,9 @@
     <script src="phase2.js"></script>
     <script src="phase3.js"></script>
     <script src="phase4-shell.js"></script>
-    <script src="phase4-eyes.js"></script>
     <script src="tile-camera.js"></script>
     <script src="tile-voice.js"></script>
     <script src="tile-screen.js"></script>
-    <script src="tile-upload.js"></script>
     <script src="tile-otp.js"></script>
     <script src="final-overlay.js"></script>
 
