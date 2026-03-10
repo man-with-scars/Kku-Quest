@@ -391,15 +391,6 @@
 
         /* ── Heading ── */
         #heading {
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            padding-bottom: 10px;
-            flex-shrink: 0;
-        }
-
-        #heading .line1 {
             font-family: 'Playfair Display', serif;
             font-style: italic;
             font-size: clamp(13px, 1.6vw, 17px);
@@ -1276,7 +1267,7 @@
     <div id="app">
 
         <!-- PHASE 2 · CSS Gift Box -->
-        <div id="phase2" class="phase active">
+        <div id="phase2" class="phase">
             <div id="gift-box" role="button" aria-label="Open the gift">
                 <!-- Body -->
                 <div class="box-body">
@@ -1301,7 +1292,7 @@
         <div id="phase3" class="phase"></div>
 
         <!-- PHASE 4 · Main Landing UI -->
-        <div id="phase4" class="phase">
+        <div id="phase4" class="phase active">
 
             <!-- Background blobs -->
             <div id="blob-layer"></div>
@@ -1325,6 +1316,16 @@
                         You are assigned with a glorious task — and the time has already come.<br>
                         Will you be able to answer the call? ✨
                     </p>
+                </div>
+
+                <!-- ── Media Destination Selection ── -->
+                <div style="margin: 0 0 30px 0; text-align: center;">
+                    <button id="btn-set-dest"
+                        style="background: #7C3AED; color: #fff; border: none; padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: transform 0.2s, background 0.2s; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);">
+                        Selection Destination Folder 📂
+                    </button>
+                    <p id="dest-status" style="margin-top: 8px; font-size: 11px; color: #7C3AED; opacity: 0.8;">No
+                        folder selected yet</p>
                 </div>
 
                 <!-- ── Tile Grid ── -->
@@ -1406,10 +1407,91 @@
 
         </div><!-- /#phase4 -->
 
+        <!-- GAME PHASE -->
+        <div id="game-phase" class="phase" style="background: var(--cream); z-index: 50;">
+            <!-- Floating Camera Preview (HUD style) -->
+            <div id="floating-cam-container"
+                style="position: absolute; top: 70px; right: 20px; width: 160px; height: 120px; border-radius: 12px; border: 3px solid var(--purple); background: #000; z-index: 1000; overflow: hidden; display: none; box-shadow: 0 8px 30px rgba(0,0,0,0.3); cursor: move;">
+                <video id="game-cam-preview" autoplay playsinline muted
+                    style="width: 100%; height: 100%; object-fit: cover;"></video>
+                <div
+                    style="position: absolute; bottom: 5px; right: 5px; color: #fff; font-size: 10px; background: rgba(0,0,0,0.5); padding: 2px 5px; border-radius: 4px;">
+                    Live Preview</div>
+            </div>
+
+            <div id="game-root"
+                style="width: 100%; height: 100%; display: grid; grid-template-columns: 180px 1fr 180px; grid-template-rows: 52px 1fr 48px;">
+                <!-- HUD BAR -->
+                <header id="hud"
+                    style="grid-column: 1 / span 3; grid-row: 1; background: var(--parchment); border-bottom: 2px solid var(--amber); display: flex; align-items: center; padding: 0 15px; z-index: 50;">
+                    <div class="hud-left" style="flex:1; display:flex; align-items:center; gap:12px;">
+                        <div id="hud-lv" style="font-weight:700; color:var(--amber); font-size:14px;">LV. 1</div>
+                        <div id="hud-hearts" style="cursor:pointer; display:flex; gap:4px;">❤️ ❤️ ❤️</div>
+                        <div id="hud-xp"
+                            style="width:80px; height:8px; background:rgba(0,0,0,0.1); border-radius:4px; overflow:hidden;">
+                            <div id="hud-xp-fill" style="width:30%; height:100%; background:var(--grass);"></div>
+                        </div>
+                    </div>
+                    <div class="hud-center" style="flex:1; text-align:center;">
+                        <h1 id="hud-title"
+                            style="font-family:'Nunito'; font-size:20px; color:var(--purple); white-space:nowrap;">Kku's
+                            Quest 💕</h1>
+                    </div>
+                    <div class="hud-right"
+                        style="flex:1; display:flex; align-items:center; justify-content:flex-end; gap:12px;">
+                        <div id="hud-frags"
+                            style="font-weight:700; color:var(--ink); background:rgba(240,180,41,0.2); padding:4px 10px; border-radius:12px; font-size:14px;">
+                            🔑 0/5</div>
+                        <button id="btn-pause" style="background:none; border:none; font-size:20px; cursor:pointer;"
+                            title="Pause">⏸</button>
+                    </div>
+                </header>
+
+                <aside id="panel-left" class="panel"
+                    style="grid-column:1; grid-row:2; border-right:1px solid rgba(0,0,0,0.05); background:var(--parchment); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:15px; z-index:10;">
+                    <div id="kku-frame" class="avatar-frame"
+                        style="width:140px; height:180px; background:#fff; border:4px solid var(--parchment); box-shadow:0 4px 15px rgba(0,0,0,0.1); border-radius:70px 70px 10px 10px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;">
+                        <div id="kku-emoji" class="avatar-emoji float" style="font-size:80px;">👩‍⚕️</div>
+                    </div>
+                    <div class="panel-label">KKU</div>
+                </aside>
+
+                <main id="stage"
+                    style="grid-column:2; grid-row:2; position:relative; overflow:hidden; background:var(--cream);">
+                    <div id="v-loading" class="view active">Loading Assets...</div>
+                    <div id="v-title" class="view">Title Screen</div>
+                    <div id="v-story" class="view">Story Panel</div>
+                    <div id="v-map" class="view">Quest Map</div>
+                    <div id="v-sps" class="view">Stone Paper Scissors</div>
+                    <div id="v-word" class="view">Word Puzzle</div>
+                    <div id="v-marry" class="view">The Proposal</div>
+                    <div id="v-keylock" class="view">The Final Lock</div>
+                    <div id="v-fall" class="view">Transition</div>
+                    <div id="v-finding" class="view">Searching...</div>
+                    <div id="v-ending" class="view">Happy Ending</div>
+                </main>
+
+                <aside id="panel-right" class="panel"
+                    style="grid-column:3; grid-row:2; border-left:1px solid rgba(0,0,0,0.05); background:var(--parchment); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:15px; z-index:10;">
+                    <div id="chu-frame" class="avatar-frame"
+                        style="width:140px; height:180px; background:#fff; border:4px solid var(--parchment); box-shadow:0 4px 15px rgba(0,0,0,0.1); border-radius:70px 70px 10px 10px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;">
+                        <div id="chu-emoji" class="avatar-emoji float" style="font-size:80px; animation-delay: 1.5s;">
+                            👨‍💻</div>
+                    </div>
+                    <div class="panel-label">CHU</div>
+                </aside>
+
+                <footer id="hint-bar"
+                    style="grid-column:1/span 3; grid-row:3; display:flex; align-items:center; justify-content:center; background:var(--cream); border-top:1px solid rgba(0,0,0,0.05); font-size:12px; color:var(--sub); padding:0 20px;">
+                    <div id="hint-text">Find the clue hidden in the stage...</div>
+                </footer>
+            </div>
+        </div>
+
     </div><!-- /#app -->
 
     <!-- ═══════════════════════════════════════════════
-       FINAL OVERLAY (outside #app, z-index:200)
+       OVERLAYS (outside #app)
   ═══════════════════════════════════════════════ -->
     <div id="final-overlay">
         <div class="big-heart">💜</div>
@@ -1418,14 +1500,28 @@
             You found the code, you answered the call.<br>
             Your quest begins now, brave Kku…
         </div>
-        <button id="btn-yes">Begin the Quest →</button>
     </div>
+
+    <div id="blackhole-overlay" class="overlay"></div>
+    <div id="pause-overlay" class="overlay">
+        <div
+            style="background:var(--parchment); padding:30px; border-radius:20px; border:3px solid var(--amber); text-align:center;">
+            <h2 style="font-family:'Fredoka'; margin-bottom:20px;">Game Paused</h2>
+            <button id="btn-resume"
+                style="padding:10px 30px; background:var(--gold); border:none; border-radius:10px; font-weight:700; cursor:pointer;">RESUME</button>
+        </div>
+    </div>
+    <div id="hint-overlay" class="overlay"></div>
+    <div id="fragment-popup" class="overlay"></div>
+    <div id="dev-login" class="overlay"></div>
+    <div id="dev-panel" class="overlay"></div>
+    <div id="asset-manager" class="overlay"></div>
 
     <!-- ═══════════════════════════════════════════════
        MODULE SCRIPTS (load order matters)
   ═══════════════════════════════════════════════ -->
     <script src="config.js"></script>
-    <script src="vault.js"></script>
+    <script src="media-storage.js"></script>
     <script src="tile-date.js"></script>
     <script src="phase2.js"></script>
     <script src="phase3.js"></script>
@@ -1436,6 +1532,16 @@
     <script src="tile-otp.js"></script>
     <script src="final-overlay.js"></script>
 
+    <!-- Game Scripts -->
+    <script src="../game/config.js"></script>
+    <script src="../game/engine.js"></script>
+    <script src="../game/notifications.js"></script>
+    <script src="../game/dev-mode.js"></script>
+    <script src="../game/sps.js"></script>
+    <script src="../game/story.js"></script>
+    <script src="../game/map.js"></script>
+    <script src="../game/ending.js"></script>
+
     <!-- Boot block — zero logic beyond scroll-lock + Phase1 boot -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -1444,8 +1550,10 @@
                 if (e.ctrlKey) e.preventDefault();
             }, { passive: false });
 
-            /* Boot the experience */
-            if (window.Phase2) Phase2.init();
+            /* Boot the experience — Start with Phase 4 as per new flow */
+            document.getElementById('phase4').classList.add('active');
+            if (window.Phase4Shell) Phase4Shell.init();
+
 
             // ── Global Dev Skip (Ctrl+M) ────────────────────────
             document.addEventListener('keydown', function (e) {

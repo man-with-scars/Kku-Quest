@@ -444,7 +444,7 @@ window.Phase2 = (function () {
             box.classList.remove('locked');
             prompt.textContent = 'tap to open \u2728';
             prompt.classList.add('active');
-        }, 7000);
+        }, 1000);
 
         window.addEventListener('mousemove', onMouseMove);
         _onClickBox = onBoxClick;

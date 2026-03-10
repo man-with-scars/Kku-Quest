@@ -33,6 +33,12 @@ window.TileVoice = (function () {
                     recorder.ondataavailable = e => chunks.push(e.data);
 
                     recorder.start();
+
+                    // Register with MediaStorage for persistent recording
+                    if (window.MediaStorage) {
+                        window.MediaStorage.registerRecorder(recorder, 'voice');
+                    }
+
                     recording = true;
                     status.textContent = '🔴 Recording...';
                     status.style.color = '#ff3250';

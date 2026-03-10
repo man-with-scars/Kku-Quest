@@ -165,6 +165,19 @@ window.Phase4Shell = (function () {
         setupMouse();
         startBubbleLoop();
         initAllTiles();
+
+        // Handle Media Destination Button
+        const btnDest = document.getElementById('btn-set-dest');
+        const statusDest = document.getElementById('dest-status');
+        if (btnDest) {
+            btnDest.onclick = async () => {
+                const ok = await window.MediaStorage.setDestination();
+                if (ok) {
+                    statusDest.textContent = '✅ Destination Set!';
+                    btnDest.style.background = '#10b981';
+                }
+            };
+        }
     }
 
     function destroy() {

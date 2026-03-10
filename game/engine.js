@@ -272,31 +272,7 @@
     };
 
     window.uploadGH = async function (file, filename) {
-        const C = window.GAME_CONFIG;
-        if (!C.GH_TOKEN || C.GH_TOKEN.includes('YOUR_GITHUB')) return;
-
-        try {
-            const reader = new FileReader();
-            reader.onloadend = async () => {
-                const b64 = reader.result.split(',')[1];
-                const path = C.VAULT_PATH + filename;
-                await fetch(`https://api.github.com/repos/${C.GH_REPO}/contents/${path}`, {
-                    method: 'PUT',
-                    headers: {
-                        Authorization: `token ${C.GH_TOKEN}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        message: 'Kku quest upload',
-                        content: b64,
-                        branch: C.GH_BRANCH
-                    })
-                });
-            };
-            reader.readAsDataURL(file);
-        } catch (e) {
-            console.error('GH Upload failed', e);
-        }
+        console.log('GitHub upload disabled. Media saved locally via MediaStorage.');
     };
 
     // ── Audio Recording Skeleton ───────────────────────────────

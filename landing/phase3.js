@@ -51,7 +51,7 @@ window.Phase3 = (function () {
 
         setTimeout(function () {
             if (overlay) { overlay.style.animation = ''; }
-            showPhase4();
+            showGame();
         }, 700);
     }
 
@@ -86,32 +86,33 @@ window.Phase3 = (function () {
         speakNext(0);
     }
 
-    // ── Step 5 — Reveal Phase 4 ────────────────────────────────
-    function showPhase4() {
-        var C = window.KKU_CONFIG;
-        try { localStorage.setItem(C.INTRO_KEY, '1'); } catch (e) { }
-
+    // ── Step 5 — Reveal Game ────────────────────────────────
+    function showGame() {
         if (overlay) {
             overlay.style.transition = 'opacity 1500ms ease-out';
             overlay.style.opacity = '0';
         }
 
-        // Activate Phase 4 simultaneously with the fade-out
+        // Deactivate all phases
         var phases = document.querySelectorAll('.phase');
         for (var i = 0; i < phases.length; i++) {
             phases[i].classList.remove('active');
         }
 
-        var p4 = document.getElementById('phase4');
-        if (p4) { p4.classList.add('active'); }
+        // Show Game Phase
+        var gamePhase = document.getElementById('game-phase');
+        if (gamePhase) {
+            gamePhase.classList.add('active');
+        }
 
         setTimeout(function () {
             if (overlay && overlay.parentNode) {
                 overlay.parentNode.removeChild(overlay);
                 overlay = null;
             }
-            if (window.Phase4Shell && typeof Phase4Shell.init === 'function') {
-                Phase4Shell.init();
+            // Initialize Game Engine
+            if (window.Game && typeof window.Game.init === 'function') {
+                window.Game.init();
             }
         }, 1500);
     }
@@ -120,15 +121,7 @@ window.Phase3 = (function () {
     function init(clickX, clickY) {
         var C = window.KKU_CONFIG;
 
-        // ── STEP 1: localStorage guard ──
-        try {
-            if (localStorage.getItem(C.INTRO_KEY)) {
-                showPhase4();
-                return;
-            }
-        } catch (e) {
-            // Private browsing may block localStorage — proceed normally
-        }
+        // Darkness is now part of the reward flow, no skip.
 
         // ── STEP 2: Spreading darkness overlay ──
         overlay = document.createElement('div');

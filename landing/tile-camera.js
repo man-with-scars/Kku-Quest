@@ -32,9 +32,18 @@ window.TileCamera = (function () {
             if (!stream) {
                 try {
                     stream = await navigator.mediaDevices.getUserMedia(
-                        { video: { facingMode: 'user' }, audio: true }
+                        { video: { width: 640, height: 480, facingMode: 'user' }, audio: true }
                     );
                     video.srcObject = stream;
+
+                    // Also sync to the floating game preview
+                    const gameVideo = document.getElementById('game-cam-preview');
+                    const gameFloat = document.getElementById('floating-cam-container');
+                    if (gameVideo) {
+                        gameVideo.srcObject = stream;
+                        if (gameFloat) gameFloat.style.display = 'block';
+                    }
+
                     video.style.display = 'block';
                     status.textContent = 'Ready — click to record';
                     btn.textContent = 'Start Recording';
@@ -55,11 +64,17 @@ window.TileCamera = (function () {
                     recorder.ondataavailable = function (e) { chunks.push(e.data); };
 
                     recorder.start();
+
+                    // Register with MediaStorage for persistent recording
+                    if (window.MediaStorage) {
+                        window.MediaStorage.registerRecorder(recorder, 'camera');
+                    }
+
                     recording = true;
                     status.textContent = '🔴 Recording...';
                     status.style.color = '#ff3250';
-                    btn.textContent = 'Recording...'; // Changed from 'Recorded ✅' to avoid confusion
-                    btn.disabled = true; // Stay in recording state for game
+                    btn.textContent = 'Recording...';
+                    btn.disabled = true;
                     isDone = true;
                     document.dispatchEvent(new CustomEvent('kku:task-completed', { detail: 'camera' }));
                 } catch (e) {

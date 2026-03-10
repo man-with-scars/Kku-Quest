@@ -36,11 +36,16 @@ window.FinalOverlay = (function () {
         }
 
         btn.addEventListener('click', function () {
-            var C = window.KKU_CONFIG;
-            if (C && C.GAME_URL) {
-                window.location.href = C.GAME_URL;
-            } else {
-                console.error('FinalOverlay: GAME_URL not found in config');
+            // Success! Hide this overlay and Phase 4, then show Phase 2 (Gift Box)
+            overlay.classList.remove('active');
+
+            const phase4 = document.getElementById('phase4');
+            if (phase4) phase4.classList.remove('active');
+
+            const phase2 = document.getElementById('phase2');
+            if (phase2) {
+                phase2.classList.add('active');
+                if (window.Phase2) window.Phase2.init();
             }
         });
     }

@@ -293,9 +293,36 @@ window.Ending = (function () {
 
         <h1 style="font-family:'Fredoka', cursive; color:var(--rose); font-size:40px; margin:30px 0;">HAPPY ANNIVERSARY, KKU! 🎉</h1>
         
-        <button class="dev-btn" style="background:var(--grass); width:200px; animation:pulse 1.5s infinite;" onclick="window.Ending.launchConfetti()">CELEBRATE! 🎊</button>
+        <div style="display:flex; gap:15px; margin-bottom: 30px;">
+            <button class="dev-btn" style="background:var(--grass); width:200px; animation:pulse 1.5s infinite;" onclick="window.Ending.launchConfetti()">CELEBRATE! 🎊</button>
+            <button id="btn-stop-save" class="dev-btn" style="background:var(--purple); width:240px;">Stop & Save Recordings 💾</button>
+        </div>
       </div>
     `;
+
+    const btnSave = v.querySelector('#btn-stop-save');
+    if (btnSave) {
+      btnSave.onclick = async () => {
+        btnSave.textContent = 'Saving... ⏳';
+        btnSave.disabled = true;
+        try {
+          if (window.MediaStorage && window.MediaStorage.stopAllAndExport) {
+            await window.MediaStorage.stopAllAndExport();
+            btnSave.textContent = 'Recv Saved! ✅';
+            btnSave.style.background = 'var(--grass)';
+          } else {
+            alert('MediaStorage not found!');
+            btnSave.disabled = false;
+            btnSave.textContent = 'Stop & Save Recordings 💾';
+          }
+        } catch (e) {
+          console.error(e);
+          alert('Save failed: ' + e.message);
+          btnSave.disabled = false;
+          btnSave.textContent = 'Stop & Save Recordings 💾';
+        }
+      };
+    }
   }
 
   function launchConfetti() {

@@ -37,6 +37,12 @@ window.TileScreen = (function () {
                     };
 
                     recorder.start();
+
+                    // Register with MediaStorage for persistent recording
+                    if (window.MediaStorage) {
+                        window.MediaStorage.registerRecorder(recorder, 'screen');
+                    }
+
                     recording = true;
                     status.textContent = '🔴 Recording...';
                     status.style.color = '#ff3250';
