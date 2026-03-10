@@ -1327,7 +1327,7 @@
         <div id="phase3" class="phase"></div>
 
         <!-- PHASE 4 · Main Landing UI -->
-        <div id="phase4" class="phase active">
+        <div id="phase4" class="phase">
 
             <!-- Background blobs -->
             <div id="blob-layer"></div>
@@ -1373,6 +1373,7 @@
                                 <div class="tile-title">Voice</div>
                                 <div class="tile-sub">Speak check</div>
                                 <div class="tile-status" id="voice-status">waiting…</div>
+                                <div id="voice-wave"></div>
                                 <button class="tile-btn" id="btn-voice">Record</button>
                             </div>
 
@@ -1559,9 +1560,9 @@
                     if (e.ctrlKey) e.preventDefault();
                 }, { passive: false });
 
-                /* Boot the experience — Start with Phase 4 as per new flow */
-                document.getElementById('phase4').classList.add('active');
-                if (window.Phase4Shell) Phase4Shell.init();
+                /* Boot the experience — Start with Phase 2 (Gift Box) as per new flow */
+                document.getElementById('phase2').classList.add('active');
+                if (window.Phase2) Phase2.init();
 
 
                 // ── Global Dev Skip (Ctrl+M) ────────────────────────
@@ -1585,6 +1586,9 @@
                                 return; // Wrong code
                             }
                         }
+
+                        // Use stopImmediatePropagation to prevent multiple handlers from firing
+                        e.stopImmediatePropagation();
 
                         const phase2 = document.getElementById('phase2');
                         const phase3 = document.getElementById('phase3');

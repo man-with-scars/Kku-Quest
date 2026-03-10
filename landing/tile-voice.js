@@ -46,6 +46,7 @@ window.TileVoice = (function () {
                     isDone = true;
                     document.dispatchEvent(new CustomEvent('kku:task-completed', { detail: 'voice' }));
 
+                    const wave = document.getElementById('voice-wave');
                     if (wave) {
                         wave.innerHTML = '';
                         wave.style.display = 'flex';

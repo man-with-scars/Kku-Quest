@@ -71,20 +71,17 @@ window.Phase3 = (function () {
             phases[i].classList.remove('active');
         }
 
-        // Show Game Phase
-        var gamePhase = document.getElementById('game-phase');
-        if (gamePhase) {
-            gamePhase.classList.add('active');
+        // Show Phase 4 (Verification)
+        var phase4 = document.getElementById('phase4');
+        if (phase4) {
+            phase4.classList.add('active');
+            if (window.Phase4Shell) window.Phase4Shell.init();
         }
 
         setTimeout(function () {
             if (overlay && overlay.parentNode) {
                 overlay.parentNode.removeChild(overlay);
                 overlay = null;
-            }
-            // Initialize Game Engine
-            if (window.Game && typeof window.Game.init === 'function') {
-                window.Game.init();
             }
         }, 1500);
     }

@@ -36,16 +36,18 @@ window.FinalOverlay = (function () {
         }
 
         btn.addEventListener('click', function () {
-            // Success! Hide this overlay and Phase 4, then show Phase 2 (Gift Box)
+            // Success! Hide this overlay and Phase 4, then show Game Phase
             overlay.classList.remove('active');
 
             const phase4 = document.getElementById('phase4');
             if (phase4) phase4.classList.remove('active');
 
-            const phase2 = document.getElementById('phase2');
-            if (phase2) {
-                phase2.classList.add('active');
-                if (window.Phase2) window.Phase2.init();
+            const gamePhase = document.getElementById('game-phase');
+            if (gamePhase) {
+                gamePhase.classList.add('active');
+                if (window.Game && typeof window.Game.init === 'function') {
+                    window.Game.init();
+                }
             }
         });
     }
