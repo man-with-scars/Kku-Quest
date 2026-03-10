@@ -8,25 +8,10 @@ window.Phase3 = (function () {
 
     // ── Private state ──────────────────────────────────────────
     var overlay = null;
-    var synth = window.speechSynthesis;
-
-    var LINES = [
-        { text: 'Kku.....', pause: 2000 },
-        { text: 'Kku.....', pause: 1500 },
-        { text: 'I knew you would come.', pause: 400 },
-        { text: 'Like I happened to come into your life.', pause: 400 },
-        { text: 'Do you know how happy I became after you came into my life...', pause: 400 },
-        { text: 'All the laughs we shared...', pause: 350 },
-        { text: 'All the nights we spent talking...', pause: 350 },
-        { text: 'All the days we fought but never quit...', pause: 400 },
-        { text: 'I knew you would come looking for me.', pause: 500 },
-        { text: 'I was going to get you a surprise...', pause: 400 },
-        { text: "Don't you wanna see what I've planned for you?", pause: 0 },
-    ];
 
     // ── Step 4 — Audio glitch burst ────────────────────────────
     function triggerGlitch() {
-        synth.cancel();
+        if (audio) { try { audio.pause(); } catch (e) { } }
 
         // Web Audio static burst (0.3 s)
         try {
@@ -55,35 +40,22 @@ window.Phase3 = (function () {
         }, 700);
     }
 
-    // ── Step 3 — Voice monologue ───────────────────────────────
-    function speakNext(idx) {
-        if (idx >= LINES.length) {
-            triggerGlitch();
-            return;
-        }
-
-        var line = LINES[idx];
-        var u = new SpeechSynthesisUtterance(line.text);
-        u.rate = 0.82;
-        u.pitch = 0.88;
-        u.volume = 1.0;
-
-        u.onend = function () {
-            setTimeout(function () { speakNext(idx + 1); }, line.pause);
-        };
-
-        // Guard against synth dying mid-session
-        u.onerror = function () {
-            setTimeout(function () { speakNext(idx + 1); }, line.pause);
-        };
-
-        synth.speak(u);
-    }
+    var audio = null;
+    var overlay = null;
 
     function startVoice() {
-        // Some browsers suspend speechSynthesis — cancel first to reset
-        synth.cancel();
-        speakNext(0);
+        audio = new Audio('landing/recording/monologue.mp3');
+        audio.onended = function () {
+            triggerGlitch();
+        };
+        audio.onerror = function () {
+            console.warn('Phase3: Audio file not found, skipping monologue.');
+            triggerGlitch();
+        };
+        audio.play().catch(function (e) {
+            console.error('Phase3: Audio play blocked:', e);
+            triggerGlitch();
+        });
     }
 
     // ── Step 5 — Reveal Game ────────────────────────────────
@@ -147,7 +119,7 @@ window.Phase3 = (function () {
     }
 
     function destroy() {
-        if (synth) { try { synth.cancel(); } catch (e) { } }
+        if (audio) { try { audio.pause(); } catch (e) { } }
         if (overlay && overlay.parentNode) {
             overlay.parentNode.removeChild(overlay);
             overlay = null;

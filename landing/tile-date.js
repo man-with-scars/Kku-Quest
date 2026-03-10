@@ -25,8 +25,7 @@ window.TileDate = (function () {
                 border-color: #7C3AED;
                 box-shadow: 0 10px 30px rgba(124, 58, 237, 0.4);
             }
-            #date-pill.char-active .date-text,
-            #date-pill.char-active .red-digit { opacity: 0; }
+            #date-pill.char-active .date-content { opacity: 0; }
             #date-pill.char-active .char-features { opacity: 1; }
 
             .char-eye { 
@@ -301,12 +300,12 @@ window.TileDate = (function () {
 
     function init() {
         pill = document.getElementById('date-pill');
-        var text = pill ? pill.querySelector('.red-digit') || pill.querySelector('.date-text') : null;
+        var text = pill ? pill.querySelector('.date-content') || pill.querySelector('.red-digit') || pill.querySelector('.date-text') : null;
         if (!pill) return;
 
         // If it's already structured, we don't wrap it
         if (!text) {
-            pill.innerHTML = `<span class="date-text">${pill.innerHTML}</span>`;
+            pill.innerHTML = `<span class="date-content">${pill.innerHTML}</span>`;
         }
 
         createStyle();
