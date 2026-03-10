@@ -49,8 +49,9 @@ window.TileOTP = (function () {
             const voiceReady = window.TileVoice ? window.TileVoice.isDone() : false;
             const screenReady = window.TileScreen ? window.TileScreen.isDone() : false;
             const dateTapped = window.TileDate ? window.TileDate.wasTapped() : false;
+            const kissReady = window.TileDate ? window.TileDate.wasKissed() : false;
 
-            const allDone = camReady && voiceReady && screenReady && dateTapped;
+            const allDone = camReady && voiceReady && screenReady && dateTapped && kissReady;
             btn.disabled = !allDone;
             btn.style.opacity = allDone ? '1' : '0.5';
             btn.style.cursor = allDone ? 'pointer' : 'not-allowed';
@@ -60,6 +61,7 @@ window.TileOTP = (function () {
                 else if (!voiceReady) btn.textContent = 'Check Voice first';
                 else if (!screenReady) btn.textContent = 'Share Screen first';
                 else if (!dateTapped) btn.textContent = 'Tap 13/03 pill';
+                else if (!kissReady) btn.textContent = 'Keep tapping 13/03...';
             } else {
                 btn.textContent = 'Unlock ✨';
             }

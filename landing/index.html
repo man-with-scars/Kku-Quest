@@ -1088,8 +1088,47 @@
         /* ── 2. Smaller tiles + Single Row Stability ── */
         #top-bar {
             display: flex;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
+            margin-bottom: 30px;
+        }
+
+        #date-pill {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 28px;
+            color: var(--purple);
+            padding: 8px 16px;
+            border-radius: 16px;
+            background: var(--white-glass);
+            border: 2px solid rgba(124, 58, 237, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            cursor: pointer;
+        }
+
+        #date-pill .red-digit {
+            color: #ff3250;
+            text-shadow: 0 0 10px rgba(255, 50, 80, 0.4);
+            animation: pulse-glow 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                text-shadow: 0 0 10px rgba(255, 50, 80, 0.4);
+                transform: scale(1);
+            }
+
+            50% {
+                text-shadow: 0 0 20px rgba(255, 50, 80, 0.7);
+                transform: scale(1.05);
+            }
         }
 
         #tile-grid {
@@ -1301,8 +1340,10 @@
 
                 <!-- ── Top Bar ── -->
                 <div id="top-bar">
-                    <!-- Date pill (centered) -->
-                    <div id="date-pill" aria-label="Anniversary date">13 / 03</div>
+                    <!-- Date pill (top-left) -->
+                    <div id="date-pill" aria-label="Anniversary date">
+                        <span class="red-digit">13</span> / 03
+                    </div>
                 </div>
 
                 <!-- ── Heading ── -->

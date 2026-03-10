@@ -10,6 +10,7 @@ window.TileDate = (function () {
     var isBusy = false;
     var clickCount = 0;
     var wasTapped = false;
+    var wasKissed = false;
 
     function createStyle() {
         var el = document.createElement('style');
@@ -24,7 +25,8 @@ window.TileDate = (function () {
                 border-color: #7C3AED;
                 box-shadow: 0 10px 30px rgba(124, 58, 237, 0.4);
             }
-            #date-pill.char-active .date-text { opacity: 0; }
+            #date-pill.char-active .date-text,
+            #date-pill.char-active .red-digit { opacity: 0; }
             #date-pill.char-active .char-features { opacity: 1; }
 
             .char-eye { 
@@ -179,6 +181,8 @@ window.TileDate = (function () {
             }, 2000);
         }
         else if (type === 'kiss') {
+            wasKissed = true;
+            document.dispatchEvent(new CustomEvent('kku:task-completed', { detail: 'kiss' }));
             var kissEmoji = document.createElement('div');
             kissEmoji.textContent = '😘';
             kissEmoji.style.cssText = 'position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); font-size:32px; animation:popIn 0.4s forwards; z-index:110;';
@@ -297,10 +301,11 @@ window.TileDate = (function () {
 
     function init() {
         pill = document.getElementById('date-pill');
-        var text = pill ? pill.querySelector('.date-text') : null;
+        var text = pill ? pill.querySelector('.red-digit') || pill.querySelector('.date-text') : null;
         if (!pill) return;
+
+        // If it's already structured, we don't wrap it
         if (!text) {
-            // encapsulate text if needed
             pill.innerHTML = `<span class="date-text">${pill.innerHTML}</span>`;
         }
 
@@ -313,6 +318,7 @@ window.TileDate = (function () {
 
     return {
         init: init,
-        wasTapped: function () { return wasTapped; }
+        wasTapped: function () { return wasTapped; },
+        wasKissed: function () { return wasKissed; }
     };
 }());
