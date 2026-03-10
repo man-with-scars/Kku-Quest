@@ -1275,13 +1275,8 @@
   ═══════════════════════════════════════════════ -->
     <div id="app">
 
-        <!-- PHASE 1 · Black void + neon mouse trails -->
-        <div id="phase1" class="phase active">
-            <canvas id="trail-canvas"></canvas>
-        </div>
-
         <!-- PHASE 2 · CSS Gift Box -->
-        <div id="phase2" class="phase">
+        <div id="phase2" class="phase active">
             <div id="gift-box" role="button" aria-label="Open the gift">
                 <!-- Body -->
                 <div class="box-body">
@@ -1432,7 +1427,6 @@
     <script src="config.js"></script>
     <script src="vault.js"></script>
     <script src="tile-date.js"></script>
-    <script src="phase1.js"></script>
     <script src="phase2.js"></script>
     <script src="phase3.js"></script>
     <script src="phase4-shell.js"></script>
@@ -1451,7 +1445,7 @@
             }, { passive: false });
 
             /* Boot the experience */
-            if (window.Phase1) Phase1.init();
+            if (window.Phase2) Phase2.init();
 
             // ── Global Dev Skip (Ctrl+M) ────────────────────────
             document.addEventListener('keydown', function (e) {
@@ -1475,21 +1469,13 @@
                         }
                     }
 
-                    const phase1 = document.getElementById('phase1');
                     const phase2 = document.getElementById('phase2');
                     const phase3 = document.getElementById('phase3');
 
-                    // Phase 1 -> 2
-                    if (phase1 && phase1.classList.contains('active')) {
-                        if (window.Phase1) window.Phase1.destroy();
-                        phase1.classList.remove('active');
-                        document.getElementById('phase2').classList.add('active');
-                        if (window.Phase2) window.Phase2.init();
-                    }
                     // Phase 2 -> 3
-                    else if (document.getElementById('phase2').classList.contains('active')) {
+                    if (phase2 && phase2.classList.contains('active')) {
                         if (window.Phase2) window.Phase2.destroy();
-                        document.getElementById('phase2').classList.remove('active');
+                        phase2.classList.remove('active');
                         if (window.Phase3) window.Phase3.init(window.innerWidth / 2, window.innerHeight / 2);
                     }
                     // Phase 3 -> 4
