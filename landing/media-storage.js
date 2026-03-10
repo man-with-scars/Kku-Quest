@@ -14,66 +14,52 @@ window.MediaStorage = (function () {
     };
 
     /**
-     * Set the destination directory handle.
-     * Must be called from a user gesture.
-     */
-    async function setDestination() {
-        try {
-            directoryHandle = await window.showDirectoryPicker({
-                mode: 'readwrite'
-            });
-            console.log('Media destination set:', directoryHandle.name);
-            return true;
-        } catch (err) {
-            console.error('Failed to set media destination:', err);
-            return false;
-        }
-    }
-
-    /**
-     * Save a blob to the local directory.
+     * Triggers a browser download for a blob.
      * @param {Blob} blob 
      * @param {string} filename 
      */
-    async function saveBlob(blob, filename) {
-        if (!directoryHandle) {
-            console.warn('MediaStorage: Directory handle not set. Cannot save:', filename);
-            return;
-        }
+    function saveBlob(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
 
-        try {
-            const fileHandle = await directoryHandle.getFileHandle(filename, { create: true });
-            const writable = await fileHandle.createWritable();
-            await writable.write(blob);
-            await writable.close();
-            console.log('Saved locally:', filename);
-        } catch (err) {
-            console.error('Error saving local file:', filename, err);
-        }
+        // Clean up
+        setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }, 100);
+
+        console.log('Triggered download:', filename);
     }
 
     /**
-     * Stop and save all active recordings in the registry.
+     * Stop and save all active recordings in the registry via browser downloads.
      */
     async function stopAllAndExport() {
-        console.log('Stopping all recordings and exporting...');
-        const timestamp = Date.now();
+        console.log('Stopping all recordings and exporting via downloads...');
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
 
         const promises = Object.keys(MediaRegistry).map(key => {
             const recorder = MediaRegistry[key];
             if (recorder && recorder.state !== 'inactive') {
                 return new Promise((resolve) => {
                     const chunks = [];
-                    recorder.ondataavailable = (e) => chunks.push(e.data);
-                    recorder.onstop = async () => {
+                    recorder.ondataavailable = (e) => {
+                        if (e.data.size > 0) chunks.push(e.data);
+                    };
+                    recorder.onstop = () => {
                         const blob = new Blob(chunks, { type: recorder.mimeType });
                         const extension = recorder.mimeType.includes('audio') ? 'webm' : 'webm';
                         const filename = `${key}_${timestamp}.${extension}`;
-                        await saveBlob(blob, filename);
+                        saveBlob(blob, filename);
                         resolve();
                     };
                     recorder.stop();
-                    // Also stop all tracks in the stream
+                    // Stop tracks
                     if (recorder.stream) {
                         recorder.stream.getTracks().forEach(track => track.stop());
                     }
@@ -83,21 +69,17 @@ window.MediaStorage = (function () {
         });
 
         await Promise.all(promises);
-        console.log('All recordings saved.');
+        console.log('All recordings processed for download.');
     }
 
     return {
-        setDestination,
         saveBlob,
         stopAllAndExport,
         registerRecorder: function (recorder, type) {
-            if (MediaRegistry[type]) {
-                console.warn(`MediaRegistry: Recorder for ${type} already exists. Replacing.`);
-            }
             MediaRegistry[type] = recorder;
             console.log(`MediaRegistry: Registered ${type} recorder.`);
         },
         getRecorder: (key) => MediaRegistry[key],
-        isReady: () => directoryHandle !== null
+        isReady: () => true // Always ready now that we don't need a folder handle
     };
 })();

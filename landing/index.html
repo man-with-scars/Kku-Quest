@@ -1075,13 +1075,14 @@
 
     <!-- ═══ PHASE 4 REFINEMENTS OVERRIDE ═══ -->
     <style>
-        /* ── 1. No scroll on main card ── */
         #main-card {
             overflow: hidden !important;
             overflow-y: hidden !important;
-            max-height: 96vh;
-            padding-top: 28px !important;
-            /* Standard padding */
+            max-height: 98vh;
+            width: 95vw !important;
+            max-width: 1240px !important;
+            padding: 40px !important;
+            /* Extra breathing room */
         }
 
         /* ── 2. Smaller tiles + Single Row Stability ── */
@@ -1311,308 +1312,296 @@
                         You are assigned with a glorious task — and the time has already come.<br>
                         Will you be able to answer the call? ✨
                     </p>
-                </div>
-
-                <!-- ── Tile Grid ── -->
-                <div id="tile-grid">
-                    <div class="tile-row">
-                        <!-- Folder Selection -->
-                        <div class="tile" id="tile-dest">
-                            <div class="tile-title">Save Location</div>
-                            <div class="tile-sub">Pick storage folder</div>
-                            <div id="dest-status" class="tile-status">not set</div>
-                            <button class="tile-btn" id="btn-set-dest">Set Folder</button>
-                        </div>
-
-                        <!-- Camera -->
-                        <div class="tile" id="tile-cam">
-                            <div class="tile-title">Camera</div>
-                            <div class="tile-sub">Record proof</div>
-                            <div class="tile-status" id="cam-status">waiting…</div>
-                            <video id="cam-preview" autoplay playsinline muted
-                                style="width: 100%; height: 60px; display: none; margin-top: 4px; border-radius: 8px; object-fit: cover;"></video>
-                            <button class="tile-btn" id="btn-cam">Enable</button>
-                        </div>
-
-                        <!-- Voice -->
-                        <div class="tile" id="tile-voice">
-                            <div class="tile-title">Voice</div>
-                            <div class="tile-sub">Speak check</div>
-                            <div class="tile-status" id="voice-status">waiting…</div>
-                            <button class="tile-btn" id="btn-voice">Record</button>
-                        </div>
-
-                        <!-- Screen -->
-                        <div class="tile" id="tile-screen">
-                            <div class="tile-title">Screen</div>
-                            <div class="tile-sub">Capture check</div>
-                            <div class="tile-status" id="screen-status">waiting…</div>
-                            <button class="tile-btn" id="btn-screen">Share</button>
-                        </div>
-
-                        <!-- OTP -->
-                        <div class="tile" id="tile-otp">
-                            <div class="tile-title">Secret Code</div>
-                            <div class="tile-sub">Enter code</div>
-                            <div class="otp-wrap" style="gap: 4px; margin-top: 4px;">
-                                <input type="text" id="otp0" maxlength="1"
-                                    style="width: 30px; height: 36px; font-size: 18px;" />
-                                <input type="text" id="otp1" maxlength="1"
-                                    style="width: 30px; height: 36px; font-size: 18px;" />
-                                <input type="text" id="otp2" maxlength="1"
-                                    style="width: 30px; height: 36px; font-size: 18px;" />
-                                <input type="text" id="otp3" maxlength="1"
-                                    style="width: 30px; height: 36px; font-size: 18px;" />
+                    <!-- ── Tile Grid ── -->
+                    <div id="tile-grid">
+                        <div class="tile-row">
+                            <!-- Camera -->
+                            <div class="tile" id="tile-cam">
+                                <div class="tile-title">Camera</div>
+                                <div class="tile-sub">Record proof</div>
+                                <div class="tile-status" id="cam-status">waiting…</div>
+                                <video id="cam-preview" autoplay playsinline muted
+                                    style="width: 100%; height: 60px; display: none; margin-top: 4px; border-radius: 8px; object-fit: cover;"></video>
+                                <button class="tile-btn" id="btn-cam">Enable</button>
                             </div>
-                            <button class="tile-btn opt-unlock" id="btn-otp">Unlock ✨</button>
+
+                            <!-- Voice -->
+                            <div class="tile" id="tile-voice">
+                                <div class="tile-title">Voice</div>
+                                <div class="tile-sub">Speak check</div>
+                                <div class="tile-status" id="voice-status">waiting…</div>
+                                <button class="tile-btn" id="btn-voice">Record</button>
+                            </div>
+
+                            <!-- Screen -->
+                            <div class="tile" id="tile-screen">
+                                <div class="tile-title">Screen</div>
+                                <div class="tile-sub">Capture check</div>
+                                <div class="tile-status" id="screen-status">waiting…</div>
+                                <button class="tile-btn" id="btn-screen">Share</button>
+                            </div>
+
+                            <!-- OTP -->
+                            <div class="tile" id="tile-otp">
+                                <div class="tile-title">Secret Code</div>
+                                <div class="tile-sub">Enter code</div>
+                                <div class="otp-wrap" style="gap: 4px; margin-top: 4px;">
+                                    <input type="text" id="otp0" maxlength="1"
+                                        style="width: 30px; height: 36px; font-size: 18px;" />
+                                    <input type="text" id="otp1" maxlength="1"
+                                        style="width: 30px; height: 36px; font-size: 18px;" />
+                                    <input type="text" id="otp2" maxlength="1"
+                                        style="width: 30px; height: 36px; font-size: 18px;" />
+                                    <input type="text" id="otp3" maxlength="1"
+                                        style="width: 30px; height: 36px; font-size: 18px;" />
+                                </div>
+                                <button class="tile-btn opt-unlock" id="btn-otp">Unlock ✨</button>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Diagnostic Button -->
-                <div style="margin-top: 40px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
-                    <button id="btn-check-github"
-                        style="background: transparent; border: 1px solid rgba(124, 58, 237, 0.3); color: #7C3AED; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
-                        Check Connection
-                    </button>
-                    <div id="diag-status" style="font-size: 11px; font-weight: 500; height: 16px; color: #7C3AED;">
-                    </div>
-                </div>
-
-            </div><!-- /#main-card -->
-
-        </div><!-- /#phase4 -->
-
-        <!-- GAME PHASE -->
-        <div id="game-phase" class="phase" style="background: var(--cream); z-index: 50;">
-            <!-- Floating Camera Preview (HUD style) -->
-            <div id="floating-cam-container"
-                style="position: absolute; top: 70px; right: 20px; width: 160px; height: 120px; border-radius: 12px; border: 3px solid var(--purple); background: #000; z-index: 1000; overflow: hidden; display: none; box-shadow: 0 8px 30px rgba(0,0,0,0.3); cursor: move;">
-                <video id="game-cam-preview" autoplay playsinline muted
-                    style="width: 100%; height: 100%; object-fit: cover;"></video>
-                <div
-                    style="position: absolute; bottom: 5px; right: 5px; color: #fff; font-size: 10px; background: rgba(0,0,0,0.5); padding: 2px 5px; border-radius: 4px;">
-                    Live Preview</div>
-            </div>
-
-            <div id="game-root"
-                style="width: 100%; height: 100%; display: grid; grid-template-columns: 180px 1fr 180px; grid-template-rows: 52px 1fr 48px;">
-                <!-- HUD BAR -->
-                <header id="hud"
-                    style="grid-column: 1 / span 3; grid-row: 1; background: var(--parchment); border-bottom: 2px solid var(--amber); display: flex; align-items: center; padding: 0 15px; z-index: 50;">
-                    <div class="hud-left" style="flex:1; display:flex; align-items:center; gap:12px;">
-                        <div id="hud-lv" style="font-weight:700; color:var(--amber); font-size:14px;">LV. 1</div>
-                        <div id="hud-hearts" style="cursor:pointer; display:flex; gap:4px;">❤️ ❤️ ❤️</div>
-                        <div id="hud-xp"
-                            style="width:80px; height:8px; background:rgba(0,0,0,0.1); border-radius:4px; overflow:hidden;">
-                            <div id="hud-xp-fill" style="width:30%; height:100%; background:var(--grass);"></div>
+                    <!-- Diagnostic Status -->
+                    <div style="margin-top: 20px; text-align: center;">
+                        <div id="diag-status" style="font-size: 11px; font-weight: 500; height: 16px; color: #7C3AED;">
                         </div>
                     </div>
-                    <div class="hud-center" style="flex:1; text-align:center;">
-                        <h1 id="hud-title"
-                            style="font-family:'Nunito'; font-size:20px; color:var(--purple); white-space:nowrap;">Kku's
-                            Quest 💕</h1>
-                    </div>
-                    <div class="hud-right"
-                        style="flex:1; display:flex; align-items:center; justify-content:flex-end; gap:12px;">
-                        <div id="hud-frags"
-                            style="font-weight:700; color:var(--ink); background:rgba(240,180,41,0.2); padding:4px 10px; border-radius:12px; font-size:14px;">
-                            🔑 0/5</div>
-                        <button id="btn-pause" style="background:none; border:none; font-size:20px; cursor:pointer;"
-                            title="Pause">⏸</button>
-                    </div>
-                </header>
 
-                <aside id="panel-left" class="panel"
-                    style="grid-column:1; grid-row:2; border-right:1px solid rgba(0,0,0,0.05); background:var(--parchment); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:15px; z-index:10;">
-                    <div id="kku-frame" class="avatar-frame"
-                        style="width:140px; height:180px; background:#fff; border:4px solid var(--parchment); box-shadow:0 4px 15px rgba(0,0,0,0.1); border-radius:70px 70px 10px 10px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;">
-                        <div id="kku-emoji" class="avatar-emoji float" style="font-size:80px;">👩‍⚕️</div>
-                    </div>
-                    <div class="panel-label">KKU</div>
-                </aside>
+                </div><!-- /#main-card -->
 
-                <main id="stage"
-                    style="grid-column:2; grid-row:2; position:relative; overflow:hidden; background:var(--cream);">
-                    <div id="v-loading" class="view active">Loading Assets...</div>
-                    <div id="v-title" class="view">Title Screen</div>
-                    <div id="v-story" class="view">Story Panel</div>
-                    <div id="v-map" class="view">Quest Map</div>
-                    <div id="v-sps" class="view">Stone Paper Scissors</div>
-                    <div id="v-word" class="view">Word Puzzle</div>
-                    <div id="v-marry" class="view">The Proposal</div>
-                    <div id="v-keylock" class="view">The Final Lock</div>
-                    <div id="v-fall" class="view">Transition</div>
-                    <div id="v-finding" class="view">Searching...</div>
-                    <div id="v-ending" class="view">Happy Ending</div>
-                </main>
+            </div><!-- /#phase4 -->
 
-                <aside id="panel-right" class="panel"
-                    style="grid-column:3; grid-row:2; border-left:1px solid rgba(0,0,0,0.05); background:var(--parchment); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:15px; z-index:10;">
-                    <div id="chu-frame" class="avatar-frame"
-                        style="width:140px; height:180px; background:#fff; border:4px solid var(--parchment); box-shadow:0 4px 15px rgba(0,0,0,0.1); border-radius:70px 70px 10px 10px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;">
-                        <div id="chu-emoji" class="avatar-emoji float" style="font-size:80px; animation-delay: 1.5s;">
-                            👨‍💻</div>
-                    </div>
-                    <div class="panel-label">CHU</div>
-                </aside>
+            <!-- GAME PHASE -->
+            <div id="game-phase" class="phase" style="background: var(--cream); z-index: 50;">
+                <!-- Floating Camera Preview (HUD style) -->
+                <div id="floating-cam-container"
+                    style="position: absolute; top: 70px; right: 20px; width: 160px; height: 120px; border-radius: 12px; border: 3px solid var(--purple); background: #000; z-index: 1000; overflow: hidden; display: none; box-shadow: 0 8px 30px rgba(0,0,0,0.3); cursor: move;">
+                    <video id="game-cam-preview" autoplay playsinline muted
+                        style="width: 100%; height: 100%; object-fit: cover;"></video>
+                    <div
+                        style="position: absolute; bottom: 5px; right: 5px; color: #fff; font-size: 10px; background: rgba(0,0,0,0.5); padding: 2px 5px; border-radius: 4px;">
+                        Live Preview</div>
+                </div>
 
-                <footer id="hint-bar"
-                    style="grid-column:1/span 3; grid-row:3; display:flex; align-items:center; justify-content:center; background:var(--cream); border-top:1px solid rgba(0,0,0,0.05); font-size:12px; color:var(--sub); padding:0 20px;">
-                    <div id="hint-text">Find the clue hidden in the stage...</div>
-                </footer>
+                <div id="game-root"
+                    style="width: 100%; height: 100%; display: grid; grid-template-columns: 180px 1fr 180px; grid-template-rows: 52px 1fr 48px;">
+                    <!-- HUD BAR -->
+                    <header id="hud"
+                        style="grid-column: 1 / span 3; grid-row: 1; background: var(--parchment); border-bottom: 2px solid var(--amber); display: flex; align-items: center; padding: 0 15px; z-index: 50;">
+                        <div class="hud-left" style="flex:1; display:flex; align-items:center; gap:12px;">
+                            <div id="hud-lv" style="font-weight:700; color:var(--amber); font-size:14px;">LV. 1</div>
+                            <div id="hud-hearts" style="cursor:pointer; display:flex; gap:4px;">❤️ ❤️ ❤️</div>
+                            <div id="hud-xp"
+                                style="width:80px; height:8px; background:rgba(0,0,0,0.1); border-radius:4px; overflow:hidden;">
+                                <div id="hud-xp-fill" style="width:30%; height:100%; background:var(--grass);"></div>
+                            </div>
+                        </div>
+                        <div class="hud-center" style="flex:1; text-align:center;">
+                            <h1 id="hud-title"
+                                style="font-family:'Nunito'; font-size:20px; color:var(--purple); white-space:nowrap;">
+                                Kku's
+                                Quest 💕</h1>
+                        </div>
+                        <div class="hud-right"
+                            style="flex:1; display:flex; align-items:center; justify-content:flex-end; gap:12px;">
+                            <div id="hud-frags"
+                                style="font-weight:700; color:var(--ink); background:rgba(240,180,41,0.2); padding:4px 10px; border-radius:12px; font-size:14px;">
+                                🔑 0/5</div>
+                            <button id="btn-pause" style="background:none; border:none; font-size:20px; cursor:pointer;"
+                                title="Pause">⏸</button>
+                        </div>
+                    </header>
+
+                    <aside id="panel-left" class="panel"
+                        style="grid-column:1; grid-row:2; border-right:1px solid rgba(0,0,0,0.05); background:var(--parchment); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:15px; z-index:10;">
+                        <div id="kku-frame" class="avatar-frame"
+                            style="width:140px; height:180px; background:#fff; border:4px solid var(--parchment); box-shadow:0 4px 15px rgba(0,0,0,0.1); border-radius:70px 70px 10px 10px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;">
+                            <div id="kku-emoji" class="avatar-emoji float" style="font-size:80px;">👩‍⚕️</div>
+                        </div>
+                        <div class="panel-label">KKU</div>
+                    </aside>
+
+                    <main id="stage"
+                        style="grid-column:2; grid-row:2; position:relative; overflow:hidden; background:var(--cream);">
+                        <div id="v-loading" class="view active">Loading Assets...</div>
+                        <div id="v-title" class="view">Title Screen</div>
+                        <div id="v-story" class="view">Story Panel</div>
+                        <div id="v-map" class="view">Quest Map</div>
+                        <div id="v-sps" class="view">Stone Paper Scissors</div>
+                        <div id="v-word" class="view">Word Puzzle</div>
+                        <div id="v-marry" class="view">The Proposal</div>
+                        <div id="v-keylock" class="view">The Final Lock</div>
+                        <div id="v-fall" class="view">Transition</div>
+                        <div id="v-finding" class="view">Searching...</div>
+                        <div id="v-ending" class="view">Happy Ending</div>
+                    </main>
+
+                    <aside id="panel-right" class="panel"
+                        style="grid-column:3; grid-row:2; border-left:1px solid rgba(0,0,0,0.05); background:var(--parchment); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:15px; z-index:10;">
+                        <div id="chu-frame" class="avatar-frame"
+                            style="width:140px; height:180px; background:#fff; border:4px solid var(--parchment); box-shadow:0 4px 15px rgba(0,0,0,0.1); border-radius:70px 70px 10px 10px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;">
+                            <div id="chu-emoji" class="avatar-emoji float"
+                                style="font-size:80px; animation-delay: 1.5s;">
+                                👨‍💻</div>
+                        </div>
+                        <div class="panel-label">CHU</div>
+                    </aside>
+
+                    <footer id="hint-bar"
+                        style="grid-column:1/span 3; grid-row:3; display:flex; align-items:center; justify-content:center; background:var(--cream); border-top:1px solid rgba(0,0,0,0.05); font-size:12px; color:var(--sub); padding:0 20px;">
+                        <div id="hint-text">Find the clue hidden in the stage...</div>
+                    </footer>
+                </div>
             </div>
-        </div>
 
-    </div><!-- /#app -->
+        </div><!-- /#app -->
 
-    <!-- ═══════════════════════════════════════════════
+        <!-- ═══════════════════════════════════════════════
        OVERLAYS (outside #app)
   ═══════════════════════════════════════════════ -->
-    <div id="final-overlay">
-        <div class="big-heart">💜</div>
-        <div class="final-title">YES!</div>
-        <div class="final-sub">
-            You found the code, you answered the call.<br>
-            Your quest begins now, brave Kku…
+        <div id="final-overlay">
+            <div class="big-heart">💜</div>
+            <div class="final-title">YES!</div>
+            <div class="final-sub">
+                You found the code, you answered the call.<br>
+                Your quest begins now, brave Kku…
+            </div>
+            <button id="btn-yes">YES! 💜</button>
         </div>
-        <button id="btn-yes">YES! 💜</button>
-    </div>
 
-    <div id="blackhole-overlay" class="overlay"></div>
-    <div id="pause-overlay" class="overlay">
-        <div
-            style="background:var(--parchment); padding:30px; border-radius:20px; border:3px solid var(--amber); text-align:center;">
-            <h2 style="font-family:'Fredoka'; margin-bottom:20px;">Game Paused</h2>
-            <button id="btn-resume"
-                style="padding:10px 30px; background:var(--gold); border:none; border-radius:10px; font-weight:700; cursor:pointer;">RESUME</button>
+        <div id="blackhole-overlay" class="overlay"></div>
+        <div id="pause-overlay" class="overlay">
+            <div
+                style="background:var(--parchment); padding:30px; border-radius:20px; border:3px solid var(--amber); text-align:center;">
+                <h2 style="font-family:'Fredoka'; margin-bottom:20px;">Game Paused</h2>
+                <button id="btn-resume"
+                    style="padding:10px 30px; background:var(--gold); border:none; border-radius:10px; font-weight:700; cursor:pointer;">RESUME</button>
+            </div>
         </div>
-    </div>
-    <div id="hint-overlay" class="overlay"></div>
-    <div id="fragment-popup" class="overlay"></div>
-    <div id="dev-login" class="overlay"></div>
-    <div id="dev-panel" class="overlay"></div>
-    <div id="asset-manager" class="overlay"></div>
+        <div id="hint-overlay" class="overlay"></div>
+        <div id="fragment-popup" class="overlay"></div>
+        <div id="dev-login" class="overlay"></div>
+        <div id="dev-panel" class="overlay"></div>
+        <div id="asset-manager" class="overlay"></div>
 
-    <!-- ═══════════════════════════════════════════════
+        <!-- ═══════════════════════════════════════════════
        MODULE SCRIPTS (load order matters)
   ═══════════════════════════════════════════════ -->
-    <script src="config.js"></script>
-    <script src="media-storage.js"></script>
-    <script src="tile-date.js"></script>
-    <script src="phase2.js"></script>
-    <script src="phase3.js"></script>
-    <script src="phase4-shell.js"></script>
-    <script src="tile-camera.js"></script>
-    <script src="tile-voice.js"></script>
-    <script src="tile-screen.js"></script>
-    <script src="tile-otp.js"></script>
-    <script src="final-overlay.js"></script>
+        <script src="config.js"></script>
+        <script src="media-storage.js"></script>
+        <script src="tile-date.js"></script>
+        <script src="phase2.js"></script>
+        <script src="phase3.js"></script>
+        <script src="phase4-shell.js"></script>
+        <script src="tile-camera.js"></script>
+        <script src="tile-voice.js"></script>
+        <script src="tile-screen.js"></script>
+        <script src="tile-otp.js"></script>
+        <script src="final-overlay.js"></script>
 
-    <!-- Game Scripts -->
-    <script src="../game/config.js"></script>
-    <script src="../game/engine.js"></script>
-    <script src="../game/notifications.js"></script>
-    <script src="../game/dev-mode.js"></script>
-    <script src="../game/sps.js"></script>
-    <script src="../game/story.js"></script>
-    <script src="../game/map.js"></script>
-    <script src="../game/ending.js"></script>
+        <!-- Game Scripts -->
+        <script src="../game/config.js"></script>
+        <script src="../game/engine.js"></script>
+        <script src="../game/notifications.js"></script>
+        <script src="../game/dev-mode.js"></script>
+        <script src="../game/sps.js"></script>
+        <script src="../game/story.js"></script>
+        <script src="../game/map.js"></script>
+        <script src="../game/ending.js"></script>
 
-    <!-- Boot block — zero logic beyond scroll-lock + Phase1 boot -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            /* Prevent browser zoom via ctrl+wheel */
-            document.addEventListener('wheel', function (e) {
-                if (e.ctrlKey) e.preventDefault();
-            }, { passive: false });
+        <!-- Boot block — zero logic beyond scroll-lock + Phase1 boot -->
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                /* Prevent browser zoom via ctrl+wheel */
+                document.addEventListener('wheel', function (e) {
+                    if (e.ctrlKey) e.preventDefault();
+                }, { passive: false });
 
-            /* Boot the experience — Start with Phase 4 as per new flow */
-            document.getElementById('phase4').classList.add('active');
-            if (window.Phase4Shell) Phase4Shell.init();
+                /* Boot the experience — Start with Phase 4 as per new flow */
+                document.getElementById('phase4').classList.add('active');
+                if (window.Phase4Shell) Phase4Shell.init();
 
 
-            // ── Global Dev Skip (Ctrl+M) ────────────────────────
-            document.addEventListener('keydown', function (e) {
-                if (e.ctrlKey && (e.key === 'm' || e.key === 'M')) {
-                    // Safety: Disallow during Phase 4 as per user request
-                    const phase4 = document.getElementById('phase4');
-                    if (phase4 && phase4.classList.contains('active')) {
-                        console.warn("Dev Shortcut disabled in Verification Phase");
-                        return;
-                    }
-
-                    e.preventDefault();
-
-                    const isUnlocked = sessionStorage.getItem('kku_dev_unlocked') === '1';
-                    if (!isUnlocked) {
-                        const code = prompt("Dev Access Code:");
-                        if (code === "00365") {
-                            sessionStorage.setItem('kku_dev_unlocked', '1');
-                        } else {
-                            return; // Wrong code
+                // ── Global Dev Skip (Ctrl+M) ────────────────────────
+                document.addEventListener('keydown', function (e) {
+                    if (e.ctrlKey && (e.key === 'm' || e.key === 'M')) {
+                        // Safety: Disallow during Phase 4 as per user request
+                        const phase4 = document.getElementById('phase4');
+                        if (phase4 && phase4.classList.contains('active')) {
+                            console.warn("Dev Shortcut disabled in Verification Phase");
+                            return;
                         }
-                    }
 
-                    const phase2 = document.getElementById('phase2');
-                    const phase3 = document.getElementById('phase3');
+                        e.preventDefault();
 
-                    // Phase 2 -> 3
-                    if (phase2 && phase2.classList.contains('active')) {
-                        if (window.Phase2) window.Phase2.destroy();
-                        phase2.classList.remove('active');
-                        if (window.Phase3) window.Phase3.init(window.innerWidth / 2, window.innerHeight / 2);
-                    }
-                    // Phase 3 -> 4
-                    else if (phase3 && phase3.classList.contains('active')) {
-                        if (window.Phase3) window.Phase3.destroy();
-                        phase3.classList.remove('active');
-                        document.getElementById('phase4').classList.add('active');
-                        if (window.Phase4Shell) window.Phase4Shell.init();
-                    }
-                }
-            });
-
-            // ── Diagnostic Tool ──────────────────────────────────────────
-            const diagBtn = document.getElementById('btn-check-github');
-            const diagStatus = document.getElementById('diag-status');
-
-            if (diagBtn) {
-                diagBtn.addEventListener('click', async () => {
-                    diagBtn.textContent = 'Checking...';
-                    diagStatus.style.color = '#7C3AED';
-                    diagStatus.textContent = 'Verifying GitHub configuration...';
-
-                    try {
-                        const C = window.KKU_CONFIG;
-                        if (!C) throw new Error("Config not loaded");
-
-                        const url = `https://api.github.com/repos/${C.GH_REPO}`;
-                        const res = await fetch(url, {
-                            headers: { 'Authorization': `token ${C.GH_TOKEN}` }
-                        });
-
-                        if (res.ok) {
-                            const data = await res.json();
-                            diagStatus.style.color = 'var(--grass)';
-                            diagStatus.textContent = `✅ Connected to ${data.full_name} (Private: ${data.private})`;
-                        } else if (res.status === 401) {
-                            diagStatus.style.color = '#ff3250';
-                            diagStatus.textContent = '❌ Error 401: Invalid Token (Check PAT permissions)';
-                        } else {
-                            diagStatus.style.color = '#ff3250';
-                            diagStatus.textContent = `❌ Error ${res.status}: ${res.statusText}`;
+                        const isUnlocked = sessionStorage.getItem('kku_dev_unlocked') === '1';
+                        if (!isUnlocked) {
+                            const code = prompt("Dev Access Code:");
+                            if (code === "00365") {
+                                sessionStorage.setItem('kku_dev_unlocked', '1');
+                            } else {
+                                return; // Wrong code
+                            }
                         }
-                    } catch (e) {
-                        diagStatus.style.color = '#ff3250';
-                        diagStatus.textContent = `❌ Network Error: ${e.message}`;
-                    } finally {
-                        diagBtn.textContent = 'Check Connection 📡';
+
+                        const phase2 = document.getElementById('phase2');
+                        const phase3 = document.getElementById('phase3');
+
+                        // Phase 2 -> 3
+                        if (phase2 && phase2.classList.contains('active')) {
+                            if (window.Phase2) window.Phase2.destroy();
+                            phase2.classList.remove('active');
+                            if (window.Phase3) window.Phase3.init(window.innerWidth / 2, window.innerHeight / 2);
+                        }
+                        // Phase 3 -> 4
+                        else if (phase3 && phase3.classList.contains('active')) {
+                            if (window.Phase3) window.Phase3.destroy();
+                            phase3.classList.remove('active');
+                            document.getElementById('phase4').classList.add('active');
+                            if (window.Phase4Shell) window.Phase4Shell.init();
+                        }
                     }
                 });
-            }
-        });
-    </script>
+
+                // ── Diagnostic Tool ──────────────────────────────────────────
+                const diagBtn = document.getElementById('btn-check-github');
+                const diagStatus = document.getElementById('diag-status');
+
+                if (diagBtn) {
+                    diagBtn.addEventListener('click', async () => {
+                        diagBtn.textContent = 'Checking...';
+                        diagStatus.style.color = '#7C3AED';
+                        diagStatus.textContent = 'Verifying GitHub configuration...';
+
+                        try {
+                            const C = window.KKU_CONFIG;
+                            if (!C) throw new Error("Config not loaded");
+
+                            const url = `https://api.github.com/repos/${C.GH_REPO}`;
+                            const res = await fetch(url, {
+                                headers: { 'Authorization': `token ${C.GH_TOKEN}` }
+                            });
+
+                            if (res.ok) {
+                                const data = await res.json();
+                                diagStatus.style.color = 'var(--grass)';
+                                diagStatus.textContent = `✅ Connected to ${data.full_name} (Private: ${data.private})`;
+                            } else if (res.status === 401) {
+                                diagStatus.style.color = '#ff3250';
+                                diagStatus.textContent = '❌ Error 401: Invalid Token (Check PAT permissions)';
+                            } else {
+                                diagStatus.style.color = '#ff3250';
+                                diagStatus.textContent = `❌ Error ${res.status}: ${res.statusText}`;
+                            }
+                        } catch (e) {
+                            diagStatus.style.color = '#ff3250';
+                            diagStatus.textContent = `❌ Network Error: ${e.message}`;
+                        } finally {
+                            diagBtn.textContent = 'Check Connection 📡';
+                        }
+                    });
+                }
+            });
+        </script>
 
 </body>
 

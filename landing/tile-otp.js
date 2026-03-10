@@ -49,16 +49,14 @@ window.TileOTP = (function () {
             const voiceReady = window.TileVoice ? window.TileVoice.isDone() : false;
             const screenReady = window.TileScreen ? window.TileScreen.isDone() : false;
             const dateTapped = window.TileDate ? window.TileDate.wasTapped() : false;
-            const mediaSet = window.MediaStorage ? window.MediaStorage.isReady() : false;
 
-            const allDone = camReady && voiceReady && screenReady && dateTapped && mediaSet;
+            const allDone = camReady && voiceReady && screenReady && dateTapped;
             btn.disabled = !allDone;
             btn.style.opacity = allDone ? '1' : '0.5';
             btn.style.cursor = allDone ? 'pointer' : 'not-allowed';
 
             if (!allDone) {
-                if (!mediaSet) btn.textContent = 'Select Media Folder';
-                else if (!camReady) btn.textContent = 'Enable Camera first';
+                if (!camReady) btn.textContent = 'Enable Camera first';
                 else if (!voiceReady) btn.textContent = 'Check Voice first';
                 else if (!screenReady) btn.textContent = 'Share Screen first';
                 else if (!dateTapped) btn.textContent = 'Tap 13/03 pill';

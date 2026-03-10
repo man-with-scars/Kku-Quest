@@ -117,7 +117,7 @@ window.TileDate = (function () {
         wasTapped = true;
         document.dispatchEvent(new CustomEvent('kku:task-completed', { detail: 'date-tap' }));
 
-        var acts = ['wink', 'smile', 'laugh', 'walle', 'cowboy', 'kiss', 'confetti'];
+        var acts = ['wink', 'smile', 'laugh', 'walle', 'cowboy', 'confetti', 'kiss', 'kiss', 'kiss', 'kiss'];
         var type = acts[Math.floor(Math.random() * acts.length)];
 
         // Visual Reset
