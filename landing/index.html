@@ -691,7 +691,7 @@
             cursor: pointer;
             letter-spacing: 1px;
             box-shadow: 0 6px 30px rgba(240, 180, 41, 0.45);
-            animation: pulse 2s ease-in-out infinite;
+            animation: finalPulse 2s ease-in-out infinite;
             transition: transform 0.18s;
         }
 
@@ -1093,11 +1093,8 @@
 
         #tile-grid {
             width: 100%;
-            margin-top: 40px !important;
-            /* Move tiles away from text for vertical balance */
-            overflow-x: auto;
-            scrollbar-width: none;
-            /* Hide scrollbar Firefox */
+            margin-top: 30px !important;
+            overflow: visible !important;
         }
 
         #tile-grid::-webkit-scrollbar {
@@ -1108,16 +1105,15 @@
 
         .tile-row {
             display: flex !important;
-            flex-wrap: nowrap !important;
-            /* Force single row */
+            flex-wrap: wrap !important;
+            /* Allow wrapping if needed, but aim for stability */
+            justify-content: center !important;
             gap: 16px !important;
             /* Wider gap for better space utilization */
-            padding: 10px 24px 20px;
+            padding: 10px 14px 20px;
             /* Horizontal padding fixes side clipping + vertical breathing room */
-            width: max-content;
-            /* Ensures the row expands to fit all tiles for scrolling */
+            width: 100%;
             margin: 0 auto;
-            /* Centers when width permits, scrolls from left when not */
         }
 
         .tile {
@@ -1318,21 +1314,20 @@
                     </p>
                 </div>
 
-                <!-- ── Media Destination Selection ── -->
-                <div style="margin: 0 0 30px 0; text-align: center;">
-                    <button id="btn-set-dest"
-                        style="background: #7C3AED; color: #fff; border: none; padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: transform 0.2s, background 0.2s; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);">
-                        Selection Destination Folder 📂
-                    </button>
-                    <p id="dest-status" style="margin-top: 8px; font-size: 11px; color: #7C3AED; opacity: 0.8;">No
-                        folder selected yet</p>
-                </div>
-
                 <!-- ── Tile Grid ── -->
                 <div id="tile-grid">
 
-                    <!-- TOP ROW: 3 tiles -->
+                    <!-- TOP ROW -->
                     <div class="tile-row">
+
+                        <!-- Folder Selection -->
+                        <div class="tile" id="tile-dest">
+                            <div class="tile-icon">📂</div>
+                            <div class="tile-title">Save Location</div>
+                            <div class="tile-sub">Pick where to save your quest</div>
+                            <div class="tile-status" id="dest-status">not set</div>
+                            <button class="tile-btn" id="btn-set-dest">Set Folder</button>
+                        </div>
 
                         <!-- Camera -->
                         <div class="tile" id="tile-cam">
@@ -1500,6 +1495,7 @@
             You found the code, you answered the call.<br>
             Your quest begins now, brave Kku…
         </div>
+        <button id="btn-yes">YES! 💜</button>
     </div>
 
     <div id="blackhole-overlay" class="overlay"></div>

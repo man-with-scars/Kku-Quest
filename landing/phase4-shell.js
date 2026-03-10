@@ -173,8 +173,11 @@ window.Phase4Shell = (function () {
             btnDest.onclick = async () => {
                 const ok = await window.MediaStorage.setDestination();
                 if (ok) {
-                    statusDest.textContent = '✅ Destination Set!';
+                    if (statusDest) statusDest.textContent = '✅ Destination Ready';
+                    btnDest.textContent = 'Folder Chosen';
                     btnDest.style.background = '#10b981';
+                    // Notify other modules (especially OTP)
+                    document.dispatchEvent(new CustomEvent('kku:task-completed'));
                 }
             };
         }

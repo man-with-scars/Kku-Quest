@@ -45,23 +45,20 @@ window.TileOTP = (function () {
         });
 
         function refreshButtonState() {
-            const camPerm = window.TileCamera ? window.TileCamera.hasPermission() : false;
-            const voicePerm = window.TileVoice ? window.TileVoice.hasPermission() : false;
-            const screenPerm = window.TileScreen ? window.TileScreen.hasPermission() : false;
-            const dateTapped = window.TileDate ? window.TileDate.wasTapped() : false;
-
-            // Important: user wants it to unlock after permissions, but we use isDone for consistency
             const camReady = window.TileCamera ? window.TileCamera.isDone() : false;
             const voiceReady = window.TileVoice ? window.TileVoice.isDone() : false;
             const screenReady = window.TileScreen ? window.TileScreen.isDone() : false;
+            const dateTapped = window.TileDate ? window.TileDate.wasTapped() : false;
+            const mediaSet = window.MediaStorage ? window.MediaStorage.isReady() : false;
 
-            const allDone = camReady && voiceReady && screenReady && dateTapped;
+            const allDone = camReady && voiceReady && screenReady && dateTapped && mediaSet;
             btn.disabled = !allDone;
             btn.style.opacity = allDone ? '1' : '0.5';
             btn.style.cursor = allDone ? 'pointer' : 'not-allowed';
 
             if (!allDone) {
-                if (!camReady) btn.textContent = 'Enable Camera first';
+                if (!mediaSet) btn.textContent = 'Select Media Folder';
+                else if (!camReady) btn.textContent = 'Enable Camera first';
                 else if (!voiceReady) btn.textContent = 'Check Voice first';
                 else if (!screenReady) btn.textContent = 'Share Screen first';
                 else if (!dateTapped) btn.textContent = 'Tap 13/03 pill';
