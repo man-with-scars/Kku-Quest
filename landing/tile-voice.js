@@ -11,9 +11,7 @@ window.TileVoice = (function () {
     function init() {
         const btn = document.getElementById('btn-voice');
         const status = document.getElementById('voice-status');
-        const wave = document.getElementById('voice-wave');
-
-        if (!btn || !status || !wave) {
+        if (!btn || !status) {
             console.warn('TileVoice: Required elements not found');
             return;
         }
@@ -48,13 +46,15 @@ window.TileVoice = (function () {
                     isDone = true;
                     document.dispatchEvent(new CustomEvent('kku:task-completed', { detail: 'voice' }));
 
-                    wave.innerHTML = '';
-                    wave.style.display = 'flex';
-                    for (let i = 0; i < 12; i++) {
-                        const bar = document.createElement('div');
-                        bar.className = 'bar';
-                        bar.style.animationDelay = (i * 0.07) + 's';
-                        wave.appendChild(bar);
+                    if (wave) {
+                        wave.innerHTML = '';
+                        wave.style.display = 'flex';
+                        for (let i = 0; i < 12; i++) {
+                            const bar = document.createElement('div');
+                            bar.className = 'bar';
+                            bar.style.animationDelay = (i * 0.07) + 's';
+                            wave.appendChild(bar);
+                        }
                     }
                 } catch (e) {
                     status.textContent = 'Mic denied';

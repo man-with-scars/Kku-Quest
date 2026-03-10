@@ -1105,24 +1105,23 @@
 
         .tile-row {
             display: flex !important;
-            flex-wrap: wrap !important;
-            /* Allow wrapping if needed, but aim for stability */
+            flex-wrap: nowrap !important;
+            /* Force single row */
             justify-content: center !important;
-            gap: 16px !important;
-            /* Wider gap for better space utilization */
-            padding: 10px 14px 20px;
-            /* Horizontal padding fixes side clipping + vertical breathing room */
+            gap: 12px !important;
+            padding: 10px 10px 20px;
             width: 100%;
             margin: 0 auto;
         }
 
         .tile {
-            flex: 0 0 200px !important;
-            /* Wider tiles to fill empty spaces */
-            min-width: 200px !important;
-            min-height: 200px !important;
-            padding: 16px 14px 14px !important;
-            gap: 8px !important;
+            flex: 1 1 160px !important;
+            /* Compact width */
+            max-width: 180px !important;
+            min-height: 140px !important;
+            /* Much shorter height */
+            padding: 14px 10px !important;
+            gap: 6px !important;
             background: rgba(255, 255, 255, 0.95);
             border-radius: 16px;
             /* Premium double shadow: subtle spread + sharp depth */
@@ -1316,83 +1315,65 @@
 
                 <!-- ── Tile Grid ── -->
                 <div id="tile-grid">
-
-                    <!-- TOP ROW -->
                     <div class="tile-row">
-
                         <!-- Folder Selection -->
                         <div class="tile" id="tile-dest">
-                            <div class="tile-icon">📂</div>
                             <div class="tile-title">Save Location</div>
-                            <div class="tile-sub">Pick where to save your quest</div>
-                            <div class="tile-status" id="dest-status">not set</div>
+                            <div class="tile-sub">Pick storage folder</div>
+                            <div id="dest-status" class="tile-status">not set</div>
                             <button class="tile-btn" id="btn-set-dest">Set Folder</button>
                         </div>
 
                         <!-- Camera -->
                         <div class="tile" id="tile-cam">
-                            <div class="tile-icon">📷</div>
-                            <div class="tile-title">Camera Record</div>
-                            <div class="tile-sub">Record a quick proof of life</div>
+                            <div class="tile-title">Camera</div>
+                            <div class="tile-sub">Record proof</div>
                             <div class="tile-status" id="cam-status">waiting…</div>
-                            <video id="cam-preview" autoplay playsinline muted></video>
-                            <button class="tile-btn" id="btn-cam">Enable Camera</button>
+                            <video id="cam-preview" autoplay playsinline muted
+                                style="width: 100%; height: 60px; display: none; margin-top: 4px; border-radius: 8px; object-fit: cover;"></video>
+                            <button class="tile-btn" id="btn-cam">Enable</button>
                         </div>
 
                         <!-- Voice -->
                         <div class="tile" id="tile-voice">
-                            <div class="tile-icon">🎙️</div>
-                            <div class="tile-title">Voice Check</div>
-                            <div class="tile-sub">Hold the button and speak</div>
+                            <div class="tile-title">Voice</div>
+                            <div class="tile-sub">Speak check</div>
                             <div class="tile-status" id="voice-status">waiting…</div>
-                            <div id="voice-wave">
-                                <div class="bar"></div>
-                                <div class="bar"></div>
-                                <div class="bar"></div>
-                                <div class="bar"></div>
-                                <div class="bar"></div>
-                                <div class="bar"></div>
-                                <div class="bar"></div>
-                            </div>
-                            <button class="tile-btn" id="btn-voice">Hold to Record</button>
+                            <button class="tile-btn" id="btn-voice">Record</button>
                         </div>
 
                         <!-- Screen -->
                         <div class="tile" id="tile-screen">
-                            <div class="tile-icon">🖥️</div>
-                            <div class="tile-title">Screen Capture</div>
-                            <div class="tile-sub">Share your screen for a second</div>
+                            <div class="tile-title">Screen</div>
+                            <div class="tile-sub">Capture check</div>
                             <div class="tile-status" id="screen-status">waiting…</div>
-                            <button class="tile-btn" id="btn-screen">Start Capture</button>
+                            <button class="tile-btn" id="btn-screen">Share</button>
                         </div>
 
                         <!-- OTP -->
                         <div class="tile" id="tile-otp">
-                            <div class="tile-icon">🔒</div>
                             <div class="tile-title">Secret Code</div>
-                            <div class="tile-sub">Enter the 4-digit unlock code</div>
-                            <div class="otp-wrap">
-                                <input type="text" id="otp0" maxlength="1" inputmode="numeric" autocomplete="off"
-                                    aria-label="Digit 1" />
-                                <input type="text" id="otp1" maxlength="1" inputmode="numeric" autocomplete="off"
-                                    aria-label="Digit 2" />
-                                <input type="text" id="otp2" maxlength="1" inputmode="numeric" autocomplete="off"
-                                    aria-label="Digit 3" />
-                                <input type="text" id="otp3" maxlength="1" inputmode="numeric" autocomplete="off"
-                                    aria-label="Digit 4" />
+                            <div class="tile-sub">Enter code</div>
+                            <div class="otp-wrap" style="gap: 4px; margin-top: 4px;">
+                                <input type="text" id="otp0" maxlength="1"
+                                    style="width: 30px; height: 36px; font-size: 18px;" />
+                                <input type="text" id="otp1" maxlength="1"
+                                    style="width: 30px; height: 36px; font-size: 18px;" />
+                                <input type="text" id="otp2" maxlength="1"
+                                    style="width: 30px; height: 36px; font-size: 18px;" />
+                                <input type="text" id="otp3" maxlength="1"
+                                    style="width: 30px; height: 36px; font-size: 18px;" />
                             </div>
-                            <button class="tile-btn opt-unlock" id="btn-otp">Complete tasks first</button>
+                            <button class="tile-btn opt-unlock" id="btn-otp">Unlock ✨</button>
                         </div>
-
-                    </div><!-- /.tile-row -->
-
-                </div><!-- /#tile-grid -->
+                    </div>
+                </div>
 
                 <!-- Diagnostic Button -->
                 <div style="margin-top: 40px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
                     <button id="btn-check-github"
                         style="background: transparent; border: 1px solid rgba(124, 58, 237, 0.3); color: #7C3AED; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
-                        Check Connection 📡
+                        Check Connection
                     </button>
                     <div id="diag-status" style="font-size: 11px; font-weight: 500; height: 16px; color: #7C3AED;">
                     </div>

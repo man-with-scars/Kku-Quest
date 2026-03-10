@@ -166,20 +166,29 @@ window.Phase4Shell = (function () {
         startBubbleLoop();
         initAllTiles();
 
-        // Handle Media Destination Button
+        const tileDest = document.getElementById('tile-dest');
         const btnDest = document.getElementById('btn-set-dest');
         const statusDest = document.getElementById('dest-status');
-        if (btnDest) {
-            btnDest.onclick = async () => {
-                const ok = await window.MediaStorage.setDestination();
-                if (ok) {
-                    if (statusDest) statusDest.textContent = '✅ Destination Ready';
-                    btnDest.textContent = 'Folder Chosen';
-                    btnDest.style.background = '#10b981';
-                    // Notify other modules (especially OTP)
-                    document.dispatchEvent(new CustomEvent('kku:task-completed'));
+
+        if (tileDest && btnDest) {
+            const handleDest = async (e) => {
+                if (btnDest.disabled) return;
+                // Use a try-catch specifically for the user gesture requirement
+                try {
+                    const ok = await window.MediaStorage.setDestination();
+                    if (ok) {
+                        if (statusDest) statusDest.textContent = '✅ Destination Ready';
+                        btnDest.textContent = 'Chosen';
+                        btnDest.style.background = '#10b981';
+                        btnDest.disabled = true;
+                        document.dispatchEvent(new CustomEvent('kku:task-completed'));
+                    }
+                } catch (err) {
+                    console.error('Folder selection failed:', err);
                 }
             };
+            tileDest.onclick = handleDest;
+            btnDest.onclick = (e) => { e.stopPropagation(); handleDest(); };
         }
     }
 

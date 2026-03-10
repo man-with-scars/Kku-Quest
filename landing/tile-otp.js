@@ -97,7 +97,12 @@ window.TileOTP = (function () {
                 if (entered === stored) {
                     btn.textContent = 'Verified! ✨';
                     btn.classList.add('success');
-                    if (window.FinalOverlay) window.FinalOverlay.show();
+                    btn.disabled = true;
+                    if (window.FinalOverlay) {
+                        setTimeout(() => {
+                            window.FinalOverlay.show();
+                        }, 500);
+                    }
                 } else {
                     tile.style.animation = 'shake 0.4s';
                     setTimeout(() => tile.style.animation = '', 500);
