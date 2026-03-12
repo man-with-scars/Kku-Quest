@@ -98,19 +98,10 @@ window.LEVEL_REGISTRY.push({
       @keyframes bubbleFloat {
         0% { transform: translateY(0) scale(0.5); opacity: 0.8; }
         100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
-      }
       @keyframes ripplePulse {
         0% { transform: scale(0.8); opacity: 0.2; }
         50% { opacity: 0.5; }
         100% { transform: scale(1.2); opacity: 0.2; }
-      }
-      .bubble {
-        position: absolute;
-        width: 12px; height: 12px;
-        border: 1px solid rgba(255,255,255,0.8);
-        background: rgba(250,250,255,0.2);
-        border-radius: 50%;
-        animation: bubbleFloat 2s forwards;
       }
       #l2-ripple {
         background: radial-gradient(circle, rgba(200,230,255,0.4) 0%, transparent 70%);
@@ -132,6 +123,7 @@ window.LEVEL_REGISTRY.push({
         const isCorrect = btn.dataset.correct === 'true';
         if (isCorrect) {
           window.sfx('ok');
+          window.G.recordSuccess();
           btn.classList.add('correct');
           btn.innerHTML += ' ✅';
           card.style.pointerEvents = 'none';

@@ -40,7 +40,7 @@ window.LEVEL_REGISTRY.push({
           <div id="l6-options" class="options-grid">
             ${shuffled.map((opt, i) => `
               <button class="opt-btn" data-correct="${opt.correct}" style="animation: bounceIn 0.5s ${0.8 + i * 0.1}s both;">
-                <span class="opt-icon">${opt.icon}</span> ${opt.text}
+                ${opt.text}
               </button>
             `).join('')}
           </div>
@@ -158,6 +158,7 @@ window.LEVEL_REGISTRY.push({
         const isCorrect = btn.dataset.correct === 'true';
         if (isCorrect) {
           window.sfx('win');
+          window.G.recordSuccess();
           btn.classList.add('correct');
           btn.innerHTML += ' ✅';
           card.style.pointerEvents = 'none';

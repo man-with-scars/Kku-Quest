@@ -135,6 +135,7 @@ window.Map = (function () {
       .badge-collect { background: #E0F2FE; color: #075985; } /* Sky */
       .badge-boss { background: #FFE4E6; color: #9F1239; } /* Rose */
       .badge-key { background: #FEF9C3; color: #854D0E; } /* Gold */
+      .badge-finished { background: #D1FAE5; color: #065F46; } /* Emerald */
 
       .btn-play {
         background: var(--purple);
@@ -158,19 +159,10 @@ window.Map = (function () {
         75% { transform: translateX(5px); }
       }
       .shake { animation: shake 0.3s; }
-      @keyframes fw-sparkle {
-        0% { opacity: 1; transform: translate(0,0) scaleY(1); }
-        100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scaleY(0.1); }
-      }
-      .firework-spark {
+      .particle {
         position: absolute;
-        width: 2px;
-        height: 30px;
-        background: linear-gradient(to top, var(--c), transparent);
-        border-radius: 2px;
         pointer-events: none;
         z-index: 0;
-        transform-origin: center;
       }
     `;
     const style = document.createElement('style');
@@ -179,39 +171,46 @@ window.Map = (function () {
   }
 
   function spawnFireworks() {
-    if (!container || (window.STATE.currentView && !window.STATE.currentView.includes('map'))) return;
+    const container = document.getElementById('map-stage');
+    if (!container) return;
 
-    const colors = ['#FFD700', '#FF4500', '#FF1493', '#00FF7F', '#00BFFF', '#FFFFFF'];
-    const centerX = Math.random() * window.innerWidth;
-    const centerY = Math.random() * window.innerHeight;
-    const color = colors[Math.floor(Math.random() * colors.length)];
-    const count = 30 + Math.floor(Math.random() * 20);
+    // Slower frequency
+    if (Math.random() > 0.15) return;
 
-    for (let i = 0; i < count; i++) {
+    const x = Math.random() * container.clientWidth;
+    const y = Math.random() * container.clientHeight;
+    const color = `hsl(${Math.random() * 360}, 100%, 70%)`;
+
+    for (let i = 0; i < 16; i++) {
       const p = document.createElement('div');
-      p.className = 'firework-spark';
-      const angle = (Math.PI * 2 / count) * i + (Math.random() * 0.2);
-      const dist = 100 + Math.random() * 200;
+      p.className = 'particle';
+      const angle = (i / 16) * Math.PI * 2;
+      const velocity = 80 + Math.random() * 60;
+      const tx = Math.cos(angle) * velocity;
+      const ty = Math.sin(angle) * velocity;
 
-      const tx = Math.cos(angle) * dist;
-      const ty = Math.sin(angle) * dist;
-
-      p.style.setProperty('--tx', tx + 'px');
-      p.style.setProperty('--ty', ty + 'px');
-      p.style.setProperty('--c', color);
-
-      p.style.left = centerX + 'px';
-      p.style.top = centerY + 'px';
-
-      // Pointy head: rotate to face direction of travel
-      p.style.transform = `rotate(${angle + Math.PI / 2}rad)`;
-      p.style.animation = `fw-sparkle ${0.8 + Math.random() * 1.2}s cubic-bezier(0, .5, .5, 1) forwards`;
+      p.style.cssText = `
+            position:absolute; left:${x}px; top:${y}px;
+            width:3px; height:12px; background:${color};
+            border-radius:10px;
+            pointer-events:none;
+            transform: rotate(${angle}rad);
+            opacity:0;
+            box-shadow: 0 0 10px ${color};
+        `;
 
       container.appendChild(p);
-      setTimeout(() => p.remove(), 2000);
-    }
 
-    setTimeout(spawnFireworks, 1500 + Math.random() * 2500);
+      p.animate([
+        { transform: `translate(0,0) rotate(${angle}rad) scaleY(1)`, opacity: 0 },
+        { transform: `translate(${tx * 0.2}px, ${ty * 0.2}px) rotate(${angle}rad) scaleY(2)`, opacity: 1, offset: 0.2 },
+        { transform: `translate(${tx}px, ${ty}px) rotate(${angle}rad) scaleY(0.5)`, opacity: 0 }
+      ], {
+        duration: 1500 + Math.random() * 1000, // Slower animation
+        easing: 'cubic-bezier(0, 0, 0.2, 1)',
+        fill: 'forwards'
+      }).onfinish = () => p.remove();
+    }
   }
   /**
    * Renders the map view.
@@ -244,7 +243,7 @@ window.Map = (function () {
     }).join('')}
       </div>
 
-      <div class="level-list">
+      <div class="level-list" id="map-stage">
         ${levels.map((file, idx) => {
       const id = file.replace('level-', '').replace('.js', '');
       const reg = (window.LEVEL_REGISTRY || []).find(r => {
@@ -265,7 +264,7 @@ window.Map = (function () {
               <div class="level-info">
                 <div class="level-name">
                   ${displayTitle}
-                  ${isCompleted ? '<span style="color:var(--grass); font-size:12px; margin-left:10px;">✅ FINISHED</span>' : ''}
+                  ${isCompleted ? '<span class="badge badge-finished">FINISHED</span>' : ''}
                 </div>
               </div>
               <button class="btn-play">${isCompleted ? 'REPLAY' : 'PLAY ▶'}</button>
@@ -293,12 +292,51 @@ window.Map = (function () {
     return window.STATE.completed.has(normPrevId);
   }
 
+  function startLevel(id) {
+    // Checkpoint check (e.g., at level 5 and 9 which precede SPS transitions or are final hurdles)
+    const checkpoints = [5, 9];
+    if (checkpoints.includes(Number(id))) { // Ensure id is a number for comparison
+      const total = window.STATE.totalAnswers || 0;
+      const correct = window.STATE.correctAnswers || 0;
+      const accuracy = total > 0 ? (correct / total) * 100 : 100;
+
+      if (accuracy < 60) {
+        showCheckpointWarning(id, accuracy);
+        return;
+      }
+    }
+
+    window.STATE.lastCheckpoint = id;
+    window.launchLevel(id);
+  }
+
+  function showCheckpointWarning(id, accuracy) {
+    window.sfx('bad');
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+          position:fixed; inset:0; z-index:9999; 
+          background:rgba(0,0,0,0.8); backdrop-filter:blur(10px);
+          display:flex; align-items:center; justify-content:center;
+      `;
+    modal.innerHTML = `
+          <div style="background:var(--parchment); padding:40px; border-radius:30px; text-align:center; max-width:400px; box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+              <h2 style="color:var(--purple); margin-bottom:20px;">Checkpoint Failed</h2>
+              <p style="color:var(--ink); line-height:1.6; margin-bottom:30px;">
+                  Your current accuracy is <b>${accuracy.toFixed(1)}%</b>. <br>
+                  You need at least <b>60%</b> accuracy to proceed through this special barrier.
+              </p>
+              <button class="dev-btn" onclick="this.parentElement.parentElement.remove()" style="background:var(--rose); padding:12px 30px;">TRY AGAIN</button>
+          </div>
+      `;
+    document.body.appendChild(modal);
+  }
+
   /**
    * Handles level click interaction.
    */
   function handleLevelClick(id, isUnlocked) {
     if (isUnlocked) {
-      window.launchLevel(id);
+      startLevel(id);
     } else {
       window.sfx('bad');
       const row = event.currentTarget;

@@ -30,7 +30,7 @@ window.Story = (function () {
         align-items: center;
         justify-content: center;
         overflow: hidden;
-        background: #000;
+        background: #000 !important;
       }
       .panel-wrap {
         display: flex;
@@ -152,8 +152,7 @@ window.Story = (function () {
       };
 
       video.onended = () => {
-        console.log("Video ended, auto-advancing in 3s...");
-        if (current < panels.length - 1) {
+        if (current < panels.length - 1 && !window.G.isPaused()) {
           autoTimer = setTimeout(() => {
             transition(1);
           }, 3000);
@@ -285,8 +284,22 @@ window.Story = (function () {
     if (window.Map && window.Map.init) window.Map.init(document.getElementById('v-map'));
   }
 
+  function pause() {
+    const video = document.getElementById('story-video');
+    if (video) video.pause();
+    if (bgMusic) bgMusic.pause();
+  }
+
+  function resume() {
+    const video = document.getElementById('story-video');
+    if (video && !window.G.isPaused()) video.play().catch(e => { });
+    if (bgMusic) bgMusic.play().catch(e => { });
+  }
+
   return {
     init: init,
-    skip: skip
+    skip: skip,
+    pause: pause,
+    resume: resume
   };
 })();

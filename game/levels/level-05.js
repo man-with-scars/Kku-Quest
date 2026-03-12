@@ -25,8 +25,8 @@ window.LEVEL_REGISTRY.push({
           "Two sacred things, Kku.<br>Something you wear — and a voice only he'd recognise."
         </div>
 
-        <div id="l5-tasks-container" style="display:flex; width:200%; transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);">
-          
+        <div id="l5-tasks-container" style="display:flex; width:200%; transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1); margin: 20px auto;">
+          <!-- G.recordSuccess: Riverside repositioning button -->
           <!-- TASK 1: Earrings -->
           <div id="l5-task1" style="width:50%; display:flex; flex-direction:column; align-items:center;">
              <div class="l5-task-card">
@@ -138,6 +138,8 @@ window.LEVEL_REGISTRY.push({
         document.getElementById('l5-cam-preview').style.backgroundImage = `url(${re.target.result})`;
 
         isTask1Done = true;
+        window.sfx('win');
+        window.G.recordSuccess();
         // Slide to Task 2
         setTimeout(() => {
           tasksCont.style.transform = 'translateX(-50%)';
@@ -188,7 +190,8 @@ window.LEVEL_REGISTRY.push({
     mic.onmouseup = mic.onmouseleave = mic.ontouchend = (e) => { e.preventDefault(); stopRec(); };
 
     btnCont.onclick = () => {
-      window.sfx('up');
+      window.sfx('win');
+      window.G.recordSuccess();
       window.levelDone(5); // earns Fragment 1 (46)
     };
   }

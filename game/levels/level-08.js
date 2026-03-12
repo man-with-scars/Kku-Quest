@@ -45,7 +45,7 @@ window.LEVEL_REGISTRY.push({
           <div id="l8-options" class="options-grid">
             ${shuffled.map((opt, i) => `
               <button class="opt-btn" data-correct="${opt.correct}" style="animation: bounceIn 0.5s ${0.8 + i * 0.1}s both;">
-                <span class="music-icon">${opt.note}</span> ${opt.text}
+                ${opt.text}
               </button>
             `).join('')}
           </div>
@@ -98,16 +98,10 @@ window.LEVEL_REGISTRY.push({
         border-color: var(--gold);
         box-shadow: 0 0 15px rgba(240,180,41,0.3);
       }
-      .music-icon { display: inline-block; transition: 0.3s; }
-      .opt-btn:hover .music-icon { animation: musicBounce 0.5s infinite alternate; }
       
       .opt-btn.correct { background: #DCFCE7; border-color: var(--grass) !important; }
       .opt-btn.wrong { background: #FEE2E2; border-color: var(--rose) !important; }
 
-      @keyframes musicBounce {
-        from { transform: scale(1) translateY(0); }
-        to { transform: scale(1.2) translateY(-5px); }
-      }
       @keyframes riseup {
         from { transform: translateY(100vh) rotate(0deg); opacity: 0; }
         50% { opacity: 0.6; }
@@ -164,8 +158,8 @@ window.LEVEL_REGISTRY.push({
         const isCorrect = btn.dataset.correct === 'true';
         if (isCorrect) {
           window.sfx('win');
+          window.G.recordSuccess();
           btn.classList.add('correct');
-          btn.innerHTML += ' ✅';
           card.style.pointerEvents = 'none';
 
           // Sweep Note Animation

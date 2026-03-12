@@ -196,6 +196,7 @@ window.LEVEL_REGISTRY.push({
 
     btnCont.onclick = () => {
       window.sfx('win');
+      window.G.recordSuccess();
       burstHearts();
       setTimeout(() => {
         window.levelDone(3); // Collects Fragment 0 (98)

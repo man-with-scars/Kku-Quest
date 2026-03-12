@@ -132,8 +132,16 @@
         align-items: center;
         justify-content: center;
       }
-      .full-overlay.dark { background: rgba(0,0,0,0.9); }
-      .full-overlay.light { background: rgba(255,255,255,0.95); }
+      .full-overlay.dark { 
+        background: rgba(0,0,0,0.4) !important; 
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+      }
+      .full-overlay.light { 
+        background: rgba(255,255,255,0.4) !important; 
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+      }
       
       .scroll-paper {
         background: #fdf5e6;
@@ -176,26 +184,28 @@
 
   function renderSPS() {
     spsContainer.innerHTML = `
-      <div class="sps-arena">
-        <div class="sps-side">
-          <div class="sps-score" id="kku-score">${spsState.kkuScore}</div>
-          <div class="sps-choice-display" id="kku-display">❔</div>
-          <div class="sps-btn-group">
-            ${CHOICES.map((c, i) => `<button class="sps-picker" id="pick-${i}" onclick="window.SPS.choose(${i})">${c}</button>`).join('')}
+      <div id="sps-window" style="background:rgba(255,255,255,0.15); backdrop-filter:blur(20px); border-radius:30px; padding:40px; border:1px solid rgba(255,255,255,0.2); box-shadow:0 10px 40px rgba(0,0,0,0.3); color:white;">
+        <div class="sps-arena">
+          <div class="sps-side">
+            <div class="sps-score" id="kku-score">${spsState.kkuScore}</div>
+            <div class="sps-choice-display" id="kku-display" style="background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.3); color:white;">❔</div>
+            <div class="sps-btn-group">
+              ${CHOICES.map((c, i) => `<button class="sps-picker" id="pick-${i}" onclick="window.SPS.choose(${i})" style="background:rgba(255,255,255,0.2); color:white; border-color:rgba(255,255,255,0.3);">${c}</button>`).join('')}
+            </div>
+            <div class="panel-label" style="color:white;">KKU</div>
           </div>
-          <div class="panel-label">KKU</div>
-        </div>
 
-        <div style="text-align:center;">
-          <div style="font-size:24px; color:var(--sub); margin-bottom:10px;">VS</div>
-          <div id="round-status" style="font-size:12px; font-weight:bold;">TRIES: ${spsState.tries}</div>
-        </div>
+          <div style="text-align:center;">
+            <div style="font-size:24px; color:white; opacity:0.6; margin-bottom:10px;">VS</div>
+            <div id="round-status" style="font-size:12px; font-weight:bold; color:white;">TRIES: ${spsState.tries}</div>
+          </div>
 
-        <div class="sps-side">
-          <div class="sps-score" id="ai-score">${spsState.aiScore}</div>
-          <div class="sps-choice-display" id="ai-display">❔</div>
-          <div class="sps-think" id="ai-status">Ready...</div>
-          <div class="panel-label">AI ARCHITECT</div>
+          <div class="sps-side">
+            <div class="sps-score" id="ai-score">${spsState.aiScore}</div>
+            <div class="sps-choice-display" id="ai-display" style="background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.3); color:white;">❔</div>
+            <div class="sps-think" id="ai-status" style="color:white; opacity:0.6;">Ready...</div>
+            <div class="panel-label" style="color:white;">AI ARCHITECT</div>
+          </div>
         </div>
       </div>
     `;
@@ -228,19 +238,21 @@
     let aiIdx = 0;
     let result = ''; // 'tie', 'win', 'lose'
 
-    if (spsState.phase === 1) {
-      if (spsState.round < 10) {
-        // 10 tie streak
+    // Fix: Ensure we use simple 1 or 2 mapping internally, but handle the provided 'trap code' correctly
+    const mode = spsState.phase >= 4 ? 1 : spsState.phase;
+
+    if (mode === 1) {
+      if (spsState.round < 3) { // Tie for 3 rounds then win
         aiIdx = idx;
         result = 'tie';
       } else {
-        // 4 losses to trigger phase shift
-        aiIdx = (idx + 1) % 3; // AI wins
+        // AI wins forcibly to trigger word puzzle
+        aiIdx = (idx + 1) % 3;
         result = 'lose';
       }
     } else {
-      // Phase 2: 9 wins
-      aiIdx = (idx + 2) % 3; // Kku wins
+      // Phase 2: Kku wins
+      aiIdx = (idx + 2) % 3;
       result = 'win';
     }
 
@@ -255,9 +267,9 @@
     spsState.round++;
 
     // Check Phase Completion
-    if (spsState.phase === 1 && spsState.round === 14) {
+    if (mode === 1 && spsState.round >= 6) {
       triggerPhase1Loss();
-    } else if (spsState.phase === 2 && spsState.round === 9) {
+    } else if (mode === 2 && spsState.round >= 9) {
       triggerPhase2Win();
     } else {
       spsState.locked = false;
@@ -491,7 +503,9 @@
   window.SPS = {
     launch: launchSPS,
     choose: chooseSPS,
-    advance: function () { spsState.round++; renderSPS(); }
+    advance: function () { spsState.round++; renderSPS(); },
+    pause: () => { spsState.locked = true; },
+    resume: () => { if (!window.G.isPaused()) spsState.locked = false; }
   };
 
   window.WORD = {

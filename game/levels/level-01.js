@@ -90,9 +90,6 @@ window.LEVEL_REGISTRY.push({
       .opt-btn.correct { background: #DCFCE7; border-color: var(--grass) !important; }
       .opt-btn.wrong { background: #FEE2E2; border-color: var(--rose) !important; }
 
-      @keyframes carDrive {
-        to { transform: translateX(calc(100vw + 300px)); }
-      }
       @keyframes exhaustFloat {
         0% { transform: translateY(0) scale(1); opacity: 0.8; }
         100% { transform: translateY(-40px) scale(1.5); opacity: 0; }
@@ -120,6 +117,7 @@ window.LEVEL_REGISTRY.push({
         const isCorrect = btn.dataset.correct === 'true';
         if (isCorrect) {
           window.sfx('ok');
+          window.G.recordSuccess();
           btn.classList.add('correct');
           btn.innerHTML += ' ✅';
           card.style.pointerEvents = 'none';

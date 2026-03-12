@@ -15,9 +15,12 @@
         devMode: false,
         spsElf: false,
         currentLevel: null,
-        currentView: null,
+        currentView: 'v-loading',
         storyDone: false,
         notifyIndex: 0,
+        totalAnswers: 0,
+        correctAnswers: 0,
+        lastCheckpoint: 0, // 0, 4, 8 are checkpoints
         assetStore: { bg: {}, char: {}, music: {}, story: {} }
     };
 
@@ -154,14 +157,21 @@
 
         loseLife: function () {
             window.STATE.lives--;
+            window.STATE.totalAnswers++; // Wrong count
             renderHearts();
             window.sfx('bad');
             if (window.STATE.lives <= 0) {
-                // Game over: reset and kick to map
-                window.STATE.lives = 3;
-                renderHearts();
-                window.G.go('v-map');
+                window.G.go('v-death');
             }
+        },
+
+        recordSuccess: function () {
+            window.STATE.totalAnswers++;
+            window.STATE.correctAnswers++;
+        },
+
+        isPaused: function () {
+            return document.getElementById('pause-overlay').classList.contains('active');
         },
 
         updateHUD: updateHUD
@@ -417,11 +427,17 @@
     window.pauseGame = function () {
         const overlay = document.getElementById('pause-overlay');
         if (overlay) overlay.classList.add('active');
+        if (window.Story && window.Story.pause) window.Story.pause();
+        if (window.SPS && window.SPS.pause) window.SPS.pause();
+        if (window.AudioManager) window.AudioManager.pause();
     };
 
     window.resumeGame = function () {
         const overlay = document.getElementById('pause-overlay');
         if (overlay) overlay.classList.remove('active');
+        if (window.Story && window.Story.resume) window.Story.resume();
+        if (window.SPS && window.SPS.resume) window.SPS.resume();
+        if (window.AudioManager) window.AudioManager.play();
     };
 
     window.restartGame = function () {

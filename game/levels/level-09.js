@@ -71,7 +71,7 @@ window.LEVEL_REGISTRY.push({
           <div id="l9-t4" class="l9-task-row locked">
              <label for="l9-input-4" class="l9-task-box">
                <span class="l9-task-icon">🎁</span>
-               <span class="l9-task-text">Something gifted to Chu</span>
+               <span class="l9-task-text">Something given by Chu</span>
                <input type="file" id="l9-input-4" accept="image/*" capture="environment" style="display:none;">
                <div class="l9-check">✅</div>
              </label>
@@ -191,7 +191,8 @@ window.LEVEL_REGISTRY.push({
     }
 
     btnCont.onclick = () => {
-      window.sfx('up');
+      window.sfx('win');
+      window.G.recordSuccess();
       window.levelDone(9); // earns Fragment 3 (74)
     };
   }

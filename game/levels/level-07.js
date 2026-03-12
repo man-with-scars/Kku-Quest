@@ -27,7 +27,7 @@ window.LEVEL_REGISTRY.push({
           </p>
         </div>
 
-        <div id="l7-tasks-container" style="display:flex; width:200%; transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);">
+        <div id="l7-tasks-container" style="display:flex; width:200%; transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1); margin: 20px auto;">
           
           <!-- TASK 1: Chat Screenshot -->
           <div id="l7-task1" style="width:50%; display:flex; flex-direction:column; align-items:center; opacity:0; transform:translateY(20px);">

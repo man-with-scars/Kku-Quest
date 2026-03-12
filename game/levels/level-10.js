@@ -17,34 +17,34 @@ window.LEVEL_REGISTRY.push({
       {
         id: 1,
         riddle: "I'm a flavor that dances on the tongue, with notes of saffron and sunset hues. A Spanish classic that feels like a fiesta in every bite. What am I?",
-        correct: "🇪🇸 Spanish Delight",
+        correct: "Spanish Delight",
         options: [
-          "🍫 Belgian Chocolate",
-          "🥭 Mango Madness",
-          "🍓 Classic Strawberry",
-          "🇪🇸 Spanish Delight"
+          "Belgian Chocolate",
+          "Mango Madness",
+          "Classic Strawberry",
+          "Spanish Delight"
         ]
       },
       {
         id: 2,
         riddle: "I am vast and blue, where salt spray kisses the air and horizons never end. Kku and Chu's favorite escape from the city neon. What am I?",
-        correct: "🌊 The sea",
+        correct: "The sea",
         options: [
-          "🏔️ Mountains",
-          "🛍️ The mall",
-          "🌲 Deep forest",
-          "🌊 The sea"
+          "Mountains",
+          "The mall",
+          "Deep forest",
+          "The sea"
         ]
       },
       {
         id: 3,
         riddle: "I bring pine scents, twinkling lights, and the warmth of a thousand sweaters. The season of giving and the anniversary of a very special 'Begin Quest'. What am I?",
-        correct: "🎄 Christmas season",
+        correct: "Christmas season",
         options: [
-          "🌸 Spring / Vishu",
-          "☀️ Summer",
-          "🌧️ Monsoon",
-          "🎄 Christmas season"
+          "Spring / Vishu",
+          "Summer",
+          "Monsoon",
+          "Christmas season"
         ]
       }
     ];
@@ -71,11 +71,13 @@ window.LEVEL_REGISTRY.push({
                   <p class="riddle-text" style="font-family:'Lora', serif; font-style:italic; font-size:18px; color:#B45309; margin-bottom:25px;">
                     ${t.riddle}
                   </p>
-                  <div class="options-grid">
-                    ${shuffled.map(opt => `
-                      <button class="opt-btn" data-correct="${opt === t.correct}">${opt}</button>
-                    `).join('')}
-                  </div>
+                  <div id="l6-options" class="options-grid">
+            ${shuffled.map((opt, i) => `
+              <button class="opt-btn" data-correct="${opt.correct}" style="animation: bounceIn 0.5s ${0.8 + i * 0.1}s both;">
+                ${opt.text}
+              </button>
+            `).join('')}
+          </div>
                 </div>
               </div>
             `;
@@ -160,6 +162,7 @@ window.LEVEL_REGISTRY.push({
           } else {
             setTimeout(() => {
               window.sfx('win');
+              window.G.recordSuccess();
               window.levelDone(10);
             }, 800);
           }
