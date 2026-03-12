@@ -98,7 +98,7 @@ window.Story = (function () {
     wrap.className = 'panel-wrap panel-enter';
     wrap.innerHTML = `
       <div class="story-stage" style="width:100%; max-width:500px; aspect-ratio:16/9; display:flex; align-items:center; justify-content:center; border-radius:15px; overflow:hidden; border:4px solid white; box-shadow:0 10px 30px rgba(0,0,0,0.1); background:#000;">
-        <video src="${p.video}" autoplay muted loop style="width:100%; height:100%; object-fit:cover;"></video>
+        <video id="story-video" src="${p.video}" autoplay muted style="width:100%; height:100%; object-fit:cover;"></video>
       </div>
       <div style="font-family:'Fredoka', cursive; font-size:26px; color:var(--ink); margin-top:30px; min-height:80px;">
         ${p.text}
@@ -111,14 +111,36 @@ window.Story = (function () {
       </div>
     `;
 
+    // Video Auto-advance logic
+    const video = wrap.querySelector('#story-video');
+    let autoTimer = null;
+
+    if (video) {
+      video.onended = () => {
+        console.log("Video ended, auto-advancing in 3s...");
+        if (current < panels.length - 1) {
+          autoTimer = setTimeout(() => {
+            transition(1);
+          }, 3000);
+        }
+      };
+    }
+
     // Handle button clicks
     const btnNext = wrap.querySelector('.btn-next');
     const btnBack = wrap.querySelector('.btn-back');
     const btnBegin = wrap.querySelector('.btn-begin');
 
-    if (btnNext) btnNext.onclick = () => transition(1);
-    if (btnBack) btnBack.onclick = () => transition(-1);
+    if (btnNext) btnNext.onclick = () => {
+      if (autoTimer) clearTimeout(autoTimer);
+      transition(1);
+    };
+    if (btnBack) btnBack.onclick = () => {
+      if (autoTimer) clearTimeout(autoTimer);
+      transition(-1);
+    };
     if (btnBegin) btnBegin.onclick = () => {
+      if (autoTimer) clearTimeout(autoTimer);
       window.STATE.storyDone = true;
       if (bgMusic) {
         bgMusic.pause();
@@ -139,12 +161,12 @@ window.Story = (function () {
       setTimeout(() => {
         container.innerHTML = '';
         container.appendChild(wrap);
-        if (current === 4) spawnSparkles();
+        if (current === panels.length - 1) spawnSparkles();
       }, 300);
     } else {
       container.innerHTML = '';
       container.appendChild(wrap);
-      if (current === 4) spawnSparkles();
+      if (current === panels.length - 1) spawnSparkles();
     }
   }
 

@@ -487,6 +487,20 @@
                     }
                 }
 
+                const loadingView = document.getElementById('v-loading');
+                if (loadingView) {
+                    loadingView.innerHTML = `
+                        <video id="load-video" src="../landing/story-videos/00.mp4" autoplay muted loop 
+                            style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:-1;"></video>
+                        <div style="background:rgba(0,0,0,0.4); padding:20px; border-radius:15px; text-align:center; color:white;">
+                            <div style="width:200px; height:10px; background:rgba(255,255,255,0.2); border-radius:5px; position:relative; margin-bottom:10px;">
+                                <div id="load-bar" style="height:100%; background:var(--gold); width:0%; border-radius:5px; transition:width 0.2s;"></div>
+                            </div>
+                            <div style="font-size:14px; font-family:'Fredoka', cursive; letter-spacing:1px;">GATHERING FRAGMENTS...</div>
+                        </div>
+                    `;
+                }
+
                 createStyle();
                 setupParticles();
                 renderHearts();
@@ -494,9 +508,12 @@
 
                 const titleView = document.getElementById('v-title');
                 if (titleView) {
+                    titleView.style.background = "url('levels/landing.jpeg') no-repeat center center / cover";
                     titleView.innerHTML = `
-                        <h1 style="font-family:'Fredoka', cursive; font-size:48px; color:var(--purple); margin-bottom:20px; animation:popIn 0.8s;">Kku's Quest 💕</h1>
-                        <button id="btn-start-game" style="padding:15px 40px; background:var(--gold); border:none; border-radius:30px; color:white; font-size:24px; font-family:'Fredoka', cursive; cursor:pointer; box-shadow:0 5px 15px rgba(240,180,41,0.4);">START</button>
+                        <div style="background:rgba(255,255,255,0.1); backdrop-filter:blur(5px); padding:40px; border-radius:30px; border:2px solid rgba(255,255,255,0.3); text-align:center;">
+                            <h1 style="font-family:'Fredoka', cursive; font-size:64px; color:var(--purple); margin-bottom:30px; text-shadow:0 4px 10px rgba(0,0,0,0.2); animation:popIn 0.8s;">Kku's Quest 💕</h1>
+                            <button id="btn-start-game" style="padding:18px 50px; background:var(--gold); border:none; border-radius:40px; color:white; font-size:28px; font-family:'Fredoka', cursive; cursor:pointer; box-shadow:0 8px 25px rgba(240,180,41,0.5); transition:transform 0.2s;">START</button>
+                        </div>
                     `;
                     const startBtn = titleView.querySelector('#btn-start-game');
                     if (startBtn) {
