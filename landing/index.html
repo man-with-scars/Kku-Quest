@@ -111,6 +111,12 @@
             cursor: pointer;
             animation: float 3s ease-in-out infinite;
             filter: drop-shadow(0 0 32px rgba(124, 58, 237, 0.45));
+            transition: filter 0.3s ease, transform 0.3s ease;
+        }
+
+        #gift-box:hover {
+            filter: drop-shadow(0 0 50px rgba(124, 58, 237, 0.8)) brightness(1.1);
+            transform: scale(1.05);
         }
 
         .box-body {
@@ -633,6 +639,23 @@
         .otp-wrap input:focus {
             border-color: var(--purple);
             box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.18);
+        }
+
+        /* ── Overlay System ── */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 500;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        .overlay.active {
+            display: flex;
         }
 
         /* ═══════════════════════════════════════════════════
@@ -1303,6 +1326,9 @@
 
         <!-- PHASE 2 · CSS Gift Box -->
         <div id="phase2" class="phase">
+            <audio id="gift-bgm" loop>
+                <source src="landing/recording/gift-bgm.mp3" type="audio/mpeg">
+            </audio>
             <div id="gift-box" role="button" aria-label="Open the gift">
                 <!-- Body -->
                 <div class="box-body">
@@ -1512,6 +1538,23 @@
             <button id="btn-yes">YES! 💜</button>
         </div>
 
+        <!-- PHASE 5 · Destiny Screen -->
+        <div id="destiny-screen" class="phase"
+            style="background: #000; flex-direction: column; text-align: center; color: #fff; padding: 40px; z-index: 300;">
+            <div id="destiny-text"
+                style="font-family: 'Playfair Display', serif; font-size: clamp(18px, 3vw, 24px); max-width: 800px; line-height: 1.8; margin-bottom: 40px; opacity: 0; transition: opacity 2s ease;">
+                "What Chu has planned has been taken by destiny, only your unity could reveal his heart's desire"
+            </div>
+            <div id="adventure-prompt"
+                style="font-family: 'Poppins', sans-serif; font-size: 18px; color: rgba(255,255,255,0.7); margin-bottom: 30px; opacity: 0; transition: opacity 1.5s ease 2s;">
+                Are you ready to begin the adventure??
+            </div>
+            <button id="btn-begin-quest"
+                style="padding: 14px 48px; background: linear-gradient(135deg, #f0b429, #e07b39); color: #fff; font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 600; border: none; border-radius: 100px; cursor: pointer; opacity: 0; transition: opacity 1s ease 3s;">
+                YES! 💜
+            </button>
+        </div>
+
         <div id="blackhole-overlay" class="overlay"></div>
         <div id="pause-overlay" class="overlay">
             <div
@@ -1560,9 +1603,9 @@
                     if (e.ctrlKey) e.preventDefault();
                 }, { passive: false });
 
-                /* Boot the experience — Start with Phase 2 (Gift Box) as per new flow */
-                document.getElementById('phase2').classList.add('active');
-                if (window.Phase2) Phase2.init();
+                /* Boot the experience — Start with Phase 4 (Permissions) as per new flow */
+                document.getElementById('phase4').classList.add('active');
+                if (window.Phase4Shell) Phase4Shell.init();
 
 
                 // ── Global Dev Skip (Ctrl+M) ────────────────────────

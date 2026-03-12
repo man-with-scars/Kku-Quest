@@ -444,6 +444,13 @@ window.Phase2 = (function () {
             box.classList.remove('locked');
             prompt.textContent = 'tap to open \u2728';
             prompt.classList.add('active');
+
+            // Play gift BGM
+            var bgm = document.getElementById('gift-bgm');
+            if (bgm) {
+                bgm.volume = 0.5;
+                bgm.play().catch(function (e) { console.warn('BGM play blocked:', e); });
+            }
         }, 1000);
 
         window.addEventListener('mousemove', onMouseMove);
@@ -508,12 +515,101 @@ window.Phase2 = (function () {
             } else {
                 overlay.style.opacity = '1';
                 setTimeout(function () {
-                    Phase2.destroy();
-                    if (window.Phase3) window.Phase3.init(window.innerWidth / 2, window.innerHeight / 2);
+                    // Stop BGM
+                    var bgm = document.getElementById('gift-bgm');
+                    if (bgm) {
+                        bgm.pause();
+                        bgm.currentTime = 0;
+                    }
+
+                    // Trigger glitch and show destiny screen
+                    triggerGlitch(() => {
+                        Phase2.destroy();
+                        showDestinyScreen();
+                    });
                 }, 280);
             }
         }
         requestAnimationFrame(anim);
+    }
+
+    function triggerGlitch(callback) {
+        var phase2 = document.getElementById('phase2');
+        if (!phase2) return callback();
+
+        // Web Audio static burst (0.3 s)
+        try {
+            var actx = new (window.AudioContext || window.webkitAudioContext)();
+            var buf = actx.createBuffer(1, Math.floor(actx.sampleRate * 0.3), actx.sampleRate);
+            var data = buf.getChannelData(0);
+            for (var i = 0; i < data.length; i++) {
+                data[i] = (Math.random() * 2 - 1) * 0.3;
+            }
+            var src = actx.createBufferSource();
+            src.buffer = buf;
+            src.connect(actx.destination);
+            src.start();
+        } catch (e) {
+            console.warn('Glitch audio blocked');
+        }
+
+        // CSS glitch flash
+        phase2.style.animation = 'glitch 80ms steps(1) 8';
+
+        setTimeout(function () {
+            phase2.style.animation = '';
+            if (callback) callback();
+        }, 700);
+    }
+
+    function showDestinyScreen() {
+        // Hide all phases
+        document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+
+        const destiny = document.getElementById('destiny-screen');
+        if (!destiny) return;
+
+        destiny.classList.add('active');
+
+        // Sequence the reveal
+        setTimeout(() => {
+            const txt = document.getElementById('destiny-text');
+            if (txt) txt.style.opacity = '1';
+        }, 500);
+
+        setTimeout(() => {
+            const prompt = document.getElementById('adventure-prompt');
+            if (prompt) prompt.style.opacity = '1';
+        }, 2500);
+
+        setTimeout(() => {
+            const btn = document.getElementById('btn-begin-quest');
+            if (btn) {
+                btn.style.opacity = '1';
+                btn.onclick = () => {
+                    destiny.classList.remove('active');
+                    startGame();
+                };
+            }
+        }, 4000);
+    }
+
+    function startGame() {
+        // Explicitly hide any common overlays that might be stuck
+        const overlays = ['pause-overlay', 'blackhole-overlay', 'hint-overlay', 'dev-login', 'dev-panel'];
+        overlays.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.remove('active');
+        });
+
+        // Show Game Phase
+        const gamePhase = document.getElementById('game-phase');
+        if (gamePhase) {
+            gamePhase.classList.add('active');
+            if (window.Game && typeof window.Game.init === 'function') {
+                window.Game.init();
+            }
+        }
     }
 
     /* ─── Dev mode: Handled globally in index.html ─── */

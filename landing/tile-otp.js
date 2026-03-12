@@ -98,11 +98,17 @@ window.TileOTP = (function () {
                     btn.textContent = 'Verified! ✨';
                     btn.classList.add('success');
                     btn.disabled = true;
-                    if (window.FinalOverlay) {
-                        setTimeout(() => {
-                            window.FinalOverlay.show();
-                        }, 500);
-                    }
+
+                    setTimeout(() => {
+                        // Success! Hide Phase 4 and show Phase 2 (Gift Box)
+                        const phase4 = document.getElementById('phase4');
+                        const phase2 = document.getElementById('phase2');
+                        if (phase4) phase4.classList.remove('active');
+                        if (phase2) {
+                            phase2.classList.add('active');
+                            if (window.Phase2) window.Phase2.init();
+                        }
+                    }, 500);
                 } else {
                     tile.style.animation = 'shake 0.4s';
                     setTimeout(() => tile.style.animation = '', 500);
