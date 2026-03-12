@@ -116,7 +116,7 @@
         }
 
         #hud-xp-fill {
-            width: 30%;
+            width: 0%;
             height: 100%;
             background: var(--grass);
         }
@@ -706,8 +706,17 @@
                     style="padding:15px; background:var(--gold); color:white; border:none; border-radius:15px; font-size:18px; font-weight:700; cursor:pointer; transition:transform 0.2s;">RESUME
                     GAME</button>
 
+                <div style="display:flex; gap:10px;">
+                    <button id="btn-toggle-bgm"
+                        style="flex:1; padding:12px; background:var(--sky); color:white; border:none; border-radius:12px; font-size:14px; font-weight:600; cursor:pointer;">MUSIC:
+                        ON</button>
+                    <button id="btn-toggle-sfx"
+                        style="flex:1; padding:12px; background:var(--sky); color:white; border:none; border-radius:12px; font-size:14px; font-weight:600; cursor:pointer;">SFX:
+                        ON</button>
+                </div>
+
                 <button id="btn-replay-story"
-                    style="padding:12px; background:var(--sky); color:white; border:none; border-radius:12px; font-size:16px; font-weight:600; cursor:pointer;">REPLAY
+                    style="padding:12px; background:var(--purple); color:white; border:none; border-radius:12px; font-size:16px; font-weight:600; cursor:pointer;">REPLAY
                     STORY</button>
 
                 <button id="btn-restart-game"

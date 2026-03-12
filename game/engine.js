@@ -103,6 +103,13 @@
         // Sync coin HUD
         const elCoins = document.getElementById('coin-count');
         if (elCoins) elCoins.textContent = window.STATE.coins;
+
+        // Sync XP Bar (Progress based on 25 levels)
+        const xpFill = document.getElementById('hud-xp-fill');
+        if (xpFill) {
+            const progress = (window.STATE.completed.size / 25) * 100;
+            xpFill.style.width = Math.min(progress, 100) + '%';
+        }
     }
 
     // ── Navigation ──────────────────────────────────────────────
@@ -129,6 +136,9 @@
                 const isLevel = viewId.startsWith('v-L') || viewId === 'v-sps' || viewId === 'v-word' || viewId === 'v-marry' || viewId === 'v-keylock';
                 if (!isLevel) window.DevMode.togglePassButton(false);
             }
+
+            // Sync BGM with the new view
+            if (window.AudioManager) window.AudioManager.checkMedia();
         },
 
         loseLife: function () {
@@ -317,6 +327,7 @@
     };
 
     window.sfx = function (key) {
+        if (window.AudioManager && !window.AudioManager.isSFXEnabled()) return;
         try {
             if (window.GAME_CONFIG.SFX[key]) {
                 new Audio(window.GAME_CONFIG.SFX[key]).play();
@@ -539,6 +550,26 @@
                 const btnRestart = document.getElementById('btn-restart-game');
                 if (btnRestart) btnRestart.onclick = window.restartGame;
 
+                // Audio Toggles
+                const btnToggleBGM = document.getElementById('btn-toggle-bgm');
+                const btnToggleSFX = document.getElementById('btn-toggle-sfx');
+
+                if (btnToggleBGM) {
+                    btnToggleBGM.textContent = `MUSIC: ${window.AudioManager.isBGMEnabled() ? 'ON' : 'OFF'}`;
+                    btnToggleBGM.onclick = () => {
+                        const enabled = window.AudioManager.toggleBGM();
+                        btnToggleBGM.textContent = `MUSIC: ${enabled ? 'ON' : 'OFF'}`;
+                    };
+                }
+
+                if (btnToggleSFX) {
+                    btnToggleSFX.textContent = `SFX: ${window.AudioManager.isSFXEnabled() ? 'ON' : 'OFF'}`;
+                    btnToggleSFX.onclick = () => {
+                        const enabled = window.AudioManager.toggleSFX();
+                        btnToggleSFX.textContent = `SFX: ${enabled ? 'ON' : 'OFF'}`;
+                    };
+                }
+
                 // History Interceptor for "Back" button
                 window.addEventListener('popstate', (e) => {
                     if (window.STATE.currentView !== 'v-map') {
@@ -547,6 +578,11 @@
                 });
 
                 window.G.go('v-title');
+
+                // Auto-start BGM on first interaction
+                document.addEventListener('click', () => {
+                    if (window.AudioManager) window.AudioManager.play();
+                }, { once: true });
 
                 const log = document.getElementById('boot-log');
                 if (log) log.style.display = 'none';
@@ -568,12 +604,110 @@
         window.STATE.devMode = true;
     }
 
+    // ── Global Audio Manager ───────────────────────────────────
+    window.AudioManager = (function () {
+        let bgm = null;
+        let isSuppressed = false;
+        let bgmEnabled = localStorage.getItem('kku_bgm_enabled') !== 'false';
+        let sfxEnabled = localStorage.getItem('kku_sfx_enabled') !== 'false';
+
+        function init() {
+            if (!bgm) {
+                bgm = new Audio('../landing/background.mp3');
+                bgm.loop = true;
+                bgm.volume = 0.4;
+            }
+        }
+
+        function play() {
+            if (!bgmEnabled) return;
+            init();
+            if (!isSuppressed) {
+                bgm.play().catch(e => console.log("BGM play blocked."));
+            }
+        }
+
+        function stop() {
+            if (bgm) {
+                bgm.pause();
+                bgm.currentTime = 0;
+            }
+        }
+
+        function pause() {
+            if (bgm) bgm.pause();
+        }
+
+        function suppress() {
+            isSuppressed = true;
+            pause();
+        }
+
+        function unsuppress() {
+            isSuppressed = false;
+            checkMedia(); // Check if we should actually resume
+        }
+
+        function checkMedia() {
+            if (!bgmEnabled || isSuppressed) return;
+
+            // Check if any video is playing in the active view
+            const activeView = document.querySelector('.view.active');
+            let hasMedia = false;
+            if (activeView) {
+                const videos = activeView.querySelectorAll('video');
+                for (let v of videos) {
+                    if (!v.paused && !v.muted) {
+                        hasMedia = true;
+                        break;
+                    }
+                }
+            }
+
+            if (hasMedia || window.STATE.currentView === 'v-story' || window.STATE.currentView === 'v-loading') {
+                pause();
+            } else {
+                play();
+            }
+        }
+
+        // Auto-monitor media changes
+        setInterval(checkMedia, 1000);
+
+        function toggleBGM() {
+            bgmEnabled = !bgmEnabled;
+            localStorage.setItem('kku_bgm_enabled', bgmEnabled);
+            if (bgmEnabled) checkMedia();
+            else pause();
+            return bgmEnabled;
+        }
+
+        function toggleSFX() {
+            sfxEnabled = !sfxEnabled;
+            localStorage.setItem('kku_sfx_enabled', sfxEnabled);
+            return sfxEnabled;
+        }
+
+        return {
+            play: play,
+            pause: pause,
+            stop: stop,
+            suppress: suppress,
+            unsuppress: unsuppress,
+            toggleBGM: toggleBGM,
+            toggleSFX: toggleSFX,
+            isBGMEnabled: () => bgmEnabled,
+            isSFXEnabled: () => sfxEnabled,
+            checkMedia: checkMedia
+        };
+    })();
+
     // ── Global Dev Skip (Ctrl+M) ──────────────────────────────
     document.addEventListener('keydown', function (e) {
         if (e.ctrlKey && (e.key === 'm' || e.key === 'M')) {
             e.preventDefault();
 
-            const isUnlocked = sessionStorage.getItem('kku_dev_unlocked') === '1';
+            const isUnlocked = sessionStorage.getItem('kku_dev_unlocked') === '1' || window.STATE.devMode;
             if (!isUnlocked) {
                 const code = prompt("Dev Access Code:");
                 if (code === "00365") {
@@ -582,14 +716,27 @@
                 } else {
                     return; // Wrong code
                 }
-            } else {
-                window.STATE.devMode = true;
             }
 
-            if (window.STATE.currentLevel) {
+            // Refined Skip Logic
+            if (window.STATE.currentView === 'v-story') {
+                console.log("Dev: Skipping Story");
+                if (window.Story && window.Story.skip) {
+                    window.Story.skip();
+                } else {
+                    // Fallback if Story.skip isn't implemented
+                    window.STATE.storyDone = true;
+                    window.G.go('v-map');
+                    if (window.Map && window.Map.init) window.Map.init(document.getElementById('v-map'));
+                }
+            } else if (window.STATE.currentLevel) {
+                console.log("Dev: Skipping Level", window.STATE.currentLevel);
                 window.levelDone(window.STATE.currentLevel);
-            } else if (window.DevMode && window.DevMode.openPanel) {
-                window.DevMode.openPanel();
+            } else {
+                console.log("Dev: Opening Dev Panel");
+                if (window.DevMode && window.DevMode.openPanel) {
+                    window.DevMode.openPanel();
+                }
             }
         }
     });

@@ -171,6 +171,7 @@ window.Story = (function () {
         bgMusic.pause();
         bgMusic = null;
       }
+      if (window.AudioManager) window.AudioManager.unsuppress();
       if (window.GameNotifications && window.GameNotifications.requestPermission) {
         window.GameNotifications.requestPermission();
       }
@@ -222,9 +223,11 @@ window.Story = (function () {
     container = target;
     current = 0;
 
+    if (window.AudioManager) window.AudioManager.suppress();
+
     // Start Background Music
     if (!bgMusic) {
-      bgMusic = new Audio('../landing/music.mp3');
+      bgMusic = new Audio('../landing/storybgm.mp3');
       bgMusic.loop = true;
       bgMusic.volume = 0.5;
       bgMusic.play().catch(e => console.log("Music play blocked by browser."));
@@ -233,5 +236,19 @@ window.Story = (function () {
     render();
   }
 
-  return { init: init };
-}());
+  function skip() {
+    window.STATE.storyDone = true;
+    if (bgMusic) {
+      bgMusic.pause();
+      bgMusic = null;
+    }
+    if (window.AudioManager) window.AudioManager.unsuppress();
+    window.G.go('v-map');
+    if (window.Map && window.Map.init) window.Map.init(document.getElementById('v-map'));
+  }
+
+  return {
+    init: init,
+    skip: skip
+  };
+})();
