@@ -62,7 +62,7 @@
         font-family: 'Fredoka', cursive;
         font-size: 32px;
         text-align: center;
-        animation: popIn 0.6sOut;
+        animation: popIn 0.6s ease-out;
       }
 
       #btn-yes.pulse {
@@ -345,30 +345,31 @@
     // ── Engine Main Initialization ──────────────────────────────
     window.Game = {
         init: async function () {
-            createStyle();
-            setupParticles();
+            try {
+                createStyle();
+                setupParticles();
 
-            const loadingView = document.getElementById('v-loading');
-            const barFill = loadingView ? document.createElement('div') : null;
-            if (loadingView) {
-                loadingView.innerHTML = `
-          <div style="width:200px; height:10px; background:rgba(0,0,0,0.1); border-radius:5px; position:relative;">
-            <div id="load-bar" style="height:100%; background:var(--purple); width:0%; border-radius:5px; transition:width 0.2s;"></div>
-          </div>
-          <div style="margin-top:10px; font-size:12px; color:var(--sub);">Gathering fragments...</div>
-        `;
-            }
-            const elBar = document.getElementById('load-bar');
+                const log = document.getElementById('boot-log');
+                if (log) log.textContent = "Loading assets...";
 
-            window.LEVEL_REGISTRY = [];
-            const files = window.GAME_CONFIG.LEVEL_FILES;
+                const loadingView = document.getElementById('v-loading');
+                if (loadingView) {
+                    loadingView.innerHTML = `
+                        <div style="width:200px; height:10px; background:rgba(0,0,0,0.1); border-radius:5px; position:relative;">
+                            <div id="load-bar" style="height:100%; background:var(--purple); width:0%; border-radius:5px; transition:width 0.2s;"></div>
+                        </div>
+                        <div style="margin-top:10px; font-size:12px; color:var(--sub);">Gathering fragments...</div>
+                    `;
+                }
+                const elBar = document.getElementById('load-bar');
 
-            // ── Level Loader ────────────────────────────────────────
-            for (let i = 0; i < files.length; i++) {
-                try {
+                window.LEVEL_REGISTRY = [];
+                const files = window.GAME_CONFIG.LEVEL_FILES;
+
+                for (let i = 0; i < files.length; i++) {
                     const url = window.GAME_CONFIG.GH_RAW + files[i];
                     const res = await fetch(url);
-                    if (!res.ok) throw new Error('Level load failed');
+                    if (!res.ok) throw new Error('Level load failed: ' + files[i]);
                     const content = await res.text();
 
                     const s = document.createElement('script');
@@ -376,55 +377,63 @@
                     document.head.appendChild(s);
 
                     if (elBar) elBar.style.width = ((i + 1) / files.length * 100) + '%';
-                } catch (e) {
-                    console.error('Failed to load level:', files[i], e);
+                }
+
+                setTimeout(() => {
+                    window.LEVEL_REGISTRY.sort((a, b) => {
+                        const idA = parseFloat(a.id);
+                        const idB = parseFloat(b.id);
+                        if (!isNaN(idA) && !isNaN(idB)) return idA - idB;
+                        return String(a.id).localeCompare(String(b.id));
+                    });
+
+                    const stage = document.getElementById('stage');
+                    window.LEVEL_REGISTRY.forEach(reg => {
+                        let v = document.getElementById(reg.view);
+                        if (!v) {
+                            v = document.createElement('div');
+                            v.id = reg.view;
+                            v.className = 'view';
+                            stage.appendChild(v);
+                        }
+                        if (typeof reg.build === 'function') {
+                            try { reg.build(v); } catch (e) { console.error('Build fail for', reg.id, e); }
+                        }
+                    });
+
+                    renderHearts();
+                    setupDevTaps();
+
+                    const titleView = document.getElementById('v-title');
+                    titleView.innerHTML = `
+                        <h1 style="font-family:'Fredoka', cursive; font-size:48px; color:var(--purple); margin-bottom:20px; animation:popIn 0.8s;">Kku's Quest 💕</h1>
+                        <button id="btn-start-game" style="padding:15px 40px; background:var(--gold); border:none; border-radius:30px; color:white; font-size:24px; font-family:'Fredoka', cursive; cursor:pointer; box-shadow:0 5px 15px rgba(240,180,41,0.4);">START</button>
+                    `;
+
+                    const startBtn = document.getElementById('btn-start-game');
+                    if (startBtn) {
+                        startBtn.onclick = () => {
+                            window.G.go('v-story');
+                            if (window.Story && window.Story.init) {
+                                window.Story.init(document.getElementById('v-story'));
+                            }
+                        };
+                    }
+
+                    window.G.go('v-title');
+                    if (log) log.style.display = 'none';
+
+                }, 500);
+
+            } catch (err) {
+                console.error("Game.init failed:", err);
+                const log = document.getElementById('boot-log');
+                if (log) {
+                    log.style.display = 'block';
+                    log.style.background = 'rgba(255,0,0,0.9)';
+                    log.textContent = "BOOT ERROR: " + err.message;
                 }
             }
-
-            // ── Finish Loading ───────────────────────────────────────
-            setTimeout(() => {
-                // Sort registry (assumes levels push themselves to LEVEL_REGISTRY)
-                window.LEVEL_REGISTRY.sort((a, b) => {
-                    const idA = parseFloat(a.id);
-                    const idB = parseFloat(b.id);
-                    if (!isNaN(idA) && !isNaN(idB)) return idA - idB;
-                    return String(a.id).localeCompare(String(b.id));
-                });
-
-                const stage = document.getElementById('stage');
-                window.LEVEL_REGISTRY.forEach(reg => {
-                    let v = document.getElementById(reg.view);
-                    if (!v) {
-                        v = document.createElement('div');
-                        v.id = reg.view;
-                        v.className = 'view';
-                        stage.appendChild(v);
-                    }
-                    // Call level's build if provided
-                    if (typeof reg.build === 'function') {
-                        try { reg.build(v); } catch (e) { console.error('Build fail for', reg.id, e); }
-                    }
-                });
-
-                renderHearts();
-                setupDevTaps();
-
-                // Title Screen Logic
-                const titleView = document.getElementById('v-title');
-                titleView.innerHTML = `
-          <h1 style="font-family:'Fredoka', cursive; font-size:48px; color:var(--purple); margin-bottom:20px; animation:popIn 0.8s;">Kku's Quest 💕</h1>
-          <button id="btn-start-game" style="padding:15px 40px; background:var(--gold); border:none; border-radius:30px; color:white; font-size:24px; font-family:'Fredoka', cursive; cursor:pointer; box-shadow:0 5px 15px rgba(240,180,41,0.4);">START</button>
-        `;
-
-                document.getElementById('btn-start-game').onclick = () => {
-                    window.G.go('v-story');
-                    if (window.Story && window.Story.init) {
-                        window.Story.init(document.getElementById('v-story'));
-                    }
-                };
-
-                window.G.go('v-title');
-            }, 500);
         }
     };
 

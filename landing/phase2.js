@@ -625,37 +625,66 @@ window.Phase2 = (function () {
     }
 
     function startGame() {
-        // Explicitly hide any common overlays that might be stuck
-        const overlays = ['pause-overlay', 'blackhole-overlay', 'hint-overlay', 'dev-login', 'dev-panel'];
+        // Aggressively hide ALL top-level overlays (Pause, Final, etc.)
+        const overlays = ['pause-overlay', 'blackhole-overlay', 'hint-overlay', 'dev-login', 'dev-panel', 'final-overlay'];
         overlays.forEach(id => {
             const el = document.getElementById(id);
             if (el) {
                 el.classList.remove('active');
-                el.style.display = 'none';
+                el.style.setProperty('display', 'none', 'important');
+                el.style.setProperty('z-index', '-1', 'important');
             }
         });
 
-        // Hide ALL landing phases
-        document.querySelectorAll('.phase').forEach(p => {
-            p.classList.remove('active');
-            p.style.display = 'none';
-        });
-
-        // Show Game Phase
+        // Show Game Phase (now at root level)
         const gamePhase = document.getElementById('game-phase');
         if (gamePhase) {
-            // Ensure the parent #app is also visible if it had different background
-            const app = document.getElementById('app');
-            if (app) app.style.background = 'var(--cream)';
+            console.log("Found #game-phase (root), activating...");
 
+            // Force the body and app background to match the game (Cream)
+            document.body.style.setProperty('background', '#FFF8F0', 'important');
+
+            // IMPORTANT: Hide the entire landing page container entirely
+            const app = document.getElementById('app');
+            if (app) {
+                app.style.setProperty('display', 'none', 'important');
+            }
+
+            gamePhase.style.setProperty('display', 'flex', 'important');
+            gamePhase.style.setProperty('z-index', '9999999', 'important');
             gamePhase.classList.add('active');
 
-            // Small delay to ensure display: flex is applied before engine measurements
+            // Final cleanup of destiny screen node
+            const destiny = document.getElementById('destiny-screen');
+            if (destiny && destiny.parentNode) {
+                destiny.parentNode.removeChild(destiny);
+            }
+
+            // Larger delay to ensure the DOM has settled completely before engine measurements
             setTimeout(() => {
-                if (window.Game && typeof window.Game.init === 'function') {
-                    window.Game.init();
+                const log = document.getElementById('boot-log');
+                if (log) {
+                    log.style.display = 'block';
+                    log.textContent = "Booting engine (Extreme Bypass)...";
                 }
-            }, 50);
+
+                const gameObj = window.Game || (window.G && window.G.Game);
+                if (gameObj && typeof gameObj.init === 'function') {
+                    gameObj.init().catch(err => {
+                        console.error("Game.init failed:", err);
+                        if (log) {
+                            log.style.background = 'rgba(255,0,0,0.9)';
+                            log.textContent = "ENGINE INIT ERROR: " + err.message;
+                        }
+                    });
+                } else {
+                    console.error("Game engine not found!");
+                    if (log) {
+                        log.style.background = 'rgba(255,0,0,0.9)';
+                        log.textContent = "CRITICAL: Game engine (window.Game) not found!";
+                    }
+                }
+            }, 400);
         }
     }
 

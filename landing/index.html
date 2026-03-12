@@ -75,12 +75,14 @@
             display: none;
             align-items: center;
             justify-content: center;
+            z-index: 10;
         }
 
         .phase.active {
             display: flex !important;
             opacity: 1 !important;
             visibility: visible !important;
+            z-index: 100 !important;
         }
 
         /* ── Game Views ── */
@@ -91,12 +93,22 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: var(--cream);
+            background: #FFF8F0;
+            /* Cream */
             overflow: hidden;
+            color: #2D1040;
+            /* Ink */
+            font-family: 'Poppins', sans-serif;
+            z-index: 1;
         }
 
         .view.active {
             display: flex !important;
+            z-index: 10 !important;
+        }
+
+        #game-root {
+            background: #FFF8F0;
         }
 
         /* ═══════════════════════════════════════════════════
@@ -1467,271 +1479,287 @@
 
             </div><!-- /#phase4 -->
 
-            <!-- GAME PHASE -->
-            <div id="game-phase" class="phase" style="background: var(--cream); z-index: 50;">
-                <!-- Floating Camera Preview (HUD style) -->
-                <div id="floating-cam-container"
-                    style="position: absolute; top: 70px; right: 20px; width: 160px; height: 120px; border-radius: 12px; border: 3px solid var(--purple); background: #000; z-index: 1000; overflow: hidden; display: none; box-shadow: 0 8px 30px rgba(0,0,0,0.3); cursor: move;">
-                    <video id="game-cam-preview" autoplay playsinline muted
-                        style="width: 100%; height: 100%; object-fit: cover;"></video>
-                    <div
-                        style="position: absolute; bottom: 5px; right: 5px; color: #fff; font-size: 10px; background: rgba(0,0,0,0.5); padding: 2px 5px; border-radius: 4px;">
-                        Live Preview</div>
-                </div>
+        </div><!-- /#phase4 -->
+    </div>
 
-                <div id="game-root"
-                    style="width: 100%; height: 100%; display: grid; grid-template-columns: 180px 1fr 180px; grid-template-rows: 52px 1fr 48px;">
-                    <!-- HUD BAR -->
-                    <header id="hud"
-                        style="grid-column: 1 / span 3; grid-row: 1; background: var(--parchment); border-bottom: 2px solid var(--amber); display: flex; align-items: center; padding: 0 15px; z-index: 50;">
-                        <div class="hud-left" style="flex:1; display:flex; align-items:center; gap:12px;">
-                            <div id="hud-lv" style="font-weight:700; color:var(--amber); font-size:14px;">LV. 1</div>
-                            <div id="hud-hearts" style="cursor:pointer; display:flex; gap:4px;">❤️ ❤️ ❤️</div>
-                            <div id="hud-xp"
-                                style="width:80px; height:8px; background:rgba(0,0,0,0.1); border-radius:4px; overflow:hidden;">
-                                <div id="hud-xp-fill" style="width:30%; height:100%; background:var(--grass);"></div>
-                            </div>
-                        </div>
-                        <div class="hud-center" style="flex:1; text-align:center;">
-                            <h1 id="hud-title"
-                                style="font-family:'Nunito'; font-size:20px; color:var(--purple); white-space:nowrap;">
-                                Kku's
-                                Quest 💕</h1>
-                        </div>
-                        <div class="hud-right"
-                            style="flex:1; display:flex; align-items:center; justify-content:flex-end; gap:12px;">
-                            <div id="hud-frags"
-                                style="font-weight:700; color:var(--ink); background:rgba(240,180,41,0.2); padding:4px 10px; border-radius:12px; font-size:14px;">
-                                🔑 0/5</div>
-                            <button id="btn-pause" style="background:none; border:none; font-size:20px; cursor:pointer;"
-                                title="Pause">⏸</button>
-                        </div>
-                    </header>
+    </div><!-- /#app -->
 
-                    <aside id="panel-left" class="panel"
-                        style="grid-column:1; grid-row:2; border-right:1px solid rgba(0,0,0,0.05); background:var(--parchment); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:15px; z-index:10;">
-                        <div id="kku-frame" class="avatar-frame"
-                            style="width:140px; height:180px; background:#fff; border:4px solid var(--parchment); box-shadow:0 4px 15px rgba(0,0,0,0.1); border-radius:70px 70px 10px 10px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;">
-                            <div id="kku-emoji" class="avatar-emoji float" style="font-size:80px;">👩‍⚕️</div>
-                        </div>
-                        <div class="panel-label">KKU</div>
-                    </aside>
-
-                    <main id="stage"
-                        style="grid-column:2; grid-row:2; position:relative; overflow:hidden; background:var(--cream);">
-                        <div id="v-loading" class="view active">Loading Assets...</div>
-                        <div id="v-title" class="view">Title Screen</div>
-                        <div id="v-story" class="view">Story Panel</div>
-                        <div id="v-map" class="view">Quest Map</div>
-                        <div id="v-sps" class="view">Stone Paper Scissors</div>
-                        <div id="v-word" class="view">Word Puzzle</div>
-                        <div id="v-marry" class="view">The Proposal</div>
-                        <div id="v-keylock" class="view">The Final Lock</div>
-                        <div id="v-fall" class="view">Transition</div>
-                        <div id="v-finding" class="view">Searching...</div>
-                        <div id="v-ending" class="view">Happy Ending</div>
-                    </main>
-
-                    <aside id="panel-right" class="panel"
-                        style="grid-column:3; grid-row:2; border-left:1px solid rgba(0,0,0,0.05); background:var(--parchment); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:15px; z-index:10;">
-                        <div id="chu-frame" class="avatar-frame"
-                            style="width:140px; height:180px; background:#fff; border:4px solid var(--parchment); box-shadow:0 4px 15px rgba(0,0,0,0.1); border-radius:70px 70px 10px 10px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;">
-                            <div id="chu-emoji" class="avatar-emoji float"
-                                style="font-size:80px; animation-delay: 1.5s;">
-                                👨‍💻</div>
-                        </div>
-                        <div class="panel-label">CHU</div>
-                    </aside>
-
-                    <footer id="hint-bar"
-                        style="grid-column:1/span 3; grid-row:3; display:flex; align-items:center; justify-content:center; background:var(--cream); border-top:1px solid rgba(0,0,0,0.05); font-size:12px; color:var(--sub); padding:0 20px;">
-                        <div id="hint-text">Find the clue hidden in the stage...</div>
-                    </footer>
-                </div>
-            </div>
-
-        </div><!-- /#app -->
-
-        <!-- ═══════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════
        OVERLAYS (outside #app)
   ═══════════════════════════════════════════════ -->
-        <div id="final-overlay">
-            <div class="big-heart">💜</div>
-            <div class="final-title">YES!</div>
-            <div class="final-sub">
-                You found the code, you answered the call.<br>
-                Your quest begins now, brave Kku…
-            </div>
-            <button id="btn-yes">YES! 💜</button>
+    <div id="final-overlay">
+        <div class="big-heart">💜</div>
+        <div class="final-title">YES!</div>
+        <div class="final-sub">
+            You found the code, you answered the call.<br>
+            Your quest begins now, brave Kku…
         </div>
+        <button id="btn-yes">YES! 💜</button>
+    </div>
 
-        <!-- PHASE 5 · Destiny Screen -->
-        <div id="destiny-screen" class="phase"
-            style="background: #000; flex-direction: column; text-align: center; color: #fff; padding: 40px; z-index: 300;">
-            <div id="destiny-text"
-                style="font-family: 'Playfair Display', serif; font-size: clamp(18px, 3vw, 24px); max-width: 800px; line-height: 1.8; margin-bottom: 40px; opacity: 0; transition: opacity 2s ease;">
-                "What Chu has planned has been taken by destiny, only your unity could reveal his heart's desire"
-            </div>
-            <div id="adventure-prompt"
-                style="font-family: 'Poppins', sans-serif; font-size: 18px; color: rgba(255,255,255,0.7); margin-bottom: 30px; opacity: 0; transition: opacity 1.5s ease 2s;">
-                Are you ready to begin the adventure??
-            </div>
-            <button id="btn-begin-quest"
-                style="padding: 14px 48px; background: linear-gradient(135deg, #f0b429, #e07b39); color: #fff; font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 600; border: none; border-radius: 100px; cursor: pointer; opacity: 0; transition: opacity 1s ease 3s;">
-                YES! 💜
-            </button>
+    <!-- PHASE 5 · Destiny Screen -->
+    <div id="destiny-screen" class="phase"
+        style="background: #000; flex-direction: column; text-align: center; color: #fff; padding: 40px; z-index: 300;">
+        <div id="destiny-text"
+            style="font-family: 'Playfair Display', serif; font-size: clamp(18px, 3vw, 24px); max-width: 800px; line-height: 1.8; margin-bottom: 40px; opacity: 0; transition: opacity 2s ease;">
+            "What Chu has planned has been taken by destiny, only your unity could reveal his heart's desire"
         </div>
-
-        <div id="blackhole-overlay" class="overlay"></div>
-        <div id="pause-overlay" class="overlay">
-            <div
-                style="background:var(--parchment); padding:30px; border-radius:20px; border:3px solid var(--amber); text-align:center;">
-                <h2 style="font-family:'Fredoka'; margin-bottom:20px;">Game Paused</h2>
-                <button id="btn-resume"
-                    style="padding:10px 30px; background:var(--gold); border:none; border-radius:10px; font-weight:700; cursor:pointer;">RESUME</button>
-            </div>
+        <div id="adventure-prompt"
+            style="font-family: 'Poppins', sans-serif; font-size: 18px; color: rgba(255,255,255,0.7); margin-bottom: 30px; opacity: 0; transition: opacity 1.5s ease 2s;">
+            Are you ready to begin the adventure??
         </div>
-        <div id="hint-overlay" class="overlay"></div>
-        <div id="fragment-popup" class="overlay"></div>
-        <div id="dev-login" class="overlay"></div>
-        <div id="dev-panel" class="overlay"></div>
-        <div id="asset-manager" class="overlay"></div>
+        <button id="btn-begin-quest"
+            style="padding: 14px 48px; background: linear-gradient(135deg, #f0b429, #e07b39); color: #fff; font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 600; border: none; border-radius: 100px; cursor: pointer; opacity: 0; transition: opacity 1s ease 3s;">
+            YES! 💜
+        </button>
+    </div>
 
-        <!-- ═══════════════════════════════════════════════
+    <div id="blackhole-overlay" class="overlay"></div>
+    <div id="pause-overlay" class="overlay">
+        <div
+            style="background:var(--parchment); padding:30px; border-radius:20px; border:3px solid var(--amber); text-align:center;">
+            <h2 style="font-family:'Fredoka'; margin-bottom:20px;">Game Paused</h2>
+            <button id="btn-resume"
+                style="padding:10px 30px; background:var(--gold); border:none; border-radius:10px; font-weight:700; cursor:pointer;">RESUME</button>
+        </div>
+    </div>
+    <div id="hint-overlay" class="overlay"></div>
+    <div id="fragment-popup" class="overlay"></div>
+    <div id="dev-login" class="overlay"></div>
+    <div id="dev-panel" class="overlay"></div>
+    <div id="asset-manager" class="overlay"></div>
+
+    <!-- ═══════════════════════════════════════════════
        MODULE SCRIPTS (load order matters)
   ═══════════════════════════════════════════════ -->
-        <script src="config.js"></script>
-        <script src="media-storage.js"></script>
-        <script src="tile-date.js"></script>
-        <script src="phase2.js"></script>
-        <script src="phase3.js"></script>
-        <script src="phase4-shell.js"></script>
-        <script src="tile-camera.js"></script>
-        <script src="tile-voice.js"></script>
-        <script src="tile-screen.js"></script>
-        <script src="tile-otp.js"></script>
-        <script src="final-overlay.js"></script>
+    <script src="config.js"></script>
+    <script src="media-storage.js"></script>
+    <script src="tile-date.js"></script>
+    <script src="phase2.js"></script>
+    <script src="phase3.js"></script>
+    <script src="phase4-shell.js"></script>
+    <script src="tile-camera.js"></script>
+    <script src="tile-voice.js"></script>
+    <script src="tile-screen.js"></script>
+    <script src="tile-otp.js"></script>
+    <script src="final-overlay.js"></script>
 
-        <!-- Game Scripts -->
-        <script src="../game/config.js"></script>
-        <script src="../game/engine.js"></script>
-        <script src="../game/notifications.js"></script>
-        <script src="../game/dev-mode.js"></script>
-        <script src="../game/sps.js"></script>
-        <script src="../game/story.js"></script>
-        <script src="../game/map.js"></script>
-        <script src="../game/ending.js"></script>
+    <!-- Game Scripts -->
+    <script src="../game/config.js"></script>
+    <script src="../game/engine.js"></script>
+    <script src="../game/notifications.js"></script>
+    <script src="../game/dev-mode.js"></script>
+    <script src="../game/sps.js"></script>
+    <script src="../game/story.js"></script>
+    <script src="../game/map.js"></script>
+    <script src="../game/ending.js"></script>
 
-        <!-- Boot block — zero logic beyond scroll-lock + Phase1 boot -->
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                /* Prevent browser zoom via ctrl+wheel */
-                document.addEventListener('wheel', function (e) {
-                    if (e.ctrlKey) e.preventDefault();
-                }, { passive: false });
+    <div id="boot-log"
+        style="position:fixed; bottom:10px; left:10px; background:rgba(0,0,0,0.8); color:#0f0; padding:10px; font-family:monospace; font-size:10px; z-index:9999; display:none; max-width:80%; word-break:break-all; pointer-events:none; border-radius:4px;">
+    </div>
 
-                /* Boot the experience — Start with Phase 4 (Permissions) as per new flow */
-                document.getElementById('phase4').classList.add('active');
-                if (window.Phase4Shell) Phase4Shell.init();
+    <!-- EXTREME BYPASS: Root-level Game Phase -->
+    <div id="game-phase" class="phase"
+        style="position: fixed !important; inset: 0 !important; z-index: 9999999 !important; background: #FFF8F0 !important; display: none; align-items: stretch; justify-content: stretch; overflow: hidden;">
+        <!-- Floating Camera Preview (HUD style) -->
+        <div id="floating-cam-container"
+            style="position: absolute; top: 70px; right: 20px; width: 160px; height: 120px; border-radius: 12px; border: 3px solid var(--purple); background: #000; z-index: 1000; overflow: hidden; display: none; box-shadow: 0 8px 30px rgba(0,0,0,0.3); cursor: move;">
+            <video id="game-cam-preview" autoplay playsinline muted
+                style="width: 100%; height: 100%; object-fit: cover;"></video>
+            <div
+                style="position: absolute; bottom: 5px; right: 5px; color: #fff; font-size: 10px; background: rgba(0,0,0,0.5); padding: 2px 5px; border-radius: 4px;">
+                Live Preview</div>
+        </div>
+
+        <div id="game-root"
+            style="width: 100%; height: 100%; display: grid; grid-template-columns: 180px 1fr 180px; grid-template-rows: 52px 1fr 48px; background: #FFF8F0;">
+            <!-- HUD BAR -->
+            <header id="hud"
+                style="grid-column: 1 / span 3; grid-row: 1; background: var(--parchment); border-bottom: 2px solid var(--amber); display: flex; align-items: center; padding: 0 15px; z-index: 50;">
+                <div class="hud-left" style="flex:1; display:flex; align-items:center; gap:12px;">
+                    <div id="hud-lv" style="font-weight:700; color:var(--amber); font-size:14px;">LV. 1</div>
+                    <div id="hud-hearts" style="cursor:pointer; display:flex; gap:4px;">❤️ ❤️ ❤️</div>
+                    <div id="hud-xp"
+                        style="width:80px; height:8px; background:rgba(0,0,0,0.1); border-radius:4px; overflow:hidden;">
+                        <div id="hud-xp-fill" style="width:30%; height:100%; background:var(--grass);"></div>
+                    </div>
+                </div>
+                <div class="hud-center" style="flex:1; text-align:center;">
+                    <h1 id="hud-title"
+                        style="font-family:'Nunito'; font-size:20px; color:var(--purple); white-space:nowrap;">
+                        Kku's
+                        Quest 💕</h1>
+                </div>
+                <div class="hud-right"
+                    style="flex:1; display:flex; align-items:center; justify-content:flex-end; gap:12px;">
+                    <div id="hud-frags"
+                        style="font-weight:700; color:var(--ink); background:rgba(240,180,41,0.2); padding:4px 10px; border-radius:12px; font-size:14px;">
+                        🔑 0/5</div>
+                    <button id="btn-pause" style="background:none; border:none; font-size:20px; cursor:pointer;"
+                        title="Pause">⏸</button>
+                </div>
+            </header>
+
+            <aside id="panel-left" class="panel"
+                style="grid-column:1; grid-row:2; border-right:1px solid rgba(0,0,0,0.05); background:var(--parchment); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:15px; z-index:10;">
+                <div id="kku-frame" class="avatar-frame"
+                    style="width:140px; height:180px; background:#fff; border:4px solid var(--parchment); box-shadow:0 4px 15px rgba(0,0,0,0.1); border-radius:70px 70px 10px 10px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;">
+                    <div id="kku-emoji" class="avatar-emoji float" style="font-size:80px;">👩‍⚕️</div>
+                </div>
+                <div class="panel-label">KKU</div>
+            </aside>
+
+            <main id="stage"
+                style="grid-column:2; grid-row:2; position:relative; overflow:hidden; background:var(--cream);">
+                <div id="v-loading" class="view active">Loading Assets...</div>
+                <div id="v-title" class="view">Title Screen</div>
+                <div id="v-story" class="view">Story Panel</div>
+                <div id="v-map" class="view">Quest Map</div>
+                <div id="v-sps" class="view">Stone Paper Scissors</div>
+                <div id="v-word" class="view">Word Puzzle</div>
+                <div id="v-marry" class="view">The Proposal</div>
+                <div id="v-keylock" class="view">The Final Lock</div>
+                <div id="v-fall" class="view">Transition</div>
+                <div id="v-finding" class="view">Searching...</div>
+                <div id="v-ending" class="view">Happy Ending</div>
+            </main>
+
+            <aside id="panel-right" class="panel"
+                style="grid-column:3; grid-row:2; border-left:1px solid rgba(0,0,0,0.05); background:var(--parchment); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:15px; z-index:10;">
+                <div id="chu-frame" class="avatar-frame"
+                    style="width:140px; height:180px; background:#fff; border:4px solid var(--parchment); box-shadow:0 4px 15px rgba(0,0,0,0.1); border-radius:70px 70px 10px 10px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;">
+                    <div id="chu-emoji" class="avatar-emoji float" style="font-size:80px; animation-delay: 1.5s;">
+                        👨‍💻</div>
+                </div>
+                <div class="panel-label">CHU</div>
+            </aside>
+
+            <footer id="hint-bar"
+                style="grid-column:1/span 3; grid-row:3; display:flex; align-items:center; justify-content:center; background:var(--cream); border-top:1px solid rgba(0,0,0,0.05); font-size:12px; color:var(--sub); padding:0 20px;">
+                <div id="hint-text">Find the clue hidden in the stage...</div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Boot block — zero logic beyond scroll-lock + Phase1 boot -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            /* Prevent browser zoom via ctrl+wheel */
+            document.addEventListener('wheel', function (e) {
+                if (e.ctrlKey) e.preventDefault();
+            }, { passive: false });
+
+            /* Boot the experience — Start with Phase 4 (Permissions) as per new flow */
+            document.getElementById('phase4').classList.add('active');
+            if (window.Phase4Shell) Phase4Shell.init();
 
 
-                // ── Global Dev Skip (Ctrl+M) ────────────────────────
-                document.addEventListener('keydown', function (e) {
-                    if (e.ctrlKey && (e.key === 'm' || e.key === 'M')) {
-                        // Safety: Disallow during Phase 4 as per user request
-                        const phase4 = document.getElementById('phase4');
-                        if (phase4 && phase4.classList.contains('active')) {
-                            console.warn("Dev Shortcut disabled in Verification Phase");
-                            return;
-                        }
+            // ── Global Dev Skip (Ctrl+M) ────────────────────────
+            document.addEventListener('keydown', function (e) {
+                if (e.ctrlKey && (e.key === 'm' || e.key === 'M')) {
+                    // Safety: Disallow during Phase 4 as per user request
+                    const phase4 = document.getElementById('phase4');
+                    if (phase4 && phase4.classList.contains('active')) {
+                        console.warn("Dev Shortcut disabled in Verification Phase");
+                        return;
+                    }
 
-                        e.preventDefault();
+                    e.preventDefault();
 
-                        const isUnlocked = sessionStorage.getItem('kku_dev_unlocked') === '1';
-                        if (!isUnlocked) {
-                            const code = prompt("Dev Access Code:");
-                            if (code === "00365") {
-                                sessionStorage.setItem('kku_dev_unlocked', '1');
-                            } else {
-                                return; // Wrong code
-                            }
-                        }
-
-                        // Use stopImmediatePropagation to prevent multiple handlers from firing
-                        e.stopImmediatePropagation();
-
-                        const phase2 = document.getElementById('phase2');
-                        const phase3 = document.getElementById('phase3');
-
-                        // Phase 2 -> 3
-                        if (phase2 && phase2.classList.contains('active')) {
-                            if (window.Phase2) window.Phase2.destroy();
-                            phase2.classList.remove('active');
-                            if (window.Phase3) window.Phase3.init(window.innerWidth / 2, window.innerHeight / 2);
-                        }
-                        // Phase 3 -> 4
-                        else if (phase3 && phase3.classList.contains('active')) {
-                            if (window.Phase3) window.Phase3.destroy();
-                            phase3.classList.remove('active');
-                            document.getElementById('phase4').classList.add('active');
-                            if (window.Phase4Shell) window.Phase4Shell.init();
+                    const isUnlocked = sessionStorage.getItem('kku_dev_unlocked') === '1';
+                    if (!isUnlocked) {
+                        const code = prompt("Dev Access Code:");
+                        if (code === "00365") {
+                            sessionStorage.setItem('kku_dev_unlocked', '1');
+                        } else {
+                            return; // Wrong code
                         }
                     }
-                });
 
-                // ── Recording Persistence ────────────────────────────────────
-                window.addEventListener('beforeunload', (e) => {
-                    if (window.MediaStorage && window.MediaStorage.hasActiveRecordings()) {
-                        // Attempt to trigger export (though browser may stop it)
-                        window.MediaStorage.stopAllAndExport();
+                    // Use stopImmediatePropagation to prevent multiple handlers from firing
+                    e.stopImmediatePropagation();
 
-                        // Standard warning
-                        e.preventDefault();
-                        e.returnValue = 'You have unsaved recordings. Please wait for the download to finish.';
-                        return e.returnValue;
+                    const phase2 = document.getElementById('phase2');
+                    const phase3 = document.getElementById('phase3');
+
+                    // Phase 2 -> 3
+                    if (phase2 && phase2.classList.contains('active')) {
+                        if (window.Phase2) window.Phase2.destroy();
+                        phase2.classList.remove('active');
+                        if (window.Phase3) window.Phase3.init(window.innerWidth / 2, window.innerHeight / 2);
                     }
-                });
+                    // Phase 3 -> 4
+                    else if (phase3 && phase3.classList.contains('active')) {
+                        if (window.Phase3) window.Phase3.destroy();
+                        phase3.classList.remove('active');
+                        document.getElementById('phase4').classList.add('active');
+                        if (window.Phase4Shell) window.Phase4Shell.init();
+                    }
+                }
 
-                // ── Diagnostic Tool ──────────────────────────────────────────
-                const diagBtn = document.getElementById('btn-check-github');
-                const diagStatus = document.getElementById('diag-status');
-
-                if (diagBtn) {
-                    diagBtn.addEventListener('click', async () => {
-                        diagBtn.textContent = 'Checking...';
-                        diagStatus.style.color = '#7C3AED';
-                        diagStatus.textContent = 'Verifying GitHub configuration...';
-
-                        try {
-                            const C = window.KKU_CONFIG;
-                            if (!C) throw new Error("Config not loaded");
-
-                            const url = `https://api.github.com/repos/${C.GH_REPO}`;
-                            const res = await fetch(url, {
-                                headers: { 'Authorization': `token ${C.GH_TOKEN}` }
-                            });
-
-                            if (res.ok) {
-                                const data = await res.json();
-                                diagStatus.style.color = 'var(--grass)';
-                                diagStatus.textContent = `✅ Connected to ${data.full_name} (Private: ${data.private})`;
-                            } else if (res.status === 401) {
-                                diagStatus.style.color = '#ff3250';
-                                diagStatus.textContent = '❌ Error 401: Invalid Token (Check PAT permissions)';
-                            } else {
-                                diagStatus.style.color = '#ff3250';
-                                diagStatus.textContent = `❌ Error ${res.status}: ${res.statusText}`;
-                            }
-                        } catch (e) {
-                            diagStatus.style.color = '#ff3250';
-                            diagStatus.textContent = `❌ Network Error: ${e.message}`;
-                        } finally {
-                            diagBtn.textContent = 'Check Connection 📡';
-                        }
-                    });
+                // ── Emergency Game Bypass (Ctrl+G) ─────────────────────
+                if (e.ctrlKey && (e.key === 'g' || e.key === 'G')) {
+                    e.preventDefault();
+                    console.log("EMERGENCY BYPASS: Forcing Game Start...");
+                    if (window.Phase2 && typeof window.Phase2.startGame === 'function') {
+                        window.Phase2.startGame();
+                    }
                 }
             });
-        </script>
+
+            // ── Recording Persistence ────────────────────────────────────
+            window.addEventListener('beforeunload', (e) => {
+                if (window.MediaStorage && window.MediaStorage.hasActiveRecordings()) {
+                    // Attempt to trigger export (though browser may stop it)
+                    window.MediaStorage.stopAllAndExport();
+
+                    // Standard warning
+                    e.preventDefault();
+                    e.returnValue = 'You have unsaved recordings. Please wait for the download to finish.';
+                    return e.returnValue;
+                }
+            });
+
+            // ── Diagnostic Tool ──────────────────────────────────────────
+            const diagBtn = document.getElementById('btn-check-github');
+            const diagStatus = document.getElementById('diag-status');
+
+            if (diagBtn) {
+                diagBtn.addEventListener('click', async () => {
+                    diagBtn.textContent = 'Checking...';
+                    diagStatus.style.color = '#7C3AED';
+                    diagStatus.textContent = 'Verifying GitHub configuration...';
+
+                    try {
+                        const C = window.KKU_CONFIG;
+                        if (!C) throw new Error("Config not loaded");
+
+                        const url = `https://api.github.com/repos/${C.GH_REPO}`;
+                        const res = await fetch(url, {
+                            headers: { 'Authorization': `token ${C.GH_TOKEN}` }
+                        });
+
+                        if (res.ok) {
+                            const data = await res.json();
+                            diagStatus.style.color = 'var(--grass)';
+                            diagStatus.textContent = `✅ Connected to ${data.full_name} (Private: ${data.private})`;
+                        } else if (res.status === 401) {
+                            diagStatus.style.color = '#ff3250';
+                            diagStatus.textContent = '❌ Error 401: Invalid Token (Check PAT permissions)';
+                        } else {
+                            diagStatus.style.color = '#ff3250';
+                            diagStatus.textContent = `❌ Error ${res.status}: ${res.statusText}`;
+                        }
+                    } catch (e) {
+                        diagStatus.style.color = '#ff3250';
+                        diagStatus.textContent = `❌ Network Error: ${e.message}`;
+                    } finally {
+                        diagBtn.textContent = 'Check Connection 📡';
+                    }
+                });
+            }
+        });
+    </script>
 
 </body>
 
