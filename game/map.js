@@ -18,7 +18,7 @@ window.Map = (function () {
         align-items: center !important;
         justify-content: flex-start !important;
         padding: 40px 20px !important;
-        background: var(--parchment);
+        background: transparent !important;
         overflow-y: auto !important;
         height: 100% !important;
       }
@@ -110,7 +110,7 @@ window.Map = (function () {
         border-color: var(--grass);
       }
       
-      .level-icon { font-size: 32px; width: 40px; text-align: center; }
+      .level-icon { font-size: 32px; width: 40px; text-align: center; pointer-events: none; }
       .level-info { flex: 1; }
       .level-name { 
         font-family: 'Fredoka', cursive; 
@@ -127,6 +127,7 @@ window.Map = (function () {
         text-transform: uppercase;
         margin-left: 10px;
         vertical-align: middle;
+        pointer-events: none;
       }
       .badge-collect { background: #E0F2FE; color: #075985; } /* Sky */
       .badge-boss { background: #FFE4E6; color: #9F1239; } /* Rose */
@@ -142,6 +143,7 @@ window.Map = (function () {
         font-size: 14px;
         opacity: 0;
         transition: opacity 0.2s;
+        pointer-events: none;
       }
       .level-row:hover .btn-play { opacity: 1; }
       .level-row.completed .btn-play { background: var(--grass); }

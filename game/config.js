@@ -14,9 +14,6 @@ window.GAME_CONFIG = {
     LEVEL_FILES: [
         'level-01.js', 'level-02.js', 'level-03.js', 'level-04.js', 'level-05.js',
         'level-06.js', 'level-07.js', 'level-08.js', 'level-09.js', 'level-10.js',
-        'level-11.js', 'level-12.js', 'level-13.js', 'level-14.js', 'level-15.js',
-        'level-16.js', 'level-17.js', 'level-18.js', 'level-19.js', 'level-20.js',
-        'level-21.js', 'level-22.js', 'level-23.js', 'level-24.js', 'level-25.js',
         'level-marry.js', 'level-keylock.js'
     ],
 
@@ -43,7 +40,7 @@ window.GAME_CONFIG = {
             hint: 'They dance together, inseparable'
         },
         {
-            id: 4, level: '10b', value: '13',
+            id: 4, level: 10, value: '13',
             hint: 'The last two — the date that started everything'
         },
     ],

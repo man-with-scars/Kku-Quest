@@ -516,6 +516,22 @@
                 createStyle();
                 setupParticles();
                 renderHearts();
+                try {
+                    // Minimum 3s for 00.mp4 to be seen
+                    const minWait = new Promise(r => setTimeout(r, 3000));
+
+                    // Real loading
+                    const loadTask = (async () => {
+                        // Preload major bundles
+                        await loadLevelScript('01');
+                        updateLoadBar(100);
+                    })();
+
+                    await Promise.all([minWait, loadTask]);
+                } catch (e) {
+                    console.warn("Soft-error during async init:", e);
+                }
+
                 setupDevTaps();
 
                 const titleView = document.getElementById('v-title');
