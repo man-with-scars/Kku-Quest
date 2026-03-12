@@ -439,19 +439,37 @@ window.Phase2 = (function () {
         updateFireflies();
         startWiggle(box);
 
-        _unlockTimer = setTimeout(function () {
+        // Lock the box until monologue ends
+        _isLocked = true;
+        box.classList.add('locked');
+        prompt.textContent = 'Wait for the signal… 🎙️';
+        prompt.classList.add('active');
+
+        var mono = document.getElementById('monologue-audio');
+        var bgm = document.getElementById('gift-bgm');
+
+        if (mono) {
+            mono.play().catch(function (e) {
+                console.warn('Monologue blocked, clicking to unlock');
+                _isLocked = false;
+                box.classList.remove('locked');
+                prompt.textContent = 'tap to open \u2728';
+            });
+
+            mono.addEventListener('ended', function () {
+                _isLocked = false;
+                box.classList.remove('locked');
+                prompt.textContent = 'tap to open \u2728';
+                if (bgm) {
+                    bgm.volume = 0.5;
+                    bgm.play().catch(function (e) { });
+                }
+            }, { once: true });
+        } else {
             _isLocked = false;
             box.classList.remove('locked');
             prompt.textContent = 'tap to open \u2728';
-            prompt.classList.add('active');
-
-            // Play gift BGM
-            var bgm = document.getElementById('gift-bgm');
-            if (bgm) {
-                bgm.volume = 0.5;
-                bgm.play().catch(function (e) { console.warn('BGM play blocked:', e); });
-            }
-        }, 1000);
+        }
 
         window.addEventListener('mousemove', onMouseMove);
         _onClickBox = onBoxClick;
@@ -599,16 +617,34 @@ window.Phase2 = (function () {
         const overlays = ['pause-overlay', 'blackhole-overlay', 'hint-overlay', 'dev-login', 'dev-panel'];
         overlays.forEach(id => {
             const el = document.getElementById(id);
-            if (el) el.classList.remove('active');
+            if (el) {
+                el.classList.remove('active');
+                el.style.display = 'none';
+            }
         });
+
+        // Hide destiny screen just in case remove('active') didn't suffice
+        const destiny = document.getElementById('destiny-screen');
+        if (destiny) {
+            destiny.classList.remove('active');
+            destiny.style.display = 'none';
+        }
 
         // Show Game Phase
         const gamePhase = document.getElementById('game-phase');
         if (gamePhase) {
+            // Ensure the parent #app is also visible if it had different background
+            const app = document.getElementById('app');
+            if (app) app.style.background = 'var(--cream)';
+
             gamePhase.classList.add('active');
-            if (window.Game && typeof window.Game.init === 'function') {
-                window.Game.init();
-            }
+
+            // Small delay to ensure display: flex is applied before engine measurements
+            setTimeout(() => {
+                if (window.Game && typeof window.Game.init === 'function') {
+                    window.Game.init();
+                }
+            }, 50);
         }
     }
 

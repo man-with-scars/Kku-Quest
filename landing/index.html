@@ -78,7 +78,9 @@
         }
 
         .phase.active {
-            display: flex;
+            display: flex !important;
+            opacity: 1 !important;
+            visibility: visible !important;
         }
 
         /* ═══════════════════════════════════════════════════
@@ -1328,6 +1330,9 @@
         <div id="phase2" class="phase">
             <audio id="gift-bgm" loop>
                 <source src="landing/recording/gift-bgm.mp3" type="audio/mpeg">
+            </audio>
+            <audio id="monologue-audio">
+                <source src="landing/recording/monologue.mp3" type="audio/mpeg">
             </audio>
             <div id="gift-box" role="button" aria-label="Open the gift">
                 <!-- Body -->
