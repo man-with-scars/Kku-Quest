@@ -233,6 +233,27 @@
             setTimeout(() => window.levelDone(id), 1000);
             return;
         }
+
+        // Lazy building of the view
+        const stage = document.getElementById('stage');
+        let v = document.getElementById(reg.view);
+        if (!v) {
+            v = document.createElement('div');
+            v.id = reg.view;
+            v.className = 'view';
+            stage.appendChild(v);
+        }
+
+        // Build if not already built (checks if view has children or custom flag)
+        if (!v.hasChildNodes() && typeof reg.build === 'function') {
+            try {
+                reg.build(v);
+                console.log(`Built level ${id} on-demand.`);
+            } catch (e) {
+                console.error('Build fail for', reg.id, e);
+            }
+        }
+
         window.STATE.currentLevel = id;
 
         // Save progress to SessionManager
@@ -460,7 +481,6 @@
                     if (session && session.gameState) {
                         console.log("Syncing Game STATE with session...");
                         window.STATE = { ...window.STATE, ...session.gameState };
-                        // Note: completed Set might need re-hydration
                         if (session.gameState.completed) {
                             window.STATE.completed = new Set(session.gameState.completed);
                         }
@@ -469,69 +489,16 @@
 
                 createStyle();
                 setupParticles();
+                renderHearts();
+                setupDevTaps();
 
-                const log = document.getElementById('boot-log');
-                if (log) log.textContent = "Loading assets...";
-
-                const loadingView = document.getElementById('v-loading');
-                if (loadingView) {
-                    loadingView.innerHTML = `
-                        <div style="width:200px; height:10px; background:rgba(0,0,0,0.1); border-radius:5px; position:relative;">
-                            <div id="load-bar" style="height:100%; background:var(--purple); width:0%; border-radius:5px; transition:width 0.2s;"></div>
-                        </div>
-                        <div style="margin-top:10px; font-size:12px; color:var(--sub);">Gathering fragments...</div>
-                    `;
-                }
-                const elBar = document.getElementById('load-bar');
-
-                window.LEVEL_REGISTRY = [];
-                const files = window.GAME_CONFIG.LEVEL_FILES;
-
-                for (let i = 0; i < files.length; i++) {
-                    const url = window.GAME_CONFIG.GH_RAW + files[i];
-                    const res = await fetch(url);
-                    if (!res.ok) throw new Error('Level load failed: ' + files[i]);
-                    const content = await res.text();
-
-                    const s = document.createElement('script');
-                    s.textContent = content;
-                    document.head.appendChild(s);
-
-                    if (elBar) elBar.style.width = ((i + 1) / files.length * 100) + '%';
-                }
-
-                setTimeout(() => {
-                    window.LEVEL_REGISTRY.sort((a, b) => {
-                        const idA = parseFloat(a.id);
-                        const idB = parseFloat(b.id);
-                        if (!isNaN(idA) && !isNaN(idB)) return idA - idB;
-                        return String(a.id).localeCompare(String(b.id));
-                    });
-
-                    const stage = document.getElementById('stage');
-                    window.LEVEL_REGISTRY.forEach(reg => {
-                        let v = document.getElementById(reg.view);
-                        if (!v) {
-                            v = document.createElement('div');
-                            v.id = reg.view;
-                            v.className = 'view';
-                            stage.appendChild(v);
-                        }
-                        if (typeof reg.build === 'function') {
-                            try { reg.build(v); } catch (e) { console.error('Build fail for', reg.id, e); }
-                        }
-                    });
-
-                    renderHearts();
-                    setupDevTaps();
-
-                    const titleView = document.getElementById('v-title');
+                const titleView = document.getElementById('v-title');
+                if (titleView) {
                     titleView.innerHTML = `
                         <h1 style="font-family:'Fredoka', cursive; font-size:48px; color:var(--purple); margin-bottom:20px; animation:popIn 0.8s;">Kku's Quest 💕</h1>
                         <button id="btn-start-game" style="padding:15px 40px; background:var(--gold); border:none; border-radius:30px; color:white; font-size:24px; font-family:'Fredoka', cursive; cursor:pointer; box-shadow:0 5px 15px rgba(240,180,41,0.4);">START</button>
                     `;
-
-                    const startBtn = document.getElementById('btn-start-game');
+                    const startBtn = titleView.querySelector('#btn-start-game');
                     if (startBtn) {
                         startBtn.onclick = () => {
                             window.G.go('v-story');
@@ -540,24 +507,32 @@
                             }
                         };
                     }
+                }
 
-                    // Setup Pause Overlay Buttons
-                    document.getElementById('btn-pause').onclick = window.pauseGame;
-                    document.getElementById('btn-resume').onclick = window.resumeGame;
-                    document.getElementById('btn-replay-story').onclick = window.replayStory;
-                    document.getElementById('btn-restart-game').onclick = window.restartGame;
+                // Setup Pause Overlay Buttons
+                const btnPause = document.getElementById('btn-pause');
+                if (btnPause) btnPause.onclick = window.pauseGame;
 
-                    // History Interceptor for "Back" button
-                    window.addEventListener('popstate', (e) => {
-                        if (window.STATE.currentView !== 'v-map') {
-                            window.G.go('v-map');
-                        }
-                    });
+                const btnResume = document.getElementById('btn-resume');
+                if (btnResume) btnResume.onclick = window.resumeGame;
 
-                    window.G.go('v-title');
-                    if (log) log.style.display = 'none';
+                const btnReplay = document.getElementById('btn-replay-story');
+                if (btnReplay) btnReplay.onclick = window.replayStory;
 
-                }, 500);
+                const btnRestart = document.getElementById('btn-restart-game');
+                if (btnRestart) btnRestart.onclick = window.restartGame;
+
+                // History Interceptor for "Back" button
+                window.addEventListener('popstate', (e) => {
+                    if (window.STATE.currentView !== 'v-map') {
+                        window.G.go('v-map');
+                    }
+                });
+
+                window.G.go('v-title');
+
+                const log = document.getElementById('boot-log');
+                if (log) log.style.display = 'none';
 
             } catch (err) {
                 console.error("Game.init failed:", err);
