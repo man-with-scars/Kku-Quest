@@ -83,6 +83,22 @@
             visibility: visible !important;
         }
 
+        /* ── Game Views ── */
+        .view {
+            position: absolute;
+            inset: 0;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--cream);
+            overflow: hidden;
+        }
+
+        .view.active {
+            display: flex !important;
+        }
+
         /* ═══════════════════════════════════════════════════
        PHASE 1 — TRAIL CANVAS
     ═══════════════════════════════════════════════════ */

@@ -635,12 +635,11 @@ window.Phase2 = (function () {
             }
         });
 
-        // Hide destiny screen just in case remove('active') didn't suffice
-        const destiny = document.getElementById('destiny-screen');
-        if (destiny) {
-            destiny.classList.remove('active');
-            destiny.style.display = 'none';
-        }
+        // Hide ALL landing phases
+        document.querySelectorAll('.phase').forEach(p => {
+            p.classList.remove('active');
+            p.style.display = 'none';
+        });
 
         // Show Game Phase
         const gamePhase = document.getElementById('game-phase');
