@@ -44,7 +44,7 @@ window.Phase3 = (function () {
     var overlay = null;
 
     function startVoice() {
-        audio = new Audio('landing/recording/monologue.mp3');
+        audio = new Audio('recording/monologue.mp3');
         audio.onended = function () {
             triggerGlitch();
         };

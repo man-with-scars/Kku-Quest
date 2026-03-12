@@ -463,6 +463,10 @@ window.Phase2 = (function () {
             };
 
             mono.addEventListener('ended', unlock, { once: true });
+            mono.addEventListener('error', function () {
+                console.warn('Monologue audio error');
+                unlock();
+            }, { once: true });
         } else {
             unlock();
         }
