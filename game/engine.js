@@ -154,7 +154,9 @@
 
     // ── Global Actions ──────────────────────────────────────────
     window.levelDone = function (id) {
-        window.STATE.completed.add(id);
+        // Normalize ID to string without leading zeros for robust set checking
+        const normId = isNaN(id) ? id : String(parseInt(id));
+        window.STATE.completed.add(normId);
         window.sfx('up');
 
         // Assign fragment if applicable
@@ -509,9 +511,9 @@
                 const loadingView = document.getElementById('v-loading');
                 if (loadingView) {
                     loadingView.innerHTML = `
-                        <video id="load-video" src="../landing/story-videos/00.mp4" autoplay muted loop playsinline webkit-playsinline
+                        <video id="load-video" src="../landing/story-videos/00.mp4" muted playsinline webkit-playsinline
                             style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:-1;"></video>
-                        <div style="background:rgba(0,0,0,0.4); padding:20px; border-radius:15px; text-align:center; color:white;">
+                        <div id="load-info" style="background:rgba(0,0,0,0.4); padding:20px; border-radius:15px; text-align:center; color:white; transition: opacity 0.5s;">
                             <div style="width:200px; height:10px; background:rgba(255,255,255,0.2); border-radius:5px; position:relative; margin-bottom:10px;">
                                 <div id="load-bar" style="height:100%; background:var(--gold); width:0%; border-radius:5px; transition:width 0.2s;"></div>
                             </div>
@@ -524,27 +526,38 @@
                 setupParticles();
                 renderHearts();
                 try {
-                    // Minimum 3s for 00.mp4 to be seen
-                    const minWait = new Promise(r => setTimeout(r, 3000));
+                    const video = document.getElementById('load-video');
+                    const info = document.getElementById('load-info');
 
-                    // Real loading
-                    const loadTask = (async () => {
-                        // Preload major bundles
-                        await loadLevelScript('01');
-                        updateLoadBar(100);
-                    })();
+                    // Play video once
+                    if (video) {
+                        await video.play().catch(e => console.log("Video play blocked"));
 
-                    await Promise.all([minWait, loadTask]);
+                        // Wait for video to finish or at least 3s
+                        const videoEnd = new Promise(r => video.onended = r);
+                        const minWait = new Promise(r => setTimeout(r, 4000));
+
+                        // Fake progress
+                        let p = 0;
+                        const pInterval = setInterval(() => {
+                            p += 5;
+                            const bar = document.getElementById('load-bar');
+                            if (bar) bar.style.width = p + '%';
+                            if (p >= 100) clearInterval(pInterval);
+                        }, 150);
+
+                        await Promise.race([videoEnd, minWait]);
+                        if (info) info.style.opacity = '0';
+                        await new Promise(r => setTimeout(r, 500));
+                    }
                 } catch (e) {
                     console.warn("Soft-error during async init:", e);
                 }
-
                 setupDevTaps();
-
                 const titleView = document.getElementById('v-title');
                 if (titleView) {
                     titleView.innerHTML = `
-                        <button id="btn-start-game" style="padding:18px 50px; background:var(--gold); border:none; border-radius:40px; color:white; font-size:28px; font-family:'Fredoka', cursive; cursor:pointer; box-shadow:0 8px 25px rgba(240,180,41,0.5); transition:transform 0.2s; position:relative; z-index:10;">START</button>
+                        <button id="btn-start-game" style="padding:15px 45px; background:var(--gold); border:none; border-radius:35px; color:white; font-size:24px; font-family:'Fredoka', cursive; cursor:pointer; box-shadow:0 8px 25px rgba(240,180,41,0.5); transition:transform 0.2s; position:absolute; bottom:130px; left:50%; transform:translateX(-50%); z-index:10;">START</button>
                     `;
                     const startBtn = titleView.querySelector('#btn-start-game');
                     if (startBtn) {

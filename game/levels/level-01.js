@@ -24,12 +24,6 @@ window.LEVEL_REGISTRY.push({
     el.innerHTML = `
       <div id="l1-stage" style="width:100%; height:100%; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center;">
         
-        <!-- Entry Animation: Car -->
-        <div id="l1-car-scene" style="position:absolute; left:-150px; bottom:20%; display:flex; align-items:center;">
-          <div style="font-size:80px; filter:drop-shadow(0 5px 10px rgba(0,0,0,0.2));">🚗</div>
-          <div id="l1-exhaust" style="margin-left:-10px;"></div>
-        </div>
-
         <!-- Riddle Card -->
         <div id="l1-card" class="riddle-card" style="opacity:0; transform:translateY(20px); pointer-events:none;">
           <div class="riddle-text">
@@ -113,31 +107,10 @@ window.LEVEL_REGISTRY.push({
     `;
     document.head.appendChild(style);
 
-    // Initial sequence
-    const car = document.getElementById('l1-car-scene');
-    const card = document.getElementById('l1-card');
-    const exhaust = document.getElementById('l1-exhaust');
-
-    // Start car drive
-    car.style.animation = 'carDrive 4s linear forwards';
-
-    // Exhaust pops
-    let puffCount = 0;
-    const puffTimer = setInterval(() => {
-      if (puffCount > 20) { clearInterval(puffTimer); return; }
-      const puff = document.createElement('div');
-      puff.className = 'puff';
-      exhaust.appendChild(puff);
-      setTimeout(() => puff.remove(), 1000);
-      puffCount++;
-    }, 200);
-
-    // Show card after car passes middle
-    setTimeout(() => {
-      card.style.opacity = '1';
-      card.style.transform = 'translateY(0)';
-      card.style.pointerEvents = 'auto';
-    }, 1500);
+    // Show card immediately
+    card.style.opacity = '1';
+    card.style.transform = 'translateY(0)';
+    card.style.pointerEvents = 'auto';
 
     // Option Logic
     el.querySelectorAll('.opt-btn').forEach(btn => {

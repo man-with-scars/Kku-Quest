@@ -174,8 +174,35 @@ window.Story = (function () {
       if (autoTimer) clearTimeout(autoTimer);
       transition(-1);
     };
+    let wasReplay = false;
+
     if (btnBegin) btnBegin.onclick = () => {
       if (autoTimer) clearTimeout(autoTimer);
+
+      // If was replay, show choice modal or just go back
+      if (window.STATE.storyDone) {
+        wrap.innerHTML = `
+          <div class="panel-wrap" style="background:rgba(0,0,0,0.8); border-radius:30px; padding:60px;">
+            <h2 style="color:white; font-family:'Fredoka', cursive; margin-bottom:40px;">What's Next?</h2>
+            <div style="display:flex; flex-direction:column; gap:20px;">
+              <button id="btn-restart-all" class="story-btn" style="background:var(--rose); color:white; font-size:18px;">RESTART QUEST FROM BEGINNING</button>
+              <button id="btn-continue-map" class="story-btn" style="background:var(--grass); color:white; font-size:18px;">CONTINUE FROM WHERE I LEFT OFF</button>
+            </div>
+          </div>
+        `;
+        wrap.querySelector('#btn-restart-all').onclick = () => {
+          if (confirm("This will clear all progress. Are you sure?")) {
+            if (window.SessionManager) window.SessionManager.clear();
+            window.location.reload();
+          }
+        };
+        wrap.querySelector('#btn-continue-map').onclick = () => {
+          window.G.go('v-map');
+          if (window.Map && window.Map.init) window.Map.init(document.getElementById('v-map'));
+        };
+        return;
+      }
+
       window.STATE.storyDone = true;
       if (bgMusic) {
         bgMusic.pause();

@@ -27,12 +27,6 @@ window.LEVEL_REGISTRY.push({
         <!-- Ripple Effect -->
         <div id="l2-ripple" style="position:absolute; width:600px; height:600px; border-radius:50%; pointer-events:none;"></div>
 
-        <!-- Entry Animation: Fish -->
-        <div id="l2-fish-scene" style="position:absolute; right:-150px; top:30%; display:flex; flex-direction:column; align-items:center;">
-          <div style="font-size:80px; transform: scaleX(-1); filter:drop-shadow(0 5px 10px rgba(0,0,0,0.1));">🐟</div>
-          <div id="l2-bubbles" style="margin-top:-20px; position:relative;"></div>
-        </div>
-
         <!-- Riddle Card -->
         <div id="l2-card" class="riddle-card" style="opacity:0; transform:translateY(20px); pointer-events:none; z-index:10;">
           <div class="riddle-text">
@@ -125,31 +119,10 @@ window.LEVEL_REGISTRY.push({
     `;
     document.head.appendChild(style);
 
-    const fish = document.getElementById('l2-fish-scene');
-    const card = document.getElementById('l2-card');
-    const bubbles = document.getElementById('l2-bubbles');
-
-    // Start fish swim
-    fish.style.animation = 'fishSwim 5s linear forwards';
-
-    // Bubble sequence
-    let bubbleCount = 0;
-    const bubbleTimer = setInterval(() => {
-      if (bubbleCount >= 5) { clearInterval(bubbleTimer); return; }
-      const bub = document.createElement('div');
-      bub.className = 'bubble';
-      bub.style.left = (Math.random() * 20 - 10) + 'px';
-      bubbles.appendChild(bub);
-      setTimeout(() => bub.remove(), 2000);
-      bubbleCount++;
-    }, 500);
-
-    // Show card after fish passes
-    setTimeout(() => {
-      card.style.opacity = '1';
-      card.style.transform = 'translateY(0)';
-      card.style.pointerEvents = 'auto';
-    }, 1500);
+    // Show card immediately
+    card.style.opacity = '1';
+    card.style.transform = 'translateY(0)';
+    card.style.pointerEvents = 'auto';
 
     // Option Logic
     el.querySelectorAll('.opt-btn').forEach(btn => {

@@ -206,6 +206,7 @@ window.Map = (function () {
         : { title: `Level ${id}`, type: 'trap', icon: '❓' };
       const isCompleted = S.completed.has(id);
       const isUnlocked = checkLock(id, idx);
+      const displayTitle = id === 'marry' ? 'Level 11' : (id === 'keylock' ? 'Level 12' : config.title);
 
       return `
             <div class="level-row ${isUnlocked ? '' : 'locked'} ${isCompleted ? 'completed' : ''}" 
@@ -213,7 +214,7 @@ window.Map = (function () {
               <div class="level-icon">${isUnlocked ? config.icon : '🔒'}</div>
               <div class="level-info">
                 <div class="level-name">
-                  ${config.title}
+                  ${displayTitle}
                 </div>
               </div>
               <button class="btn-play">${isCompleted ? 'REPLAY' : 'PLAY ▶'}</button>
@@ -231,13 +232,14 @@ window.Map = (function () {
     if (window.STATE.devMode) return true;
     if (!window.STATE.storyDone) return false;
 
-    // Level 1: storyDone
+    // First level: storyDone
     if (idx === 0) return true;
 
-    // Others: N-1 is in completed
+    // Previous level must be in completed set
     const prevFile = window.GAME_CONFIG.LEVEL_FILES[idx - 1];
     const prevId = prevFile.replace('level-', '').replace('.js', '');
-    return window.STATE.completed.has(prevId);
+    const normPrevId = isNaN(prevId) ? prevId : String(parseInt(prevId));
+    return window.STATE.completed.has(normPrevId);
   }
 
   /**

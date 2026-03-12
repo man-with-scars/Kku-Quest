@@ -51,21 +51,15 @@
             inset: 0;
             display: grid;
             grid-template-columns: 1fr;
-            grid-template-rows: 52px 1fr;
+            grid-template-rows: 1fr;
+            /* Top HUD row removed */
             background: url('levels/landing.jpeg') no-repeat center center / cover;
             overflow: hidden;
         }
 
-        /* ── HUD ───────────────────────────────────────────────── */
+        /* ── HUD HIDDEN ────────────────────────────────────────── */
         #hud {
-            grid-column: 1;
-            grid-row: 1;
-            background: var(--parchment);
-            border-bottom: 2px solid var(--amber);
-            display: flex;
-            align-items: center;
-            padding: 0 15px;
-            z-index: 50;
+            display: none !important;
         }
 
         .hud-left {
