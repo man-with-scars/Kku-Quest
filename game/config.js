@@ -12,12 +12,18 @@ window.GAME_CONFIG = {
     CORRECT_KEY: '9846907413',
 
     LEVEL_FILES: [
-        'level-01.js', 'level-02.js', 'level-03.js',
-        'level-04.js', 'level-05.js', 'level-06.js',
-        'level-07.js', 'level-08.js', 'level-09.js',
-        'level-10.js', 'level-10b.js',
+        'level-01.js', 'level-02.js', 'level-03.js', 'level-04.js', 'level-05.js',
+        'level-06.js', 'level-07.js', 'level-08.js', 'level-09.js', 'level-10.js',
+        'level-11.js', 'level-12.js', 'level-13.js', 'level-14.js', 'level-15.js',
+        'level-16.js', 'level-17.js', 'level-18.js', 'level-19.js', 'level-20.js',
+        'level-21.js', 'level-22.js', 'level-23.js', 'level-24.js', 'level-25.js',
         'level-marry.js', 'level-keylock.js'
     ],
+
+    REWARDS: {
+        level_complete: 10,
+        bonus_clue: 5
+    },
 
     FRAGMENTS: [
         {

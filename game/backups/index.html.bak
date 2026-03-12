@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, orientation=landscape">
+    <title>Kku's Quest — Find Chu 💕</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --cream: #FFF8F0;
+            --parchment: #F5E6C8;
+            --sky: #87CEEB;
+            --grass: #5DB85C;
+            --gold: #F0B429;
+            --amber: #D97706;
+            --rose: #F43F5E;
+            --purple: #7C3AED;
+            --ink: #2D1B00;
+            --sub: #7A6652;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: #000;
+            font-family: 'Nunito', sans-serif;
+            color: var(--ink);
+            user-select: none;
+            touch-action: none;
+        }
+
+        #root {
+            position: fixed;
+            inset: 0;
+            display: grid;
+            grid-template-columns: 180px 1fr 180px;
+            grid-template-rows: 52px 1fr 48px;
+            background: var(--cream);
+            overflow: hidden;
+        }
+
+        /* ── HUD ───────────────────────────────────────────────── */
+        #hud {
+            grid-column: 1 / span 3;
+            grid-row: 1;
+            background: var(--parchment);
+            border-bottom: 2px solid var(--amber);
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            z-index: 50;
+        }
+
+        .hud-left {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hud-center {
+            flex: 1;
+            text-align: center;
+        }
+
+        .hud-right {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        #hud-title {
+            font-family: 'Fredoka', cursive;
+            font-size: 20px;
+            color: var(--purple);
+            white-space: nowrap;
+        }
+
+        #hud-lv {
+            font-weight: 700;
+            color: var(--amber);
+            font-size: 14px;
+        }
+
+        #hud-hearts {
+            cursor: pointer;
+            display: flex;
+            gap: 4px;
+        }
+
+        #hud-xp {
+            width: 80px;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        #hud-xp-fill {
+            width: 30%;
+            height: 100%;
+            background: var(--grass);
+        }
+
+        #hud-frags {
+            font-weight: 700;
+            color: var(--ink);
+            background: rgba(240, 180, 41, 0.2);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+
+        #btn-pause {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        /* ── PANELS ────────────────────────────────────────────── */
+        .panel {
+            background: var(--parchment);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            z-index: 10;
+        }
+
+        #panel-left {
+            grid-column: 1;
+            grid-row: 2;
+            border-right: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        #panel-right {
+            grid-column: 3;
+            grid-row: 2;
+            border-left: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .avatar-frame {
+            width: 140px;
+            height: 180px;
+            background: #fff;
+            border: 4px solid var(--parchment);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 70px 70px 10px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .avatar-emoji {
+            font-size: 80px;
+        }
+
+        .panel-label {
+            font-family: 'Fredoka', cursive;
+            font-size: 18px;
+            color: var(--sub);
+        }
+
+        /* ── STAGE ─────────────────────────────────────────────── */
+        #stage {
+            grid-column: 2;
+            grid-row: 2;
+            position: relative;
+            overflow: hidden;
+            background: var(--cream);
+        }
+
+        .view {
+            position: absolute;
+            inset: 0;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .view.active {
+            display: flex;
+        }
+
+        /* ── HINT BAR ──────────────────────────────────────────── */
+        #hint-bar {
+            grid-column: 1 / span 3;
+            grid-row: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--cream);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            font-size: 12px;
+            color: var(--sub);
+            padding: 0 20px;
+        }
+
+        /* ── OVERLAYS ──────────────────────────────────────────── */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .overlay.active {
+            display: flex;
+        }
+
+        #blackhole-overlay {
+            z-index: 100;
+            background: #000;
+        }
+
+        #pause-overlay {
+            z-index: 90;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(15px);
+        }
+
+        #hint-overlay {
+            z-index: 80;
+            align-items: flex-end;
+            background: transparent;
+            pointer-events: none;
+        }
+
+        #fragment-popup {
+            z-index: 70;
+        }
+
+        #dev-login {
+            z-index: 110;
+        }
+
+        #dev-panel {
+            z-index: 105;
+            justify-content: flex-end;
+            background: transparent;
+        }
+
+        #asset-manager {
+            z-index: 106;
+        }
+
+        /* ── KEYFRAMES ─────────────────────────────────────────── */
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20%,
+            60% {
+                transform: translateX(-5px);
+            }
+
+            40%,
+            80% {
+                transform: translateX(5px);
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes glowpulse {
+
+            0%,
+            100% {
+                filter: drop-shadow(0 0 5px var(--gold));
+            }
+
+            50% {
+                filter: drop-shadow(0 0 20px var(--gold));
+            }
+        }
+
+        @keyframes fadeup {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+
+            70% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes riseup {
+            from {
+                transform: translateY(100vh);
+            }
+
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes scrollUnfurl {
+            from {
+                height: 0;
+            }
+
+            to {
+                height: 300px;
+            }
+        }
+
+        @keyframes heartbeat {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            25% {
+                transform: scale(1.2);
+            }
+
+            50% {
+                transform: scale(1);
+            }
+
+            75% {
+                transform: scale(1.2);
+            }
+        }
+
+        @keyframes conffall {
+            from {
+                transform: translateY(-100px) rotate(0);
+            }
+
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        @keyframes bhspin {
+            from {
+                transform: rotate(0) scale(0);
+            }
+
+            to {
+                transform: rotate(720deg) scale(5);
+            }
+        }
+
+        @keyframes crackopen {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+                filter: brightness(2);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes scoreFlash {
+            0% {
+                color: var(--gold);
+            }
+
+            100% {
+                color: var(--ink);
+            }
+        }
+
+        @keyframes winGlow {
+            0% {
+                box-shadow: 0 0 0 var(--grass);
+            }
+
+            100% {
+                box-shadow: 0 0 50px var(--grass);
+            }
+        }
+
+        @keyframes loseShake {
+            0% {
+                transform: translate(1px, 1px) rotate(0deg);
+            }
+
+            10% {
+                transform: translate(-1px, -2px) rotate(-1deg);
+            }
+
+            20% {
+                transform: translate(-3px, 0px) rotate(1deg);
+            }
+
+            30% {
+                transform: translate(3px, 2px) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(0, 0);
+            }
+        }
+
+        @keyframes thinkPulse {
+            0% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.5;
+            }
+        }
+
+        @keyframes tapSlide {
+            from {
+                transform: translateX(0);
+            }
+
+            to {
+                transform: translateX(10px);
+            }
+        }
+
+        @keyframes morphBlob {
+
+            0%,
+            100% {
+                border-radius: 40% 60% 60% 40% / 60% 30% 70% 40%;
+            }
+
+            50% {
+                border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+            }
+        }
+
+        @keyframes glitch {
+            0% {
+                transform: translate(0);
+            }
+
+            20% {
+                transform: translate(-5px, 5px);
+            }
+
+            40% {
+                transform: translate(-5px, -5px);
+            }
+
+            60% {
+                transform: translate(5px, 5px);
+            }
+
+            80% {
+                transform: translate(5px, -5px);
+            }
+
+            100% {
+                transform: translate(0);
+            }
+        }
+
+        @keyframes waveAnim {
+            0% {
+                transform: scaleY(1);
+            }
+
+            50% {
+                transform: scaleY(1.5);
+            }
+
+            100% {
+                transform: scaleY(1);
+            }
+        }
+
+        @keyframes datePulse {
+            0% {
+                text-shadow: 0 0 0 var(--rose);
+            }
+
+            100% {
+                text-shadow: 0 0 10px var(--rose);
+            }
+        }
+
+        @keyframes headFloat {
+
+            0%,
+            100% {
+                transform: rotate(-5deg);
+            }
+
+            50% {
+                transform: rotate(5deg);
+            }
+        }
+
+        @keyframes wiggle {
+
+            0%,
+            100% {
+                transform: rotate(0);
+            }
+
+            25% {
+                transform: rotate(-5deg);
+            }
+
+            75% {
+                transform: rotate(5deg);
+            }
+        }
+
+        @keyframes typewriter {
+            from {
+                width: 0;
+            }
+
+            to {
+                width: 100%;
+            }
+        }
+
+        @keyframes sparkle {
+
+            0%,
+            100% {
+                opacity: 0;
+                transform: scale(0);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+
+        .float {
+            animation: float 3s infinite ease-in-out;
+        }
+
+        /* ── HELPER CLASSES ────────────────────────────────────── */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="root">
+        <!-- HUD BAR -->
+        <header id="hud">
+            <div class="hud-left">
+                <div id="hud-lv">LV. 1</div>
+                <div id="hud-hearts">❤️ ❤️ ❤️</div>
+                <div id="hud-xp">
+                    <div id="hud-xp-fill"></div>
+                </div>
+            </div>
+
+            <div class="hud-center">
+                <h1 id="hud-title">Kku's Quest 💕</h1>
+            </div>
+
+            <div class="hud-right">
+                <div id="hud-frags">🔑 0/5</div>
+                <button id="btn-pause" title="Pause">⏸</button>
+            </div>
+        </header>
+
+        <!-- LEFT PANEL (KKU) -->
+        <aside id="panel-left" class="panel">
+            <div id="kku-frame" class="avatar-frame">
+                <div id="kku-emoji" class="avatar-emoji float">👩‍⚕️</div>
+            </div>
+            <div class="panel-label">KKU</div>
+        </aside>
+
+        <!-- CENTER STAGE -->
+        <main id="stage">
+            <!-- View Shells -->
+            <div id="v-loading" class="view active">Loading Assets...</div>
+            <div id="v-title" class="view">Title Screen</div>
+            <div id="v-story" class="view">Story Panel</div>
+            <div id="v-map" class="view">Quest Map</div>
+            <div id="v-sps" class="view">Stone Paper Scissors</div>
+            <div id="v-word" class="view">Word Puzzle</div>
+            <div id="v-marry" class="view">The Proposal</div>
+            <div id="v-keylock" class="view">The Final Lock</div>
+            <div id="v-fall" class="view">Transition</div>
+            <div id="v-finding" class="view">Searching...</div>
+            <div id="v-ending" class="view">Happy Ending</div>
+
+            <!-- Dynamic level views will be injected here -->
+        </main>
+
+        <!-- RIGHT PANEL (CHU) -->
+        <aside id="panel-right" class="panel">
+            <div id="chu-frame" class="avatar-frame">
+                <div id="chu-emoji" class="avatar-emoji float" style="animation-delay: 1.5s;">👨‍💻</div>
+            </div>
+            <div class="panel-label">CHU</div>
+        </aside>
+
+        <!-- BOTTOM BAR -->
+        <footer id="hint-bar">
+            <div id="hint-text">Find the clue hidden in the stage...</div>
+        </footer>
+    </div>
+
+    <!-- OVERLAYS -->
+    <div id="blackhole-overlay" class="overlay"></div>
+    <div id="pause-overlay" class="overlay">
+        <div
+            style="background:var(--parchment); padding:30px; border-radius:20px; border:3px solid var(--amber); text-align:center;">
+            <h2 style="font-family:'Fredoka'; margin-bottom:20px;">Game Paused</h2>
+            <button id="btn-resume"
+                style="padding:10px 30px; background:var(--gold); border:none; border-radius:10px; font-weight:700; cursor:pointer;">RESUME</button>
+        </div>
+    </div>
+    <div id="hint-overlay" class="overlay"></div>
+    <div id="fragment-popup" class="overlay"></div>
+    <div id="dev-login" class="overlay"></div>
+    <div id="dev-panel" class="overlay"></div>
+    <div id="asset-manager" class="overlay"></div>
+
+    <!-- SCRIPT LOAD ORDER -->
+    <script src="config.js"></script>
+    <script src="engine.js"></script>
+    <script src="notifications.js"></script>
+    <script src="dev-mode.js"></script>
+    <script src="sps.js"></script>
+    <script src="story.js"></script>
+    <script src="map.js"></script>
+    <script src="ending.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Boot the game engine
+            if (window.Game && typeof window.Game.init === 'function') {
+                window.Game.init();
+            } else if (window.G && typeof window.G.init === 'function') {
+                // Fallback if exposing as G or Game
+                window.G.init();
+            } else {
+                console.warn('Game engine (window.Game or window.G) not found.');
+            }
+        });
+    </script>
+</body>
+
+</html>

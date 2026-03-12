@@ -18,6 +18,7 @@
         currentView: null,
         storyDone: false,
         notifyIndex: 0,
+        coins: 0,
         assetStore: { bg: {}, char: {}, music: {}, story: {} }
     };
 
@@ -98,6 +99,10 @@
             indicator.textContent = '🔴 REC';
             el.appendChild(indicator);
         }
+
+        // Sync coin HUD
+        const elCoins = document.getElementById('coin-count');
+        if (elCoins) elCoins.textContent = window.STATE.coins;
     }
 
     // ── Navigation ──────────────────────────────────────────────
@@ -158,25 +163,76 @@
             window.GameNotifications.send();
         }
 
-        if (window.DevMode && window.DevMode.togglePassButton) {
-            window.DevMode.togglePassButton(false);
-        }
+        // Assign coins (10 per level)
+        window.STATE.coins += 10;
+        renderHearts();
 
-        // Save progress
+        // Save progress to SessionManager
         if (window.SessionManager) {
             const stateToSave = { ...window.STATE, completed: Array.from(window.STATE.completed) };
-            SessionManager.save({ phase: 'game', gameState: stateToSave });
+            SessionManager.save({ phase: 'game', level: id, gameState: stateToSave });
         }
 
-        setTimeout(() => window.G.go('v-map'), 800);
+        setTimeout(() => {
+            // Find next level number
+            let nextNum = parseInt(id) + 1;
+
+            // Special cases (e.g. 10b -> 11)
+            if (id == '10b') nextNum = 11;
+
+            if (nextNum <= 25) {
+                window.launchLevel(nextNum);
+            } else if (id == 25 || id == 'keylock') {
+                window.G.go('v-ending');
+            } else {
+                window.G.go('v-map');
+            }
+        }, 1500);
     };
 
-    window.launchLevel = function (id) {
+    // ── Level Management ────────────────────────────────────────
+    async function loadLevelScript(id) {
+        let filename = `level-${String(id).padStart(2, '0')}.js`;
+        if (id == 'marry') filename = 'level-marry.js';
+        if (id == 'keylock') filename = 'level-keylock.js';
+        if (id == '10b') filename = 'level-10b.js';
+
+        const path = `levels/${filename}`;
+
+        return new Promise((resolve, reject) => {
+            const scripts = Array.from(document.querySelectorAll('script'));
+            if (scripts.find(s => s.src.endsWith(filename))) {
+                resolve();
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = path;
+            script.onload = () => resolve();
+            script.onerror = () => reject(new Error(`Failed to load level ${id}`));
+            document.body.appendChild(script);
+        });
+    }
+
+    window.launchLevel = async function (id) {
+        try {
+            await loadLevelScript(id);
+        } catch (e) {
+            console.warn(`Level ${id} script missing. Auto-advancing...`);
+            setTimeout(() => window.levelDone(id), 1000);
+            return;
+        }
+
         const reg = (window.LEVEL_REGISTRY || []).find(r =>
             String(r.id).toLowerCase() === String(id).toLowerCase() ||
             Number(r.id) === Number(id)
         );
-        if (!reg) return;
+
+        if (!reg) {
+            console.warn(`Level ${id} registry entry missing. Auto-advancing...`);
+            setTimeout(() => window.levelDone(id), 1000);
+            return;
+        }
         window.STATE.currentLevel = id;
 
         // Save progress to SessionManager
@@ -300,8 +356,31 @@
         }, 2000);
     };
 
-    window.uploadGH = async function (file, filename) {
-        console.log('GitHub upload disabled. Media saved locally via MediaStorage.');
+    window.pauseGame = function () {
+        const overlay = document.getElementById('pause-overlay');
+        if (overlay) overlay.classList.add('active');
+    };
+
+    window.resumeGame = function () {
+        const overlay = document.getElementById('pause-overlay');
+        if (overlay) overlay.classList.remove('active');
+    };
+
+    window.restartGame = function () {
+        if (confirm("Restart from Level 1? Current progress will be lost.")) {
+            window.STATE.completed.clear();
+            window.STATE.coins = 0;
+            if (window.SessionManager) window.SessionManager.clear();
+            window.location.reload();
+        }
+    };
+
+    window.replayStory = function () {
+        window.resumeGame();
+        window.G.go('v-story');
+        if (window.Story && window.Story.init) {
+            window.Story.init(document.getElementById('v-story'));
+        }
     };
 
     // ── Audio Recording Skeleton ───────────────────────────────
@@ -461,6 +540,19 @@
                             }
                         };
                     }
+
+                    // Setup Pause Overlay Buttons
+                    document.getElementById('btn-pause').onclick = window.pauseGame;
+                    document.getElementById('btn-resume').onclick = window.resumeGame;
+                    document.getElementById('btn-replay-story').onclick = window.replayStory;
+                    document.getElementById('btn-restart-game').onclick = window.restartGame;
+
+                    // History Interceptor for "Back" button
+                    window.addEventListener('popstate', (e) => {
+                        if (window.STATE.currentView !== 'v-map') {
+                            window.G.go('v-map');
+                        }
+                    });
 
                     window.G.go('v-title');
                     if (log) log.style.display = 'none';

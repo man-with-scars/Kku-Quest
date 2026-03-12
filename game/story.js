@@ -9,53 +9,18 @@ window.Story = (function () {
   let current = 0;
 
   const panels = [
-    {
-      text: "In a world of glowing screens, two souls found a connection that felt like home.",
-      bg: "linear-gradient(135deg, #FFEFBA 0%, #FFFFFF 100%)",
-      content: `
-        <div style="font-size:100px; animation:glowpulse 3s infinite;">🌅</div>
-        <div style="display:flex; gap:30px; margin-top:20px;">
-          <div style="font-size:50px; animation:wiggle 1s infinite alternate;">📱</div>
-          <div style="font-size:50px; animation:wiggle 1s infinite alternate-reverse;">📱</div>
-        </div>
-      `
-    },
-    {
-      text: "Kku built digital wonders, while Chu architected the foundations of their shared dreams.",
-      bg: "linear-gradient(135deg, #FFF8F0 0%, #F5E6C8 100%)",
-      content: `
-        <div style="display:flex; align-items:center; gap:40px;">
-          <div style="font-size:90px; animation:float 4s infinite;">🥼</div>
-          <div style="font-size:80px; animation:shake 0.1s infinite;">💼</div>
-        </div>
-      `
-    },
-    {
-      text: "But suddenly, a glitch in the server garden separated them. The signals went quiet.",
-      bg: "linear-gradient(135deg, #F5E6C8 0%, #E2D1B0 100%)",
-      content: `
-        <div id="p3-icon" style="font-size:120px; animation:heartbeat 1s 3, dimOut 5s forwards 3s;">📵</div>
-      `
-    },
-    {
-      text: "Kku waited through cycles of the moon, counting every second. She wouldn't give up.",
-      bg: "linear-gradient(135deg, #E2D1B0 0%, #D4C4A8 100%)",
-      content: `
-        <div style="position:relative;">
-          <div style="font-size:100px; filter:drop-shadow(0 0 15px #FFD700); animation:pulse 4s infinite;">🌙</div>
-          <div style="font-size:40px; position:absolute; bottom:-10px; right:-10px; animation:spin 10s linear infinite;">🕒</div>
-        </div>
-      `
-    },
-    {
-      text: "With a sparkle of fairy dust and a heart full of courage, Kku's Quest begins!",
-      bg: "linear-gradient(135deg, #FFF8F0 0%, #FFF 100%)",
-      content: `
-        <div id="sparkle-burst" style="font-size:120px;">🧚‍♀️</div>
-        <div class="sparkles-container"></div>
-      `
-    }
+    { text: "In a world of glowing screens, two souls found a connection that felt like home.", video: "../landing/story-videos/01.mp4" },
+    { text: "Kku built digital wonders, while Chu architected the foundations of their shared dreams.", video: "../landing/story-videos/02.mp4" },
+    { text: "But suddenly, a glitch in the server garden separated them. The signals went quiet.", video: "../landing/story-videos/03.mp4" },
+    { text: "Kku waited through cycles of the moon, counting every second. She wouldn't give up.", video: "../landing/story-videos/04.mp4" },
+    { text: "Every memory of their laughter became a beacon in the digital dark.", video: "../landing/story-videos/05.mp4" },
+    { text: "Through firewalls of doubt and storms of static, she searched for his light.", video: "../landing/story-videos/06.mp4" },
+    { text: "A hidden message appeared, a trail of stardust leading to a forgotten realm.", video: "../landing/story-videos/07.mp4" },
+    { text: "The path is long and full of puzzles, but love is the strongest algorithm.", video: "../landing/story-videos/08.mp4" },
+    { text: "With a heart full of courage and your help, Kku's Quest finally begins!", video: "../landing/story-videos/09.mp4" }
   ];
+
+  let bgMusic = null;
 
   function createStyle() {
     const css = `
@@ -132,8 +97,8 @@ window.Story = (function () {
     const wrap = document.createElement('div');
     wrap.className = 'panel-wrap panel-enter';
     wrap.innerHTML = `
-      <div class="story-stage" style="height:200px; display:flex; align-items:center; justify-content:center;">
-        ${p.content}
+      <div class="story-stage" style="width:100%; max-width:500px; aspect-ratio:16/9; display:flex; align-items:center; justify-content:center; border-radius:15px; overflow:hidden; border:4px solid white; box-shadow:0 10px 30px rgba(0,0,0,0.1); background:#000;">
+        <video src="${p.video}" autoplay muted loop style="width:100%; height:100%; object-fit:cover;"></video>
       </div>
       <div style="font-family:'Fredoka', cursive; font-size:26px; color:var(--ink); margin-top:30px; min-height:80px;">
         ${p.text}
@@ -155,6 +120,10 @@ window.Story = (function () {
     if (btnBack) btnBack.onclick = () => transition(-1);
     if (btnBegin) btnBegin.onclick = () => {
       window.STATE.storyDone = true;
+      if (bgMusic) {
+        bgMusic.pause();
+        bgMusic = null;
+      }
       if (window.GameNotifications && window.GameNotifications.requestPermission) {
         window.GameNotifications.requestPermission();
       }
@@ -205,6 +174,15 @@ window.Story = (function () {
     if (!container) createStyle();
     container = target;
     current = 0;
+
+    // Start Background Music
+    if (!bgMusic) {
+      bgMusic = new Audio('../landing/music.mp3');
+      bgMusic.loop = true;
+      bgMusic.volume = 0.5;
+      bgMusic.play().catch(e => console.log("Music play blocked by browser."));
+    }
+
     render();
   }
 
