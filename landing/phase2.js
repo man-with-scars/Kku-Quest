@@ -625,66 +625,13 @@ window.Phase2 = (function () {
     }
 
     function startGame() {
-        // Aggressively hide ALL top-level overlays (Pause, Final, etc.)
-        const overlays = ['pause-overlay', 'blackhole-overlay', 'hint-overlay', 'dev-login', 'dev-panel', 'final-overlay'];
-        overlays.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) {
-                el.classList.remove('active');
-                el.style.setProperty('display', 'none', 'important');
-                el.style.setProperty('z-index', '-1', 'important');
-            }
-        });
-
-        // Show Game Phase (now at root level)
-        const gamePhase = document.getElementById('game-phase');
-        if (gamePhase) {
-            console.log("Found #game-phase (root), activating...");
-
-            // Force the body and app background to match the game (Cream)
-            document.body.style.setProperty('background', '#FFF8F0', 'important');
-
-            // IMPORTANT: Hide the entire landing page container entirely
-            const app = document.getElementById('app');
-            if (app) {
-                app.style.setProperty('display', 'none', 'important');
-            }
-
-            gamePhase.style.setProperty('display', 'flex', 'important');
-            gamePhase.style.setProperty('z-index', '9999999', 'important');
-            gamePhase.classList.add('active');
-
-            // Final cleanup of destiny screen node
-            const destiny = document.getElementById('destiny-screen');
-            if (destiny && destiny.parentNode) {
-                destiny.parentNode.removeChild(destiny);
-            }
-
-            // Larger delay to ensure the DOM has settled completely before engine measurements
-            setTimeout(() => {
-                const log = document.getElementById('boot-log');
-                if (log) {
-                    log.style.display = 'block';
-                    log.textContent = "Booting engine (Extreme Bypass)...";
-                }
-
-                const gameObj = window.Game || (window.G && window.G.Game);
-                if (gameObj && typeof gameObj.init === 'function') {
-                    gameObj.init().catch(err => {
-                        console.error("Game.init failed:", err);
-                        if (log) {
-                            log.style.background = 'rgba(255,0,0,0.9)';
-                            log.textContent = "ENGINE INIT ERROR: " + err.message;
-                        }
-                    });
-                } else {
-                    console.error("Game engine not found!");
-                    if (log) {
-                        log.style.background = 'rgba(255,0,0,0.9)';
-                        log.textContent = "CRITICAL: Game engine (window.Game) not found!";
-                    }
-                }
-            }, 400);
+        console.log("Starting redirection to game...");
+        const C = window.KKU_CONFIG;
+        if (C && C.GAME_URL) {
+            window.location.href = C.GAME_URL;
+        } else {
+            // Robust fallback if config is somehow missing
+            window.location.href = '../game/index.html';
         }
     }
 
