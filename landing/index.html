@@ -1533,6 +1533,7 @@
        MODULE SCRIPTS (load order matters)
   ═══════════════════════════════════════════════ -->
     <script src="config.js"></script>
+    <script src="session-manager.js"></script>
     <script src="media-storage.js"></script>
     <script src="tile-date.js"></script>
     <script src="phase2.js"></script>
@@ -1545,7 +1546,101 @@
     <script src="final-overlay.js"></script>
 
     <!-- Game Scripts -->
-    <!-- Game Scripts (Removed: now handled by redirection to game/index.html) -->
+    <script src="../game/config.js"></script>
+    <script src="../game/engine.js"></script>
+    <script src="../game/notifications.js"></script>
+    <script src="../game/dev-mode.js"></script>
+    <script src="../game/sps.js"></script>
+    <script src="../game/story.js"></script>
+    <script src="../game/map.js"></script>
+    <script src="../game/ending.js"></script>
+
+    <div id="boot-log"
+        style="position:fixed; bottom:10px; left:10px; background:rgba(0,0,0,0.8); color:#0f0; padding:10px; font-family:monospace; font-size:10px; z-index:9999; display:none; max-width:80%; word-break:break-all; pointer-events:none; border-radius:4px;">
+    </div>
+
+    <!-- SPA Integrated Game Phase -->
+    <div id="game-phase" class="phase"
+        style="position: fixed !important; inset: 0 !important; z-index: 9999999 !important; background: #FFF8F0 !important; display: none; align-items: stretch; justify-content: stretch; overflow: hidden;">
+
+        <!-- Floating Camera Preview (HUD style) -->
+        <div id="floating-cam-container"
+            style="position: absolute; top: 70px; right: 20px; width: 160px; height: 120px; border-radius: 12px; border: 3px solid var(--purple); background: #000; z-index: 1000; overflow: hidden; display: none; box-shadow: 0 8px 30px rgba(0,0,0,0.3); cursor: move;">
+            <video id="game-cam-preview" autoplay playsinline muted
+                style="width: 100%; height: 100%; object-fit: cover;"></video>
+            <div
+                style="position: absolute; bottom: 5px; right: 5px; color: #fff; font-size: 10px; background: rgba(0,0,0,0.5); padding: 2px 5px; border-radius: 4px;">
+                Live Preview</div>
+        </div>
+
+        <div id="game-root"
+            style="width: 100%; height: 100%; display: grid; grid-template-columns: 180px 1fr 180px; grid-template-rows: 52px 1fr 48px; background: #FFF8F0;">
+            <!-- HUD BAR -->
+            <header id="hud"
+                style="grid-column: 1 / span 3; grid-row: 1; background: var(--parchment); border-bottom: 2px solid var(--amber); display: flex; align-items: center; padding: 0 15px; z-index: 50;">
+                <div class="hud-left" style="flex:1; display:flex; align-items:center; gap:12px;">
+                    <div id="hud-lv" style="font-weight:700; color:var(--amber); font-size:14px;">LV. 1</div>
+                    <div id="hud-hearts" style="cursor:pointer; display:flex; gap:4px;">❤️ ❤️ ❤️</div>
+                    <div id="hud-xp"
+                        style="width:80px; height:8px; background:rgba(0,0,0,0.1); border-radius:4px; overflow:hidden;">
+                        <div id="hud-xp-fill" style="width:30%; height:100%; background:var(--grass);"></div>
+                    </div>
+                </div>
+                <div class="hud-center" style="flex:1; text-align:center;">
+                    <h1 id="hud-title"
+                        style="font-family:'Nunito'; font-size:20px; color:var(--purple); white-space:nowrap;">
+                        Kku's Quest 💕</h1>
+                </div>
+                <div class="hud-right"
+                    style="flex:1; display:flex; align-items:center; justify-content:flex-end; gap:12px;">
+                    <div id="hud-frags"
+                        style="font-weight:700; color:var(--ink); background:rgba(240,180,41,0.2); padding:4px 10px; border-radius:12px; font-size:14px;">
+                        🔑 0/5</div>
+                    <button id="btn-pause" style="background:none; border:none; font-size:20px; cursor:pointer;"
+                        title="Pause">⏸</button>
+                </div>
+            </header>
+
+            <aside id="panel-left" class="panel"
+                style="grid-column:1; grid-row:2; border-right:1px solid rgba(0,0,0,0.05); background:var(--parchment); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:15px; z-index:10;">
+                <div id="kku-frame" class="avatar-frame"
+                    style="width:140px; height:180px; background:#fff; border:4px solid var(--parchment); box-shadow:0 4px 15px rgba(0,0,0,0.1); border-radius:70px 70px 10px 10px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;">
+                    <div id="kku-emoji" class="avatar-emoji float" style="font-size:80px;">👩‍⚕️</div>
+                </div>
+                <div class="panel-label">KKU</div>
+            </aside>
+
+            <main id="stage"
+                style="grid-column:2; grid-row:2; position:relative; overflow:hidden; background:var(--cream);">
+                <div id="v-loading" class="view active">Loading Assets...</div>
+                <div id="v-title" class="view">Title Screen</div>
+                <div id="v-story" class="view">Story Panel</div>
+                <div id="v-map" class="view">Quest Map</div>
+                <div id="v-sps" class="view">Stone Paper Scissors</div>
+                <div id="v-word" class="view">Word Puzzle</div>
+                <div id="v-marry" class="view">The Proposal</div>
+                <div id="v-keylock" class="view">The Final Lock</div>
+                <div id="v-fall" class="view">Transition</div>
+                <div id="v-finding" class="view">Searching...</div>
+                <div id="v-ending" class="view">Happy Ending</div>
+            </main>
+
+            <aside id="panel-right" class="panel"
+                style="grid-column:3; grid-row:2; border-left:1px solid rgba(0,0,0,0.05); background:var(--parchment); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:15px; z-index:10;">
+                <div id="chu-frame" class="avatar-frame"
+                    style="width:140px; height:180px; background:#fff; border:4px solid var(--parchment); box-shadow:0 4px 15px rgba(0,0,0,0.1); border-radius:70px 70px 10px 10px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;">
+                    <div id="chu-emoji" class="avatar-emoji float" style="font-size:80px; animation-delay: 1.5s;">
+                        👨‍💻</div>
+                </div>
+                <div class="panel-label">CHU</div>
+            </aside>
+
+            <footer id="hint-bar"
+                style="grid-column:1/span 3; grid-row:3; display:flex; align-items:center; justify-content:center; background:var(--cream); border-top:1px solid rgba(0,0,0,0.05); font-size:12px; color:var(--sub); padding:0 20px;">
+                <div id="hint-text">Find the clue hidden in the stage...</div>
+            </footer>
+        </div>
+    </div>
 
     <!-- Boot block — zero logic beyond scroll-lock + Phase1 boot -->
     <script>
@@ -1555,9 +1650,22 @@
                 if (e.ctrlKey) e.preventDefault();
             }, { passive: false });
 
-            /* Boot the experience — Start with Phase 4 (Permissions) as per new flow */
-            document.getElementById('phase4').classList.add('active');
-            if (window.Phase4Shell) Phase4Shell.init();
+            /* Boot the experience — Check for existing session first */
+            const session = window.SessionManager ? SessionManager.load() : null;
+            if (session) {
+                console.log("Restoring existing session...");
+                SessionManager.bootstrapFromSession(session);
+                // If it was game, we might need to tell the game engine to init
+                if (session.phase === 'game') {
+                    const gameObj = window.Game || (window.G && window.G.Game);
+                    if (gameObj && typeof gameObj.init === 'function') {
+                        gameObj.init();
+                    }
+                }
+            } else {
+                document.getElementById('phase4').classList.add('active');
+                if (window.Phase4Shell) Phase4Shell.init();
+            }
 
 
             // ── Global Dev Skip (Ctrl+M) ────────────────────────
@@ -1607,10 +1715,9 @@
 
             // ── Recording Persistence ────────────────────────────────────
             window.addEventListener('beforeunload', (e) => {
+                // Only warn if recordings are active and it's NOT a planned transition
+                // (though in SPA we don't trigger unload for transitions anymore)
                 if (window.MediaStorage && window.MediaStorage.hasActiveRecordings()) {
-                    // Attempt to trigger export (though browser may stop it)
-                    window.MediaStorage.stopAllAndExport();
-
                     // Standard warning
                     e.preventDefault();
                     e.returnValue = 'You have unsaved recordings. Please wait for the download to finish.';

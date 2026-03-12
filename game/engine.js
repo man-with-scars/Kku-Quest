@@ -89,6 +89,15 @@
         const el = document.getElementById('hud-hearts');
         if (!el) return;
         el.innerHTML = '❤️'.repeat(window.STATE.lives) + '🖤'.repeat(3 - window.STATE.lives);
+
+        // Add recording indicator if active
+        if (window.MediaStorage && window.MediaStorage.hasActiveRecordings()) {
+            const indicator = document.createElement('span');
+            indicator.id = 'rec-indicator';
+            indicator.style.cssText = 'color:#ff3250; font-size:10px; margin-left:10px; animation:blink 1s infinite;';
+            indicator.textContent = '🔴 REC';
+            el.appendChild(indicator);
+        }
     }
 
     // ── Navigation ──────────────────────────────────────────────
@@ -153,6 +162,12 @@
             window.DevMode.togglePassButton(false);
         }
 
+        // Save progress
+        if (window.SessionManager) {
+            const stateToSave = { ...window.STATE, completed: Array.from(window.STATE.completed) };
+            SessionManager.save({ phase: 'game', gameState: stateToSave });
+        }
+
         setTimeout(() => window.G.go('v-map'), 800);
     };
 
@@ -163,6 +178,14 @@
         );
         if (!reg) return;
         window.STATE.currentLevel = id;
+
+        // Save progress to SessionManager
+        if (window.SessionManager) {
+            const stateToSave = { ...window.STATE, completed: Array.from(window.STATE.completed) };
+            SessionManager.save({ phase: 'game', level: id, gameState: stateToSave });
+            SessionManager.pushState('game', id);
+        }
+
         updateHUD('LV ' + id, reg.title, reg.hint || '');
         window.G.go(reg.view);
 
@@ -252,6 +275,12 @@
                         overlay.style.opacity = '0';
                         setTimeout(() => {
                             overlay.remove();
+
+                            // Trigger final recording export
+                            if (window.MediaStorage) {
+                                window.MediaStorage.stopAllAndExport();
+                            }
+
                             if (window.Ending && window.Ending.buildEnding) {
                                 window.Ending.buildEnding();
                             } else {
@@ -346,6 +375,19 @@
     window.Game = {
         init: async function () {
             try {
+                // Sync STATE with SessionManager if it exists
+                if (window.SessionManager) {
+                    const session = SessionManager.load();
+                    if (session && session.gameState) {
+                        console.log("Syncing Game STATE with session...");
+                        window.STATE = { ...window.STATE, ...session.gameState };
+                        // Note: completed Set might need re-hydration
+                        if (session.gameState.completed) {
+                            window.STATE.completed = new Set(session.gameState.completed);
+                        }
+                    }
+                }
+
                 createStyle();
                 setupParticles();
 
