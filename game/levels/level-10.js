@@ -162,7 +162,6 @@ window.LEVEL_REGISTRY.push({
           } else {
             setTimeout(() => {
               window.sfx('win');
-              window.G.recordSuccess();
               window.levelDone(10);
             }, 800);
           }

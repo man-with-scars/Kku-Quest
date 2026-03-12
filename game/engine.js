@@ -18,9 +18,6 @@
         currentView: 'v-loading',
         storyDone: false,
         notifyIndex: 0,
-        totalAnswers: 0,
-        correctAnswers: 0,
-        lastCheckpoint: 0, // 0, 4, 8 are checkpoints
         assetStore: { bg: {}, char: {}, music: {}, story: {} }
     };
 
@@ -157,17 +154,11 @@
 
         loseLife: function () {
             window.STATE.lives--;
-            window.STATE.totalAnswers++; // Wrong count
             renderHearts();
             window.sfx('bad');
             if (window.STATE.lives <= 0) {
                 window.G.go('v-death');
             }
-        },
-
-        recordSuccess: function () {
-            window.STATE.totalAnswers++;
-            window.STATE.correctAnswers++;
         },
 
         isPaused: function () {
@@ -210,7 +201,6 @@
         if (!view) return;
 
         // Customise based on if it's the last standard level
-        const nextNum = parseInt(id) + 1;
         const msg = view.querySelector('p');
         const frag = window.GAME_CONFIG.FRAGMENTS.find(f => f.level == id);
 
@@ -219,6 +209,11 @@
             msg.style.display = 'block';
         } else if (msg) {
             msg.style.display = 'none';
+        }
+
+        const btnNext = document.getElementById('btn-next-level');
+        if (btnNext) {
+            btnNext.onclick = () => window.levelAdvancementLogic(id);
         }
 
         window.G.go('v-complete');

@@ -158,7 +158,6 @@ window.LEVEL_REGISTRY.push({
         const isCorrect = btn.dataset.correct === 'true';
         if (isCorrect) {
           window.sfx('win');
-          window.G.recordSuccess();
           btn.classList.add('correct');
           card.style.pointerEvents = 'none';
 

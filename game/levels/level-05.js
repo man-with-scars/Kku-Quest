@@ -139,7 +139,6 @@ window.LEVEL_REGISTRY.push({
 
         isTask1Done = true;
         window.sfx('win');
-        window.G.recordSuccess();
         // Slide to Task 2
         setTimeout(() => {
           tasksCont.style.transform = 'translateX(-50%)';
@@ -191,7 +190,6 @@ window.LEVEL_REGISTRY.push({
 
     btnCont.onclick = () => {
       window.sfx('win');
-      window.G.recordSuccess();
       window.levelDone(5); // earns Fragment 1 (46)
     };
   }

@@ -139,7 +139,6 @@ window.LEVEL_REGISTRY.push({
         const isCorrect = btn.dataset.correct === 'true';
         if (isCorrect) {
           window.sfx('ok');
-          window.G.recordSuccess();
           btn.classList.add('correct');
           btn.innerHTML += ' ✅';
           card.style.pointerEvents = 'none';

@@ -41,7 +41,6 @@ window.LEVEL_REGISTRY.push({
             <div id="l3-hearts-orbit"></div>
           </div>
         </div>
-
         <!-- Continue Button -->
         <button id="btn-l3-continue" class="dev-btn" style="display:none; background:var(--gold); margin-top:30px; width:200px; animation:fadeup 0.5s forwards;">CONTINUE</button>
       </div>
@@ -196,7 +195,6 @@ window.LEVEL_REGISTRY.push({
 
     btnCont.onclick = () => {
       window.sfx('win');
-      window.G.recordSuccess();
       burstHearts();
       setTimeout(() => {
         window.levelDone(3); // Collects Fragment 0 (98)
@@ -204,3 +202,4 @@ window.LEVEL_REGISTRY.push({
     };
   }
 });
+```

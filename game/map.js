@@ -293,49 +293,16 @@ window.Map = (function () {
   }
 
   function startLevel(id) {
-    // Checkpoint check (e.g., at level 5 and 9 which precede SPS transitions or are final hurdles)
-    const checkpoints = [5, 9];
-    if (checkpoints.includes(Number(id))) { // Ensure id is a number for comparison
-      const total = window.STATE.totalAnswers || 0;
-      const correct = window.STATE.correctAnswers || 0;
-      const accuracy = total > 0 ? (correct / total) * 100 : 100;
-
-      if (accuracy < 60) {
-        showCheckpointWarning(id, accuracy);
-        return;
-      }
-    }
-
-    window.STATE.lastCheckpoint = id;
-    window.launchLevel(id);
+    if (window.launchLevel) window.launchLevel(id);
   }
 
-  function showCheckpointWarning(id, accuracy) {
-    window.sfx('bad');
-    const modal = document.createElement('div');
-    modal.style.cssText = `
-          position:fixed; inset:0; z-index:9999; 
-          background:rgba(0,0,0,0.8); backdrop-filter:blur(10px);
-          display:flex; align-items:center; justify-content:center;
-      `;
-    modal.innerHTML = `
-          <div style="background:var(--parchment); padding:40px; border-radius:30px; text-align:center; max-width:400px; box-shadow:0 20px 60px rgba(0,0,0,0.5);">
-              <h2 style="color:var(--purple); margin-bottom:20px;">Checkpoint Failed</h2>
-              <p style="color:var(--ink); line-height:1.6; margin-bottom:30px;">
-                  Your current accuracy is <b>${accuracy.toFixed(1)}%</b>. <br>
-                  You need at least <b>60%</b> accuracy to proceed through this special barrier.
-              </p>
-              <button class="dev-btn" onclick="this.parentElement.parentElement.remove()" style="background:var(--rose); padding:12px 30px;">TRY AGAIN</button>
-          </div>
-      `;
-    document.body.appendChild(modal);
-  }
-
-  /**
-   * Handles level click interaction.
-   */
   function handleLevelClick(id, isUnlocked) {
     if (isUnlocked) {
+      // Prevent re-opening finished levels as requested
+      if (window.STATE.completed.has(id) && !window.STATE.devMode) {
+        console.log("Level already finished. Blocking re-entry.");
+        return;
+      }
       startLevel(id);
     } else {
       window.sfx('bad');
@@ -345,16 +312,11 @@ window.Map = (function () {
     }
   }
 
-  function init(target) {
-    if (!container) createStyle();
-    container = target;
-    render();
-    spawnFireworks();
-  }
-
-  return {
-    init: init,
-    refresh: render,
+  window.Map = {
+    init: function (v) {
+      container = v;
+      render();
+    },
     handleLevelClick: handleLevelClick
   };
 }());

@@ -192,7 +192,6 @@ window.LEVEL_REGISTRY.push({
 
     btnCont.onclick = () => {
       window.sfx('win');
-      window.G.recordSuccess();
       window.levelDone(9); // earns Fragment 3 (74)
     };
   }

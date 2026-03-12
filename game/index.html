@@ -59,22 +59,18 @@
         }
 
         #btn-pause {
-            position: fixed;
-            top: 20px;
-            right: 20px;
             background: rgba(255, 255, 255, 0.4);
             border: 2px solid white;
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            display: flex !important;
+            width: 44px;
+            height: 44px;
+            display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
             cursor: pointer;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            color: white;
+            transition: all 0.2s;
         }
 
         /* ── HUD ─────────────────────────────────────────────── */
@@ -187,6 +183,14 @@
             display: flex;
             align-items: center;
             gap: 6px;
+        }
+
+        #bh-msg {
+            color: white;
+            font-family: 'Fredoka', cursive;
+            font-size: 32px;
+            text-align: center;
+            animation: popIn 0.6s ease-out;
         }
 
         #btn-pause::before {
@@ -761,7 +765,18 @@
         <main id="stage">
             <!-- View Shells -->
             <div id="v-loading" class="view active">Loading Assets...</div>
-            <div id="v-title" class="view">Title Screen</div>
+            <div id="v-title" class="view"
+                style="background:url('landing.jpeg') no-repeat center center; background-size:cover; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                <div
+                    style="background:rgba(0,0,0,0.5); padding:40px; border-radius:30px; text-align:center; backdrop-filter:blur(5px);">
+                    <h1
+                        style="font-family:'Fredoka', cursive; font-size:64px; color:white; margin-bottom:40px; text-shadow:0 10px 20px rgba(0,0,0,0.5);">
+                        Kku's Quest 💕</h1>
+                    <button onclick="window.G.go('v-story'); window.Story.init(document.getElementById('v-story'));"
+                        style="padding:20px 60px; background:var(--gold); color:white; border:none; border-radius:40px; font-size:24px; font-weight:700; cursor:pointer; font-family:'Fredoka'; box-shadow:0 5px 15px rgba(0,0,0,0.3); transition:transform 0.2s;">START
+                        ADVENTURE</button>
+                </div>
+            </div>
             <div id="v-story" class="view">Story Panel</div>
             <div id="v-map" class="view">Quest Map</div>
             <div id="v-sps" class="view">Stone Paper Scissors</div>
@@ -774,9 +789,21 @@
                 <div style="font-size:80px; margin-bottom:20px;">🎉</div>
                 <h1 style="font-family:'Fredoka', cursive; font-size:48px; margin-bottom:10px;">Level Clear!</h1>
                 <p style="font-size:20px; color:var(--gold); margin-bottom:30px;">Fragment Found! ✨</p>
-                <button onclick="window.G.go('v-map')"
-                    style="padding:15px 40px; background:var(--grass); color:white; border:none; border-radius:30px; font-size:20px; cursor:pointer; font-family:'Fredoka';">BACK
-                    TO MAP</button>
+                <div style="display:flex; gap:15px;">
+                    <button id="btn-next-level"
+                        style="padding:15px 40px; background:var(--sky); color:white; border:none; border-radius:30px; font-size:20px; cursor:pointer; font-family:'Fredoka';">NEXT
+                        LEVEL</button>
+                    <button onclick="window.G.go('v-map')"
+                        style="padding:15px 40px; background:var(--grass); color:white; border:none; border-radius:30px; font-size:20px; cursor:pointer; font-family:'Fredoka';">MAP</button>
+                </div>
+            </div>
+
+            <div id="v-death" class="view">
+                <div style="font-size:80px; margin-bottom:20px;">💔</div>
+                <h1 style="font-family:'Fredoka', cursive; font-size:48px; margin-bottom:10px;">Game Over</h1>
+                <p style="font-size:20px; color:var(--rose); margin-bottom:30px;">The journey paused... for now.</p>
+                <button onclick="window.restartGame()"
+                    style="padding:15px 40px; background:var(--rose); color:white; border:none; border-radius:30px; font-size:20px; cursor:pointer; font-family:'Fredoka';">RESTART</button>
             </div>
 
             <!-- Dynamic level views will be injected here -->
