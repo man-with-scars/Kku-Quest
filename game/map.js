@@ -128,7 +128,6 @@ window.Map = (function () {
         margin-left: 10px;
         vertical-align: middle;
       }
-      .badge-trap { background: #FEF3C7; color: #92400E; } /* Amber */
       .badge-collect { background: #E0F2FE; color: #075985; } /* Sky */
       .badge-boss { background: #FFE4E6; color: #9F1239; } /* Rose */
       .badge-key { background: #FEF9C3; color: #854D0E; } /* Gold */
@@ -211,7 +210,6 @@ window.Map = (function () {
               <div class="level-info">
                 <div class="level-name">
                   ${config.title}
-                  <span class="badge badge-${config.type}">${config.type}</span>
                 </div>
               </div>
               <button class="btn-play">${isCompleted ? 'REPLAY' : 'PLAY ▶'}</button>

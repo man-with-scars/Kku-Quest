@@ -104,10 +104,11 @@
         const elCoins = document.getElementById('coin-count');
         if (elCoins) elCoins.textContent = window.STATE.coins;
 
-        // Sync XP Bar (Progress based on 25 levels)
+        // Sync XP Bar (Progress based on actual levels)
         const xpFill = document.getElementById('hud-xp-fill');
-        if (xpFill) {
-            const progress = (window.STATE.completed.size / 25) * 100;
+        if (xpFill && window.GAME_CONFIG) {
+            const total = window.GAME_CONFIG.LEVEL_FILES.length;
+            const progress = (window.STATE.completed.size / total) * 100;
             xpFill.style.width = Math.min(progress, 100) + '%';
         }
     }
@@ -519,7 +520,10 @@
 
                 const titleView = document.getElementById('v-title');
                 if (titleView) {
-                    titleView.style.background = "url('levels/landing.jpeg') no-repeat center center / cover";
+                    titleView.style.backgroundImage = "url('levels/landing.jpeg')";
+                    titleView.style.backgroundSize = "cover";
+                    titleView.style.backgroundPosition = "center";
+                    titleView.style.backgroundRepeat = "no-repeat";
                     titleView.innerHTML = `
                         <div style="background:rgba(255,255,255,0.1); backdrop-filter:blur(5px); padding:40px; border-radius:30px; border:2px solid rgba(255,255,255,0.3); text-align:center;">
                             <h1 style="font-family:'Fredoka', cursive; font-size:64px; color:var(--purple); margin-bottom:30px; text-shadow:0 4px 10px rgba(0,0,0,0.2); animation:popIn 0.8s;">Kku's Quest 💕</h1>
