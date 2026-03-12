@@ -442,33 +442,41 @@ window.Phase2 = (function () {
         // Lock the box until monologue ends
         _isLocked = true;
         box.classList.add('locked');
+        box.style.opacity = '0.4'; // Dim box
         prompt.textContent = 'Wait for the signal… 🎙️';
         prompt.classList.add('active');
 
+        var playBtn = document.getElementById('btn-play-monologue');
         var mono = document.getElementById('monologue-audio');
         var bgm = document.getElementById('gift-bgm');
 
-        if (mono) {
-            mono.play().catch(function (e) {
-                console.warn('Monologue blocked, clicking to unlock');
-                _isLocked = false;
-                box.classList.remove('locked');
-                prompt.textContent = 'tap to open \u2728';
-            });
+        if (playBtn && mono) {
+            playBtn.style.display = 'flex';
+            playBtn.onclick = function () {
+                playBtn.disabled = true;
+                playBtn.innerHTML = '<span style="font-size: 20px;">🔊</span> Playing message...';
 
-            mono.addEventListener('ended', function () {
-                _isLocked = false;
-                box.classList.remove('locked');
-                prompt.textContent = 'tap to open \u2728';
-                if (bgm) {
-                    bgm.volume = 0.5;
-                    bgm.play().catch(function (e) { });
-                }
-            }, { once: true });
+                mono.play().catch(function (e) {
+                    console.warn('Monologue blocked');
+                    unlock();
+                });
+            };
+
+            mono.addEventListener('ended', unlock, { once: true });
         } else {
+            unlock();
+        }
+
+        function unlock() {
             _isLocked = false;
             box.classList.remove('locked');
+            box.style.opacity = '1';
             prompt.textContent = 'tap to open \u2728';
+            if (playBtn) playBtn.style.display = 'none';
+            if (bgm) {
+                bgm.volume = 0.5;
+                bgm.play().catch(function (e) { });
+            }
         }
 
         window.addEventListener('mousemove', onMouseMove);

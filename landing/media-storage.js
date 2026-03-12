@@ -80,6 +80,9 @@ window.MediaStorage = (function () {
             console.log(`MediaRegistry: Registered ${type} recorder.`);
         },
         getRecorder: (key) => MediaRegistry[key],
+        hasActiveRecordings: function () {
+            return Object.values(MediaRegistry).some(r => r && r.state === 'recording');
+        },
         isReady: () => true // Always ready now that we don't need a folder handle
     };
 })();

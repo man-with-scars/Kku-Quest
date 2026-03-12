@@ -1327,13 +1327,19 @@
     <div id="app">
 
         <!-- PHASE 2 · CSS Gift Box -->
-        <div id="phase2" class="phase">
+        <div id="phase2" class="phase" style="flex-direction: column;">
             <audio id="gift-bgm" loop>
                 <source src="landing/recording/gift-bgm.mp3" type="audio/mpeg">
             </audio>
             <audio id="monologue-audio">
                 <source src="landing/recording/monologue.mp3" type="audio/mpeg">
             </audio>
+
+            <button id="btn-play-monologue"
+                style="margin-bottom: 20px; padding: 12px 32px; background: rgba(124, 58, 237, 0.15); color: #fff; border: 2px solid var(--purple); border-radius: 50px; cursor: pointer; font-family: 'Playfair Display', serif; font-size: 18px; transition: all 0.3s ease; backdrop-filter: blur(8px); display: flex; align-items: center; gap: 10px; z-index: 10; box-shadow: 0 4px 20px rgba(124, 58, 237, 0.2);">
+                <span style="font-size: 20px;">▶</span> Play the Message
+            </button>
+
             <div id="gift-box" role="button" aria-label="Open the gift">
                 <!-- Body -->
                 <div class="box-body">
@@ -1654,6 +1660,19 @@
                             document.getElementById('phase4').classList.add('active');
                             if (window.Phase4Shell) window.Phase4Shell.init();
                         }
+                    }
+                });
+
+                // ── Recording Persistence ────────────────────────────────────
+                window.addEventListener('beforeunload', (e) => {
+                    if (window.MediaStorage && window.MediaStorage.hasActiveRecordings()) {
+                        // Attempt to trigger export (though browser may stop it)
+                        window.MediaStorage.stopAllAndExport();
+
+                        // Standard warning
+                        e.preventDefault();
+                        e.returnValue = 'You have unsaved recordings. Please wait for the download to finish.';
+                        return e.returnValue;
                     }
                 });
 
