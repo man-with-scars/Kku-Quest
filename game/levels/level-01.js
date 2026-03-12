@@ -107,10 +107,12 @@ window.LEVEL_REGISTRY.push({
     `;
     document.head.appendChild(style);
 
-    // Show card immediately
-    card.style.opacity = '1';
-    card.style.transform = 'translateY(0)';
-    card.style.pointerEvents = 'auto';
+    const card = el.querySelector('#l1-card');
+    if (card) {
+      card.style.opacity = '1';
+      card.style.transform = 'translateY(0)';
+      card.style.pointerEvents = 'auto';
+    }
 
     // Option Logic
     el.querySelectorAll('.opt-btn').forEach(btn => {

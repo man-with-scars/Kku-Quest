@@ -157,12 +157,50 @@ window.Map = (function () {
         75% { transform: translateX(5px); }
       }
       .shake { animation: shake 0.3s; }
+      @keyframes fw-boom {
+        0% { transform: translate(0,0) scale(1); opacity: 1; }
+        100% { transform: translate(var(--tx), var(--ty)) scale(0.5); opacity: 0; }
+      }
+      .firework {
+        position: absolute;
+        width: 10px; height: 10px;
+        border-radius: 50%;
+        filter: blur(4px);
+        pointer-events: none;
+        z-index: 0;
+      }
     `;
     const style = document.createElement('style');
     style.textContent = css;
     document.head.appendChild(style);
   }
 
+  function spawnFireworks() {
+    if (!container || !window.STATE.currentView.includes('map')) return;
+
+    const colors = ['#F43F5E', '#7C3AED', '#F0B429', '#5DB85C', '#87CEEB'];
+    const centerX = Math.random() * window.innerWidth;
+    const centerY = Math.random() * window.innerHeight;
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const count = 15 + Math.floor(Math.random() * 20);
+
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement('div');
+      p.className = 'firework';
+      const angle = (Math.PI * 2 / count) * i;
+      const dist = 50 + Math.random() * 150;
+      p.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+      p.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+      p.style.left = centerX + 'px';
+      p.style.top = centerY + 'px';
+      p.style.background = color;
+      p.style.animation = `fw-boom ${1 + Math.random()}s ease-out forwards`;
+      container.appendChild(p);
+      setTimeout(() => p.remove(), 2000);
+    }
+
+    setTimeout(spawnFireworks, 2000 + Math.random() * 3000);
+  }
   /**
    * Renders the map view.
    */
@@ -260,6 +298,7 @@ window.Map = (function () {
     if (!container) createStyle();
     container = target;
     render();
+    spawnFireworks();
   }
 
   return {

@@ -533,23 +533,22 @@
                     if (video) {
                         video.play().catch(e => console.log("Video play blocked"));
 
-                        // Wait for video to finish or at least 3s
-                        const videoEnd = new Promise(r => video.onended = r);
-                        const minWait = new Promise(r => setTimeout(r, 4000));
+                        // Wait for EXACTLY 7 seconds as requested
+                        const fixedWait = new Promise(r => setTimeout(r, 7000));
 
-                        // Fake progress
+                        // Fake progress matching 7s roughly
                         let p = 0;
                         const pInterval = setInterval(() => {
-                            p += 5;
+                            p += 2;
                             const bar = document.getElementById('load-bar');
-                            if (bar) bar.style.width = p + '%';
+                            if (bar) bar.style.width = Math.min(p, 100) + '%';
                             if (p >= 100) {
                                 clearInterval(pInterval);
                                 if (info) info.style.opacity = '0';
                             }
-                        }, 150);
+                        }, 140);
 
-                        await Promise.race([videoEnd, minWait]);
+                        await fixedWait;
                         clearInterval(pInterval);
                     }
                 } catch (e) {
