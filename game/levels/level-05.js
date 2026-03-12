@@ -9,7 +9,7 @@ window.LEVEL_REGISTRY.push({
   icon: '💎',
   title: 'Vault of Proof',
   type: 'collect',
-  hint: 'Earrings to see, his voice to hear. The vault opens for two.',
+  hint: '',
 
   build(el) {
     let mediaRecorder;
@@ -21,7 +21,7 @@ window.LEVEL_REGISTRY.push({
       <div id="l5-stage" style="width:100%; height:100%; position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(255,250,255,0.2);">
         
         <!-- Fairy Dialogue -->
-        <div id="l5-fairy" style="font-family:'Lora', serif; font-style:italic; font-size:18px; color:var(--purple); text-align:center; margin-bottom:20px;">
+        <div id="l5-fairy" style="font-family:'Lora', serif; font-style:italic; font-size:18px; color:var(--purple); text-align:center; margin-bottom:20px; background: rgba(255,255,255,0.7); padding: 10px 20px; border-radius: 20px; backdrop-filter: blur(5px); box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
           "Two sacred things, Kku.<br>Something you wear — and a voice only he'd recognise."
         </div>
 

@@ -9,7 +9,7 @@ window.LEVEL_REGISTRY.push({
   icon: '🎵',
   title: "Singer's Enigma",
   type: 'trap',
-  hint: '🎶 Untamed. Alive. Not classical. Not composed. A different era.',
+  hint: '',
 
   build(el) {
     const options = [

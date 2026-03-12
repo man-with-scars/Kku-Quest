@@ -9,7 +9,7 @@ window.LEVEL_REGISTRY.push({
   icon: '🗝️',
   title: 'The Heart Key',
   type: 'key',
-  hint: 'Fragments: 98, 46, 90, 74, 13.',
+  hint: '',
 
   build(el) {
     const fullCode = '9846907413';

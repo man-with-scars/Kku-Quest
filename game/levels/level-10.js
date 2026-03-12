@@ -9,14 +9,14 @@ window.LEVEL_REGISTRY.push({
   icon: '🍦',
   title: 'Triple Trials',
   type: 'trap',
-  hint: '🍦 The flavour sounds like flamenco, like saffron sunsets.',
+  hint: '',
 
   build(el) {
     let currentTrial = 1;
     const trials = [
       {
         id: 1,
-        riddle: "[RIDDLE 1 PLACEHOLDER: Spanish Delight]",
+        riddle: "I'm a flavor that dances on the tongue, with notes of saffron and sunset hues. A Spanish classic that feels like a fiesta in every bite. What am I?",
         correct: "🇪🇸 Spanish Delight",
         options: [
           "🍫 Belgian Chocolate",
@@ -27,7 +27,7 @@ window.LEVEL_REGISTRY.push({
       },
       {
         id: 2,
-        riddle: "[RIDDLE 2 PLACEHOLDER: The sea]",
+        riddle: "I am vast and blue, where salt spray kisses the air and horizons never end. Kku and Chu's favorite escape from the city neon. What am I?",
         correct: "🌊 The sea",
         options: [
           "🏔️ Mountains",
@@ -38,7 +38,7 @@ window.LEVEL_REGISTRY.push({
       },
       {
         id: 3,
-        riddle: "[RIDDLE 3 PLACEHOLDER: Christmas season]",
+        riddle: "I bring pine scents, twinkling lights, and the warmth of a thousand sweaters. The season of giving and the anniversary of a very special 'Begin Quest'. What am I?",
         correct: "🎄 Christmas season",
         options: [
           "🌸 Spring / Vishu",

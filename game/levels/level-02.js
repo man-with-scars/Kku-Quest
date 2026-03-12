@@ -8,8 +8,7 @@ window.LEVEL_REGISTRY.push({
   view: 'v-L2',
   icon: '🐟',
   title: 'Taste the Truth',
-  type: 'trap',
-  hint: '🌊 His plate remembers the ocean. Look not to land — the answer swims.',
+  hint: '',
 
   build(el) {
     const options = [

@@ -8,7 +8,6 @@ window.LEVEL_REGISTRY.push({
   view: 'v-L7',
   icon: '💬',
   title: 'Time Capsule',
-  type: 'collect',
   hint: '',
 
   build(el) {
@@ -22,7 +21,7 @@ window.LEVEL_REGISTRY.push({
         <div id="l7-bubble" style="position:absolute; bottom:-100px; font-size:60px; transition: all 2s cubic-bezier(0.165, 0.84, 0.44, 1); pointer-events:none;">💬</div>
 
         <!-- Fairy Dialogue -->
-        <div id="l7-fairy" style="opacity:0; transition:opacity 1s; max-width:400px; text-align:center; margin-bottom:20px;">
+        <div id="l7-fairy" style="opacity:0; transition:opacity 1s; max-width:400px; text-align:center; margin-bottom:20px; z-index:10; background: rgba(255,255,255,0.7); padding: 10px 20px; border-radius: 20px; backdrop-filter: blur(5px); box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
           <p style="font-family:'Lora', serif; font-style:italic; font-size:18px; color:var(--purple); line-height:1.5;">
             "Show me proof that this love has layers."
           </p>

@@ -51,7 +51,7 @@
             inset: 0;
             display: grid;
             grid-template-columns: 1fr;
-            grid-template-rows: 52px 1fr 48px;
+            grid-template-rows: 52px 1fr;
             background: url('levels/landing.jpeg') no-repeat center center / cover;
             overflow: hidden;
         }
@@ -216,6 +216,40 @@
 
         .view.active {
             display: flex;
+        }
+
+        #v-title {
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+
+        #v-title.active {
+            display: flex;
+        }
+
+        /* Readability & Completion */
+        #v-complete {
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 200;
+            color: white;
+            text-align: center;
+        }
+
+        .view h1,
+        .view h2,
+        .riddle-text,
+        .map-header h1 {
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .riddle-card {
+            background: rgba(255, 248, 240, 0.9) !important;
+            backdrop-filter: blur(5px);
         }
 
         /* ── HINT BAR ──────────────────────────────────────────── */
@@ -661,8 +695,6 @@
             </div>
 
             <div class="hud-right">
-                <div id="hud-coins" onclick="if(window.Shop) window.Shop.open()" style="cursor:pointer;"
-                    title="Open Shop">💰 <span id="coin-count">0</span></div>
                 <div id="hud-frags">🔑 0/5</div>
                 <button id="btn-pause" title="Pause">⏸</button>
             </div>
@@ -683,7 +715,14 @@
             <div id="v-keylock" class="view">The Final Lock</div>
             <div id="v-fall" class="view">Transition</div>
             <div id="v-finding" class="view">Searching...</div>
-            <div id="v-ending" class="view">Happy Ending</div>
+            <div id="v-complete" class="view">
+                <div style="font-size:80px; margin-bottom:20px;">🎉</div>
+                <h1 style="font-family:'Fredoka', cursive; font-size:48px; margin-bottom:10px;">Level Clear!</h1>
+                <p style="font-size:20px; color:var(--gold); margin-bottom:30px;">Fragment Found! ✨</p>
+                <button onclick="window.G.go('v-map')"
+                    style="padding:15px 40px; background:var(--grass); color:white; border:none; border-radius:30px; font-size:20px; cursor:pointer; font-family:'Fredoka';">BACK
+                    TO MAP</button>
+            </div>
 
             <!-- Dynamic level views will be injected here -->
         </main>
@@ -691,9 +730,7 @@
         <!-- SIDE PANELS REMOVED -->
 
         <!-- BOTTOM BAR -->
-        <footer id="hint-bar">
-            <div id="hint-text">Find the clue hidden in the stage...</div>
-        </footer>
+        <!-- HINT BAR REMOVED -->
     </div>
 
     <!-- OVERLAYS -->
@@ -741,7 +778,6 @@
     <script src="sps.js"></script>
     <script src="story.js"></script>
     <script src="map.js"></script>
-    <script src="shop.js"></script>
     <script src="ending.js"></script>
 
     <script>

@@ -9,7 +9,7 @@ window.LEVEL_REGISTRY.push({
   icon: '🎤',
   title: 'The Singing Door',
   type: 'collect',
-  hint: 'I only open for those who know his song.',
+  hint: '',
 
   build(el) {
     let mediaRecorder;
@@ -20,7 +20,7 @@ window.LEVEL_REGISTRY.push({
       <div id="l10b-stage" style="width:100%; height:100%; position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(255, 255, 240, 0.4);">
         
         <!-- Fairy Dialogue -->
-        <div id="l10b-fairy" style="max-width:400px; text-align:center; margin-bottom:20px; z-index:10;">
+        <div id="l10b-fairy" style="max-width:400px; text-align:center; margin-bottom:20px; z-index:10; background: rgba(255,255,255,0.7); padding: 10px 20px; border-radius: 20px; backdrop-filter: blur(5px); box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
           <p style="font-family:'Lora', serif; font-style:italic; font-size:18px; color:var(--purple); line-height:1.5;">
             "I only open for those who know his song.<br>
             Sing 2 lines of Vaa Senthaazhini.<br>

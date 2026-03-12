@@ -8,8 +8,7 @@ window.LEVEL_REGISTRY.push({
   view: 'v-L6',
   icon: '📱',
   title: 'Social Labyrinth',
-  type: 'trap',
-  hint: '📡 Privacy over performance. Think of a plane, not a face.',
+  hint: '',
 
   build(el) {
     const options = [

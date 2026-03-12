@@ -8,8 +8,7 @@ window.LEVEL_REGISTRY.push({
   view: 'v-L4',
   icon: '🎬',
   title: 'Cinema Enigma',
-  type: 'trap',
-  hint: '🎧 Not the roar of a crowd — the whisper of a shared earpiece.',
+  hint: '',
 
   build(el) {
     const options = [

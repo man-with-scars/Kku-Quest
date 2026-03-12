@@ -9,7 +9,7 @@ window.LEVEL_REGISTRY.push({
   icon: '💍',
   title: 'The Prophecy',
   type: 'boss',
-  hint: 'Follow your heart. There is only one true path.',
+  hint: '',
 
   build(el) {
     let phase = 0;

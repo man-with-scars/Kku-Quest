@@ -19,7 +19,7 @@ window.LEVEL_REGISTRY.push({
         <div id="l3-flash" style="position:absolute; top:0; left:0; width:100%; height:100%; background:white; opacity:0; pointer-events:none; z-index:100;"></div>
 
         <!-- Fairy Dialogue -->
-        <div id="l3-dialogue" style="opacity:0; transition:opacity 1s; max-width:400px; text-align:center; margin-bottom:30px;">
+        <div id="l3-dialogue" style="opacity:0; transition:opacity 1s; max-width:400px; text-align:center; margin-bottom:30px; z-index:10; background: rgba(255,255,255,0.7); padding: 10px 20px; border-radius: 20px; backdrop-filter: blur(5px); box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
           <p style="font-family:'Lora', serif; font-style:italic; font-size:20px; color:var(--purple); line-height:1.5;">
             "To pass this gate, give me something real — <br>
             a moment frozen in time.<br>

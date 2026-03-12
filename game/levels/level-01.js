@@ -8,8 +8,7 @@ window.LEVEL_REGISTRY.push({
   view: 'v-L1',
   icon: '🚗',
   title: 'The First Clue',
-  type: 'trap',
-  hint: '🌿 He\'s restless indoors. Peace finds him where wheels meet road.',
+  hint: '',
 
   build(el) {
     const options = [

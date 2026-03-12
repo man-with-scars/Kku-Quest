@@ -17,10 +17,7 @@ window.GAME_CONFIG = {
         'level-marry.js', 'level-keylock.js'
     ],
 
-    REWARDS: {
-        level_complete: 10,
-        bonus_clue: 5
-    },
+    REWARDS: {},
 
     FRAGMENTS: [
         {
@@ -45,14 +42,7 @@ window.GAME_CONFIG = {
         },
     ],
 
-    LEVEL_HINTS: {
-        1: '🌿 He\'s restless indoors. Peace finds him where wheels meet road.',
-        2: '🌊 His plate remembers the ocean. The answer swims.',
-        4: '🎧 Not the roar of a crowd — the whisper of a shared earpiece.',
-        6: '📡 Privacy over performance. Think of a plane, not a face.',
-        8: '🎶 Untamed. Alive. Not classical. Not composed.',
-        10: '🍦 The flavour sounds like flamenco, like saffron sunsets.',
-    },
+    LEVEL_HINTS: {},
 
     NOTIFICATIONS: [
         '𝑰 𝑳𝒐𝒗𝒆 𝒀𝒐𝒖 𝟑𝟎𝟎𝟎 ❤️',

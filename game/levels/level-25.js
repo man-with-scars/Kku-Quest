@@ -8,7 +8,7 @@ window.LEVEL_REGISTRY.push({
     icon: '🎂',
     title: 'Happy 25th',
     type: 'finale',
-    hint: 'A special number for a special day...',
+    hint: '',
 
     build(el) {
         el.innerHTML = `

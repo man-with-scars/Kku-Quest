@@ -28,7 +28,7 @@ window.LEVEL_REGISTRY.push({
           <div style="font-family:'Fredoka One', cursive; font-size:14px; background:var(--purple); color:white; padding:4px 12px; border-radius:20px; display:inline-block; margin-bottom:8px;">
             📸 LEVEL 9 — THE GRAND VAULT
           </div>
-          <p style="font-family:'Lora', serif; font-style:italic; font-size:18px; color:var(--purple); line-height:1.5;">
+          <p style="font-family:'Lora', serif; font-style:italic; font-size:18px; color:var(--purple); line-height:1.5; background: rgba(255,255,255,0.7); padding: 10px 20px; border-radius: 20px; backdrop-filter: blur(5px); box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
             "Four sacred tokens, Kku.<br>
             The fairy cannot move forward without all of them."
           </p>

@@ -49,12 +49,14 @@ window.Map = (function () {
       /* Fragments Section */
       .fragment-shelf {
         display: flex;
+        justify-content: center;
         gap: 15px;
         margin-bottom: 40px;
         padding: 20px;
         background: rgba(255,255,255,0.5);
         border-radius: 20px;
         border: 2px dashed var(--gold);
+        width: fit-content;
       }
       .frag-slot {
         width: 60px; height: 60px;
@@ -168,7 +170,7 @@ window.Map = (function () {
     const C = window.GAME_CONFIG;
     const S = window.STATE;
     const levels = C.LEVEL_FILES;
-    const total = levels.length;
+    const total = 12;
     const completedCount = S.completed.size;
     const progressPercent = (completedCount / total) * 100;
 

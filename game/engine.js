@@ -18,7 +18,6 @@
         currentView: null,
         storyDone: false,
         notifyIndex: 0,
-        coins: 0,
         assetStore: { bg: {}, char: {}, music: {}, story: {} }
     };
 
@@ -100,14 +99,10 @@
             el.appendChild(indicator);
         }
 
-        // Sync coin HUD
-        const elCoins = document.getElementById('coin-count');
-        if (elCoins) elCoins.textContent = window.STATE.coins;
-
         // Sync XP Bar (Progress based on actual levels)
         const xpFill = document.getElementById('hud-xp-fill');
         if (xpFill && window.GAME_CONFIG) {
-            const total = window.GAME_CONFIG.LEVEL_FILES.length;
+            const total = 12;
             const progress = (window.STATE.completed.size / total) * 100;
             xpFill.style.width = Math.min(progress, 100) + '%';
         }
@@ -174,31 +169,44 @@
             window.GameNotifications.send();
         }
 
-        // Assign coins (10 per level)
-        window.STATE.coins += 10;
-        renderHearts();
-
         // Save progress to SessionManager
         if (window.SessionManager) {
             const stateToSave = { ...window.STATE, completed: Array.from(window.STATE.completed) };
             SessionManager.save({ phase: 'game', level: id, gameState: stateToSave });
         }
 
-        setTimeout(() => {
-            // Find next level number
-            let nextNum = parseInt(id) + 1;
+        window.showLevelComplete(id);
+    };
 
-            // Special cases (e.g. 10b -> 11)
-            if (id == '10b') nextNum = 11;
+    window.showLevelComplete = function (id) {
+        const view = document.getElementById('v-complete');
+        if (!view) return;
 
-            if (nextNum <= 25) {
-                window.launchLevel(nextNum);
-            } else if (id == 25 || id == 'keylock') {
-                window.G.go('v-ending');
-            } else {
-                window.G.go('v-map');
-            }
-        }, 1500);
+        // Customise based on if it's the last standard level
+        const nextNum = parseInt(id) + 1;
+        const msg = view.querySelector('p');
+        const frag = window.GAME_CONFIG.FRAGMENTS.find(f => f.level == id);
+
+        if (frag && msg) {
+            msg.innerHTML = `Fragment Found: <b>${frag.value}</b> ✨`;
+            msg.style.display = 'block';
+        } else if (msg) {
+            msg.style.display = 'none';
+        }
+
+        window.G.go('v-complete');
+    };
+
+    window.levelAdvancementLogic = function (id) {
+        // Find next level number
+        let nextNum = parseInt(id) + 1;
+        if (id == '10b') nextNum = 11;
+
+        if (nextNum <= 10) {
+            window.launchLevel(nextNum);
+        } else {
+            window.G.go('v-map');
+        }
     };
 
     // ── Level Management ────────────────────────────────────────
@@ -402,7 +410,6 @@
     window.restartGame = function () {
         if (confirm("Restart from Level 1? Current progress will be lost.")) {
             window.STATE.completed.clear();
-            window.STATE.coins = 0;
             if (window.SessionManager) window.SessionManager.clear();
             window.location.reload();
         }
@@ -536,10 +543,6 @@
 
                 const titleView = document.getElementById('v-title');
                 if (titleView) {
-                    titleView.style.backgroundImage = "url('levels/landing.jpeg')";
-                    titleView.style.backgroundSize = "cover";
-                    titleView.style.backgroundPosition = "center";
-                    titleView.style.backgroundRepeat = "no-repeat";
                     titleView.innerHTML = `
                         <button id="btn-start-game" style="padding:18px 50px; background:var(--gold); border:none; border-radius:40px; color:white; font-size:28px; font-family:'Fredoka', cursive; cursor:pointer; box-shadow:0 8px 25px rgba(240,180,41,0.5); transition:transform 0.2s; position:relative; z-index:10;">START</button>
                     `;
@@ -668,20 +671,28 @@
         function checkMedia() {
             if (!bgmEnabled || isSuppressed) return;
 
-            // Check if any video is playing in the active view
-            const activeView = document.querySelector('.view.active');
+            // Check for any playing video or audio (excluding our BGM)
+            const videos = document.querySelectorAll('video');
+            const audios = document.querySelectorAll('audio');
             let hasMedia = false;
-            if (activeView) {
-                const videos = activeView.querySelectorAll('video');
-                for (let v of videos) {
-                    if (!v.paused && !v.muted) {
+
+            for (let v of videos) {
+                if (!v.paused && !v.muted) {
+                    hasMedia = true;
+                    break;
+                }
+            }
+
+            if (!hasMedia) {
+                for (let a of audios) {
+                    if (a !== bgm && !a.paused && a.volume > 0) {
                         hasMedia = true;
                         break;
                     }
                 }
             }
 
-            if (hasMedia || window.STATE.currentView === 'v-story' || window.STATE.currentView === 'v-loading') {
+            if (hasMedia || window.STATE.currentView === 'v-story' || window.STATE.currentView === 'v-loading' || window.STATE.currentView === 'v-finding') {
                 pause();
             } else {
                 play();
