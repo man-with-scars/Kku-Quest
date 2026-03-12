@@ -129,12 +129,25 @@ window.Story = (function () {
     let autoTimer = null;
 
     if (video) {
+      // Force muted and playsinline again via JS to be sure
+      video.muted = true;
+      video.defaultMuted = true;
+      video.setAttribute('playsinline', '');
+      video.setAttribute('webkit-playsinline', '');
+
+      video.onloadedmetadata = () => {
+        console.log("Video metadata loaded:", p.video);
+        video.play().catch(e => {
+          console.warn("Auto-play blocked, retrying on interaction.");
+        });
+      };
+
       video.onerror = () => {
-        console.error("Video failed to load, falling back to static presentation.");
+        console.error("Video failed to load:", p.video);
       };
 
       video.onplay = () => {
-        console.log("Current video playing:", current);
+        console.log("Confirmed playback start:", current);
         preloadNext();
       };
 
@@ -146,9 +159,6 @@ window.Story = (function () {
           }, 3000);
         }
       };
-
-      // Ensure it plays
-      video.play().catch(e => console.warn("Auto-play blocked, waiting for user."));
     }
 
     // Handle button clicks
