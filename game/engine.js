@@ -540,9 +540,6 @@
                     titleView.style.backgroundSize = "cover";
                     titleView.style.backgroundPosition = "center";
                     titleView.style.backgroundRepeat = "no-repeat";
-                    titleView.style.display = "flex";
-                    titleView.style.alignItems = "center";
-                    titleView.style.justifyContent = "center";
                     titleView.innerHTML = `
                         <button id="btn-start-game" style="padding:18px 50px; background:var(--gold); border:none; border-radius:40px; color:white; font-size:28px; font-family:'Fredoka', cursive; cursor:pointer; box-shadow:0 8px 25px rgba(240,180,41,0.5); transition:transform 0.2s; position:relative; z-index:10;">START</button>
                     `;
