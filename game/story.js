@@ -16,11 +16,11 @@ window.Story = (function () {
     { text: "Every memory of their laughter became a beacon in the digital dark.", video: "../landing/story-videos/05.mp4" },
     { text: "Through firewalls of doubt and storms of static, she searched for his light.", video: "../landing/story-videos/06.mp4" },
     { text: "A hidden message appeared, a trail of stardust leading to a forgotten realm.", video: "../landing/story-videos/07.mp4" },
-    { text: "The path is long and full of puzzles, but love is the strongest algorithm.", video: "../landing/story-videos/08.mp4" },
-    { text: "With a heart full of courage and your help, Kku's Quest finally begins!", video: "../landing/story-videos/09.mp4" }
+    { text: "The path is long and full of puzzles, but love leads Kku to the quest of a lifetime!", video: "../landing/story-videos/08.mp4" }
   ];
 
   let bgMusic = null;
+  let preloaderVideo = null; // Next video preloader
 
   function createStyle() {
     const css = `
@@ -30,6 +30,7 @@ window.Story = (function () {
         align-items: center;
         justify-content: center;
         overflow: hidden;
+        background: #000;
       }
       .panel-wrap {
         display: flex;
@@ -39,22 +40,20 @@ window.Story = (function () {
         max-width: 600px;
         padding: 40px;
         position: relative;
+        z-index: 10;
       }
       .panel-enter {
-        animation: panelEnter 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        animation: panelEnter 600ms cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
       }
       .panel-exit {
-        animation: panelExit 300ms ease-in forwards;
+        animation: panelExit 400ms ease-in forwards;
       }
       @keyframes panelEnter {
-        from { opacity: 0; transform: translateY(20px) scale(0.96); }
+        from { opacity: 0; transform: translateY(30px) scale(0.95); }
         to { opacity: 1; transform: translateY(0) scale(1.0); }
       }
       @keyframes panelExit {
-        to { opacity: 0; transform: translateY(-8px); }
-      }
-      @keyframes dimOut {
-        to { opacity: 0.3; filter: grayscale(1); }
+        to { opacity: 0; transform: translateY(-15px) scale(1.05); }
       }
       .sparkle-p {
         position: absolute;
@@ -73,10 +72,10 @@ window.Story = (function () {
         font-family: 'Fredoka', cursive;
         font-size: 16px;
         cursor: pointer;
-        transition: transform 0.2s, background 0.2s;
+        transition: transform 0.2s, background 0.2s, opacity 0.2s;
       }
       .story-btn:hover { transform: scale(1.05); }
-      .btn-back { background: #eee; color: #777; }
+      .btn-back { background: rgba(255,255,255,0.2); color: white; }
       .btn-next { background: var(--gold); color: white; }
       .btn-begin { 
         background: var(--grass); color: white; border: 2px solid #fff; 
@@ -89,18 +88,32 @@ window.Story = (function () {
     document.head.appendChild(style);
   }
 
+  function preloadNext() {
+    const nextIdx = current + 1;
+    if (nextIdx < panels.length) {
+      if (!preloaderVideo) {
+        preloaderVideo = document.createElement('video');
+        preloaderVideo.style.display = 'none';
+        document.body.appendChild(preloaderVideo);
+      }
+      preloaderVideo.src = panels[nextIdx].video;
+      preloaderVideo.load();
+      console.log("Preloading next video:", panels[nextIdx].video);
+    }
+  }
+
   function render() {
     const p = panels[current];
-    container.style.background = p.bg;
+    container.style.background = '#000'; // Dark cinematic background
 
     // Create panel content
     const wrap = document.createElement('div');
     wrap.className = 'panel-wrap panel-enter';
     wrap.innerHTML = `
-      <div class="story-stage" style="width:100%; max-width:500px; aspect-ratio:16/9; display:flex; align-items:center; justify-content:center; border-radius:15px; overflow:hidden; border:4px solid white; box-shadow:0 10px 30px rgba(0,0,0,0.1); background:#000;">
-        <video id="story-video" src="${p.video}" autoplay muted style="width:100%; height:100%; object-fit:cover;"></video>
+      <div class="story-stage" style="width:100%; max-width:640px; aspect-ratio:16/9; display:flex; align-items:center; justify-content:center; border-radius:20px; overflow:hidden; border:4px solid rgba(255,255,255,0.1); box-shadow:0 20px 50px rgba(0,0,0,0.5); background:#000; position:relative;">
+        <video id="story-video" src="${p.video}" autoplay muted playsinline style="width:100%; height:100%; object-fit:cover; display:block;"></video>
       </div>
-      <div style="font-family:'Fredoka', cursive; font-size:26px; color:var(--ink); margin-top:30px; min-height:80px;">
+      <div style="font-family:'Fredoka', cursive; font-size:28px; color:#fff; margin-top:35px; min-height:90px; text-shadow:0 2px 10px rgba(0,0,0,0.3);">
         ${p.text}
       </div>
       <div class="story-nav">
@@ -116,6 +129,15 @@ window.Story = (function () {
     let autoTimer = null;
 
     if (video) {
+      video.onerror = () => {
+        console.error("Video failed to load, falling back to static presentation.");
+      };
+
+      video.onplay = () => {
+        console.log("Current video playing:", current);
+        preloadNext();
+      };
+
       video.onended = () => {
         console.log("Video ended, auto-advancing in 3s...");
         if (current < panels.length - 1) {
@@ -124,6 +146,9 @@ window.Story = (function () {
           }, 3000);
         }
       };
+
+      // Ensure it plays
+      video.play().catch(e => console.warn("Auto-play blocked, waiting for user."));
     }
 
     // Handle button clicks
@@ -162,7 +187,7 @@ window.Story = (function () {
         container.innerHTML = '';
         container.appendChild(wrap);
         if (current === panels.length - 1) spawnSparkles();
-      }, 300);
+      }, 400);
     } else {
       container.innerHTML = '';
       container.appendChild(wrap);
