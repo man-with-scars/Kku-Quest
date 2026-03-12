@@ -110,6 +110,7 @@ window.Map = (function () {
       }
       .level-row.completed {
         border-color: var(--grass);
+        background: #F0FDF4;
       }
       
       .level-icon { font-size: 32px; width: 40px; text-align: center; pointer-events: none; }
@@ -157,17 +158,19 @@ window.Map = (function () {
         75% { transform: translateX(5px); }
       }
       .shake { animation: shake 0.3s; }
-      @keyframes fw-boom {
-        0% { transform: translate(0,0) scale(1); opacity: 1; }
-        100% { transform: translate(var(--tx), var(--ty)) scale(0.5); opacity: 0; }
+      @keyframes fw-sparkle {
+        0% { opacity: 1; transform: translate(0,0) scaleY(1); }
+        100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scaleY(0.1); }
       }
-      .firework {
+      .firework-spark {
         position: absolute;
-        width: 10px; height: 10px;
-        border-radius: 50%;
-        filter: blur(4px);
+        width: 2px;
+        height: 30px;
+        background: linear-gradient(to top, var(--c), transparent);
+        border-radius: 2px;
         pointer-events: none;
         z-index: 0;
+        transform-origin: center;
       }
     `;
     const style = document.createElement('style');
@@ -176,30 +179,39 @@ window.Map = (function () {
   }
 
   function spawnFireworks() {
-    if (!container || !window.STATE.currentView.includes('map')) return;
+    if (!container || (window.STATE.currentView && !window.STATE.currentView.includes('map'))) return;
 
-    const colors = ['#F43F5E', '#7C3AED', '#F0B429', '#5DB85C', '#87CEEB'];
+    const colors = ['#FFD700', '#FF4500', '#FF1493', '#00FF7F', '#00BFFF', '#FFFFFF'];
     const centerX = Math.random() * window.innerWidth;
     const centerY = Math.random() * window.innerHeight;
     const color = colors[Math.floor(Math.random() * colors.length)];
-    const count = 15 + Math.floor(Math.random() * 20);
+    const count = 30 + Math.floor(Math.random() * 20);
 
     for (let i = 0; i < count; i++) {
       const p = document.createElement('div');
-      p.className = 'firework';
-      const angle = (Math.PI * 2 / count) * i;
-      const dist = 50 + Math.random() * 150;
-      p.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
-      p.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+      p.className = 'firework-spark';
+      const angle = (Math.PI * 2 / count) * i + (Math.random() * 0.2);
+      const dist = 100 + Math.random() * 200;
+
+      const tx = Math.cos(angle) * dist;
+      const ty = Math.sin(angle) * dist;
+
+      p.style.setProperty('--tx', tx + 'px');
+      p.style.setProperty('--ty', ty + 'px');
+      p.style.setProperty('--c', color);
+
       p.style.left = centerX + 'px';
       p.style.top = centerY + 'px';
-      p.style.background = color;
-      p.style.animation = `fw-boom ${1 + Math.random()}s ease-out forwards`;
+
+      // Pointy head: rotate to face direction of travel
+      p.style.transform = `rotate(${angle + Math.PI / 2}rad)`;
+      p.style.animation = `fw-sparkle ${0.8 + Math.random() * 1.2}s cubic-bezier(0, .5, .5, 1) forwards`;
+
       container.appendChild(p);
       setTimeout(() => p.remove(), 2000);
     }
 
-    setTimeout(spawnFireworks, 2000 + Math.random() * 3000);
+    setTimeout(spawnFireworks, 1500 + Math.random() * 2500);
   }
   /**
    * Renders the map view.
@@ -253,6 +265,7 @@ window.Map = (function () {
               <div class="level-info">
                 <div class="level-name">
                   ${displayTitle}
+                  ${isCompleted ? '<span style="color:var(--grass); font-size:12px; margin-left:10px;">✅ FINISHED</span>' : ''}
                 </div>
               </div>
               <button class="btn-play">${isCompleted ? 'REPLAY' : 'PLAY ▶'}</button>

@@ -99,6 +99,13 @@
             el.appendChild(indicator);
         }
 
+        // Update Fragments Display
+        const elFrags = document.getElementById('hud-frags');
+        if (elFrags) {
+            const count = Object.keys(window.STATE.fragments).length;
+            elFrags.textContent = `💎 Fragments: ${count}/5`;
+        }
+
         // Sync XP Bar (Progress based on actual levels)
         const xpFill = document.getElementById('hud-xp-fill');
         if (xpFill && window.GAME_CONFIG) {
@@ -125,6 +132,14 @@
             // Render the map whenever we navigate to it
             if (viewId === 'v-map' && window.Map && window.Map.init) {
                 window.Map.init(v);
+            }
+
+            // Sync HUD visibility
+            const hud = document.getElementById('hud');
+            if (hud) {
+                const isTitle = viewId === 'v-title' || viewId === 'v-loading';
+                hud.style.opacity = isTitle ? '0' : '1';
+                hud.style.pointerEvents = isTitle ? 'none' : 'auto';
             }
 
             // Hide God Mode pass button if not in a level
@@ -558,6 +573,13 @@
                 // DEFINITIVE TRANSITION TO TITLE SCREEN
                 console.log("Initialization complete, going to title.");
                 window.G.go('v-title');
+
+                // Ensure initial HUD state
+                const hud = document.getElementById('hud');
+                if (hud) {
+                    hud.style.opacity = '0';
+                    hud.style.pointerEvents = 'none';
+                }
 
                 setupDevTaps();
                 const titleView = document.getElementById('v-title');
