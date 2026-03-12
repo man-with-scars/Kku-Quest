@@ -186,6 +186,7 @@ window.Story = (function () {
         window.GameNotifications.requestPermission();
       }
       window.G.go('v-map');
+      container.innerHTML = ''; // Clear story view content
       if (window.Map && window.Map.init) window.Map.init(document.getElementById('v-map'));
     };
 

@@ -13,14 +13,14 @@ window.Map = (function () {
   function createStyle() {
     const css = `
       #v-map {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: flex-start !important;
-        padding: 40px 20px !important;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 40px 20px;
         background: transparent !important;
-        overflow-y: auto !important;
-        height: 100% !important;
+        overflow-y: auto;
+        height: 100%;
       }
 
       /* Progress Section */
