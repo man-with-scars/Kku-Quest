@@ -529,9 +529,9 @@
                     const video = document.getElementById('load-video');
                     const info = document.getElementById('load-info');
 
-                    // Play video once
+                    // Play video once - NON-BLOCKING
                     if (video) {
-                        await video.play().catch(e => console.log("Video play blocked"));
+                        video.play().catch(e => console.log("Video play blocked"));
 
                         // Wait for video to finish or at least 3s
                         const videoEnd = new Promise(r => video.onended = r);
@@ -543,18 +543,21 @@
                             p += 5;
                             const bar = document.getElementById('load-bar');
                             if (bar) bar.style.width = p + '%';
-                            if (p >= 100) clearInterval(pInterval);
+                            if (p >= 100) {
+                                clearInterval(pInterval);
+                                if (info) info.style.opacity = '0';
+                            }
                         }, 150);
 
                         await Promise.race([videoEnd, minWait]);
-                        if (info) info.style.opacity = '0';
-                        await new Promise(r => setTimeout(r, 500));
+                        clearInterval(pInterval);
                     }
                 } catch (e) {
                     console.warn("Soft-error during async init:", e);
                 }
 
-                // TRANSITION TO TITLE SCREEN
+                // DEFINITIVE TRANSITION TO TITLE SCREEN
+                console.log("Initialization complete, going to title.");
                 window.G.go('v-title');
 
                 setupDevTaps();
