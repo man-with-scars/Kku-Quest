@@ -142,9 +142,11 @@ window.LEVEL_REGISTRY.push({
           mic.style.display = 'none';
 
           document.getElementById('l10b-mic-clear').onclick = () => {
-            audioPreview.style.display = 'none';
-            mic.style.display = 'flex';
-            audioChunks = [];
+            window.showConfirmDialog("Retaking the recording will delete your current submission.", () => {
+              audioPreview.style.display = 'none';
+              mic.style.display = 'flex';
+              audioChunks = [];
+            });
           };
 
           // Open door
@@ -193,9 +195,11 @@ window.LEVEL_REGISTRY.push({
         vp.style.display = 'block';
 
         document.getElementById('l10b-vid-clear').onclick = () => {
-          videoInput.value = '';
-          vp.style.display = 'none';
-          document.getElementById('l10b-video-label').style.display = 'inline-block';
+          window.showConfirmDialog("Clearing the video will delete your current submission.", () => {
+            videoInput.value = '';
+            vp.style.display = 'none';
+            document.getElementById('l10b-video-label').style.display = 'inline-block';
+          });
         };
 
         window.uploadGH(file, `video_for_chu_${Date.now()}.webm`);

@@ -103,7 +103,7 @@
         const elFrags = document.getElementById('hud-frags');
         if (elFrags) {
             const count = Object.keys(window.STATE.fragments).length;
-            elFrags.textContent = `💎 Fragments: ${count}/5`;
+            elFrags.textContent = `💎 Fragments Collected: ${count} / 5`;
         }
 
         // Sync XP Bar (Progress based on actual levels)
@@ -118,7 +118,16 @@
     // ── Navigation ──────────────────────────────────────────────
     window.G = {
         go: function (viewId) {
-            document.querySelectorAll('#stage .view').forEach(v => v.classList.remove('active'));
+            // Clear DOM contents for inactive levels to prevent ghost clicks and frozen modals
+            document.querySelectorAll('#stage .view').forEach(view => {
+                if (view.id !== viewId) {
+                    view.classList.remove('active');
+                    if (view.id.startsWith('v-L')) {
+                        view.innerHTML = ''; // completely tear down the DOM
+                    }
+                }
+            });
+
             let v = document.getElementById(viewId);
             if (!v) {
                 v = document.createElement('div');
@@ -482,6 +491,40 @@
         if (window.Story && window.Story.init) {
             window.Story.init(storyEl);
         }
+    };
+
+    // ── Global Custom Toast Notification ─────────────────────────
+    window.showConfirmDialog = function (msg, onConfirm) {
+        let el = document.getElementById('confirm-overlay');
+        if (!el) {
+            el = document.createElement('div');
+            el.id = 'confirm-overlay';
+            el.style.cssText = `
+                position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999;
+                display:none; align-items:center; justify-content:center; backdrop-filter:blur(3px);
+            `;
+            document.body.appendChild(el);
+        }
+
+        el.innerHTML = `
+            <div style="background:var(--parchment); padding:30px; border-radius:20px; box-shadow:0 10px 40px rgba(0,0,0,0.2); max-width:400px; text-align:center; animation:popIn 0.3s; color:var(--ink); font-family:'Fredoka', cursive;">
+                <div style="font-size:30px; margin-bottom:15px;">⚠️</div>
+                <div style="font-size:18px; margin-bottom:25px; line-height:1.4;">${msg}</div>
+                <div style="display:flex; justify-content:center; gap:15px;">
+                    <button id="btn-confirm-cancel" class="dev-btn" style="background:#e5e7eb; color:#4b5563;">CANCEL</button>
+                    <button id="btn-confirm-ok" class="dev-btn" style="background:var(--rose);">CONTINUE</button>
+                </div>
+            </div>
+        `;
+        el.style.display = 'flex';
+
+        document.getElementById('btn-confirm-cancel').onclick = () => {
+            el.style.display = 'none';
+        };
+        document.getElementById('btn-confirm-ok').onclick = () => {
+            el.style.display = 'none';
+            if (onConfirm) onConfirm();
+        };
     };
 
     // ── Audio Recording Skeleton ───────────────────────────────

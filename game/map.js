@@ -235,31 +235,45 @@ window.QuestMap = (function () {
       </div>
 
       <div class="fragment-shelf">
-        ${C.FRAGMENTS.map(f => {
-      const isEarned = S.fragments[f.id] !== undefined;
-      return `
-            <div class="frag-slot ${isEarned ? 'earned' : ''}">
-              ${isEarned ? S.fragments[f.id] : '?'}
-            </div>
-          `;
-    }).join('')}
+        ${
+      // Compute static shuffled structure initially
+      (() => {
+        let order = C.FRAGMENTS.slice();
+        // Deterministic shuffle logic
+        for (let i = order.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.sin(i * 999) * 10000) % (i + 1);
+          [order[i], order[j]] = [order[j], order[i]];
+        }
+        return order.map(f => {
+          const isEarned = S.fragments[f.id] !== undefined;
+          const rot = isEarned ? Math.floor(Math.random() * 30 - 15) : 0;
+          const filter = isEarned ? 'sepia(30%) contrast(1.1)' : 'grayscale(1) blur(2px)';
+          const clip = isEarned ? 'polygon(5% 5%, 95% 0%, 100% 90%, 0% 100%)' : 'none';
+          return `
+              <div class="frag-slot ${isEarned ? 'earned' : ''}" style="transform: rotate(${rot}deg); filter: ${filter}; clip-path: ${clip};">
+                ${isEarned ? S.fragments[f.id] : '?'}
+              </div>
+            `;
+        }).join('')
+      })()
+      }
       </div>
 
       <div class="level-list" id="map-stage">
         ${levels.map((file, idx) => {
-      const id = file.replace('level-', '').replace('.js', '');
-      const reg = (window.LEVEL_REGISTRY || []).find(r => {
-        return String(r.id).toLowerCase() === String(id).toLowerCase() ||
-          Number(r.id) === Number(id);
-      });
-      const config = reg
-        ? { title: reg.title, type: reg.type || 'trap', icon: reg.icon || '❓' }
-        : { title: `Level ${id}`, type: 'trap', icon: '❓' };
-      const isCompleted = S.completed.has(id);
-      const isUnlocked = checkLock(id, idx);
-      const displayTitle = id === 'marry' ? 'Level 11' : (id === 'keylock' ? 'Level 12' : config.title);
+        const id = file.replace('level-', '').replace('.js', '');
+        const reg = (window.LEVEL_REGISTRY || []).find(r => {
+          return String(r.id).toLowerCase() === String(id).toLowerCase() ||
+            Number(r.id) === Number(id);
+        });
+        const config = reg
+          ? { title: reg.title, type: reg.type || 'trap', icon: reg.icon || '❓' }
+          : { title: `Level ${id}`, type: 'trap', icon: '❓' };
+        const isCompleted = S.completed.has(id);
+        const isUnlocked = checkLock(id, idx);
+        const displayTitle = id === 'marry' ? 'Level 11' : (id === 'keylock' ? 'Level 12' : config.title);
 
-      return `
+        return `
             <div class="level-row ${isUnlocked ? '' : 'locked'} ${isCompleted ? 'completed' : ''}" 
                  onclick="window.QuestMap.handleLevelClick('${id}', ${isUnlocked})">
               <div class="level-icon">${isUnlocked ? config.icon : '🔒'}</div>
@@ -272,7 +286,7 @@ window.QuestMap = (function () {
               <button class="btn-play">${isCompleted ? 'REPLAY' : 'PLAY ▶'}</button>
             </div>
           `;
-    }).join('')}
+      }).join('')}
       </div>
     `;
   }
@@ -281,12 +295,13 @@ window.QuestMap = (function () {
    * Logic for level locking.
    */
   function checkLock(id, idx) {
-    if (window.STATE.devMode) return true;
+    // Force sequential locking to override DevMode for progression enforcement
     if (!window.STATE.storyDone) return false;
 
     // First level: storyDone
     if (idx === 0) return true;
 
+    if (window.STATE.devMode) return true;
     // Previous level must be in completed set
     const prevFile = window.GAME_CONFIG.LEVEL_FILES[idx - 1];
     const prevId = prevFile.replace('level-', '').replace('.js', '');
@@ -301,11 +316,21 @@ window.QuestMap = (function () {
   function handleLevelClick(id, isUnlocked) {
     if (isUnlocked) {
       if (window.STATE.completed.has(id)) {
-        if (!confirm("Replaying this level will reset your current progress and statistics.\nDo you want to continue?")) {
-          return;
-        }
+        window.showConfirmDialog("Replaying this level will reset your current progress.", () => {
+          window.STATE.completed.delete(id);
+          // Optionally remove relevant fragment
+          const fragObj = window.GAME_CONFIG.FRAGMENTS.find(f => String(f.level) === String(id));
+          if (fragObj && window.STATE.fragments[fragObj.id]) {
+            delete window.STATE.fragments[fragObj.id];
+          }
+          if (window.SessionManager) {
+            SessionManager.save({ phase: 'game', level: 'map', gameState: { ...window.STATE, completed: Array.from(window.STATE.completed) } });
+          }
+          startLevel(id);
+        });
+      } else {
+        startLevel(id);
       }
-      startLevel(id);
     } else {
       window.sfx('bad');
       const row = event.currentTarget;

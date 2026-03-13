@@ -139,10 +139,12 @@ window.LEVEL_REGISTRY.push({
         document.getElementById('l5-cam-preview').style.backgroundImage = `url(${re.target.result})`;
 
         document.getElementById('l5-cam-clear').onclick = () => {
-          camInput.value = '';
-          previewWrap.style.display = 'none';
-          document.querySelector('.l5-upload-zone').style.display = 'flex';
-          isTask1Done = false;
+          window.showConfirmDialog("Retaking the photo will delete your current submission.", () => {
+            camInput.value = '';
+            previewWrap.style.display = 'none';
+            document.querySelector('.l5-upload-zone').style.display = 'flex';
+            isTask1Done = false;
+          });
         };
 
         isTask1Done = true;
@@ -176,11 +178,13 @@ window.LEVEL_REGISTRY.push({
           audioWrap.style.display = 'block';
 
           document.getElementById('l5-audio-clear').onclick = () => {
-            audioWrap.style.display = 'none';
-            mic.style.display = 'flex';
-            btnCont.style.display = 'none';
-            isTask2Done = false;
-            audioChunks = [];
+            window.showConfirmDialog("Retaking the recording will delete your current submission.", () => {
+              audioWrap.style.display = 'none';
+              mic.style.display = 'flex';
+              btnCont.style.display = 'none';
+              isTask2Done = false;
+              audioChunks = [];
+            });
           };
 
           isTask2Done = true;
