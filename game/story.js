@@ -205,17 +205,19 @@ window.Story = (function () {
       if (window.GameNotifications && window.GameNotifications.requestPermission) {
         window.GameNotifications.requestPermission();
       }
-      if (window.G && typeof window.G.go === 'function') {
-        window.G.go('v-map');
-      } else {
-        console.error("Game engine (G.go) not found during story transition.");
-      }
-      container.innerHTML = ''; // Clear story view content
-      if (window.QuestMap && window.QuestMap.init) {
-        window.QuestMap.init(document.getElementById('v-map'));
-      } else {
-        console.error("QuestMap.init not found.");
-      }
+
+      // Hide story content immediately
+      container.innerHTML = ''; 
+
+      // Transition to map via engine
+      setTimeout(() => {
+        if (window.G && typeof window.G.go === 'function') {
+          window.G.go('v-map');
+        } else {
+          console.error("Game engine (G.go) not found.");
+          window.location.reload(); // Fallback reload
+        }
+      }, 50);
     };
 
     // Replace container content with transition animation

@@ -118,13 +118,12 @@
     // ── Navigation ──────────────────────────────────────────────
     window.G = {
         go: function (viewId) {
-            // Clear DOM contents for inactive levels to prevent ghost clicks and frozen modals
-            document.querySelectorAll('#stage .view').forEach(view => {
-                if (view.id !== viewId) {
-                    view.classList.remove('active');
-                    if (view.id.startsWith('v-L')) {
-                        view.innerHTML = ''; // completely tear down the DOM
-                    }
+            // Force hide ALL views regardless of location to prevent overlap
+            document.querySelectorAll('.view').forEach(view => {
+                view.classList.remove('active');
+                view.style.zIndex = '1';
+                if (view.id !== viewId && view.id.startsWith('v-L')) {
+                    view.innerHTML = ''; // completely tear down the DOM for levels
                 }
             });
 
@@ -136,6 +135,7 @@
                 document.getElementById('stage').appendChild(v);
             }
             v.classList.add('active');
+            v.style.zIndex = '50'; // Bring active view to front
             window.STATE.currentView = viewId;
 
             // Render the map whenever we navigate to it
