@@ -18,7 +18,7 @@ window.QuestMap = (function () {
         align-items: center;
         justify-content: flex-start;
         padding: 40px 20px;
-        background: transparent !important;
+        background: var(--parchment, #FFF8F0);
         overflow-y: auto;
         height: 100%;
       }
@@ -312,9 +312,15 @@ window.QuestMap = (function () {
     }
   }
 
+  let styleInjected = false;
+
   window.QuestMap = {
     init: function (v) {
       container = v;
+      if (!styleInjected) {
+        createStyle();
+        styleInjected = true;
+      }
       render();
     },
     handleLevelClick: handleLevelClick
