@@ -6,6 +6,7 @@ window.QuestMap = (function () {
   'use strict';
 
   let container = null;
+  let styleInjected = false;
 
   /**
    * Injects CSS for the map into the document head.
@@ -312,9 +313,7 @@ window.QuestMap = (function () {
     }
   }
 
-  let styleInjected = false;
-
-  window.QuestMap = {
+  return {
     init: function (v) {
       container = v;
       if (!styleInjected) {
