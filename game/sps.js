@@ -167,6 +167,12 @@
       createStyle();
       spsContainer = document.getElementById('v-sps');
     }
+    // Ensure container centers content
+    if (spsContainer) {
+      spsContainer.style.display = 'flex';
+      spsContainer.style.alignItems = 'center';
+      spsContainer.style.justifyContent = 'center';
+    }
 
     spsState = {
       phase: phase,
@@ -382,6 +388,13 @@
     if (!wordContainer) {
       wordContainer = document.getElementById('v-word');
       wordContainer.addEventListener('dragover', e => e.preventDefault());
+    }
+    // Ensure container centers content
+    if (wordContainer) {
+      wordContainer.style.display = 'flex';
+      wordContainer.style.alignItems = 'center';
+      wordContainer.style.justifyContent = 'center';
+      wordContainer.style.flexDirection = 'column';
     }
 
     wordState = {

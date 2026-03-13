@@ -1,0 +1,75 @@
+KUKU'S QUEST — PRINCIPAL ARCHITECT KNOWLEDGE LOG
+Project: c:\CUSTOM\WORKS\V02 | Repo: man-with-scars/Kku-Quest
+Format: Each entry is one session/prompt—never modifiable once appended.
+===========================================================================
+
+07:33:27 13:03:2026
+---------------------------------
+
+User Prompt
+(1) Apply architect system prompt as ongoing behavior framework.
+(2) Create this log file at C:\CUSTOM\WORKS\V02\chat-tillnow.txt.
+(3) Fix visible issues: word puzzle renders blank dark screen; 
+    v-sps/v-word had inline display:flex overriding rendering logic;
+    title loading bar visible in wrong position.
+
+Understanding
+User wants systematic, root-cause-first engineering on Kku's Quest game.
+All future prompts logged here. Current fix: word puzzle blank screen.
+
+Requirements
+- Word puzzle must render content when launched from SPS Phase 1
+- v-sps and v-word must not show placeholder text or override display
+- SPS game must launch as white card on dark background (not glassy overlay)
+- Loading toast must sit at bottom of screen with white background
+- Pause button must show single icon
+- Story replay from pause must be fullscreen (not transparent overlay)
+- chat-tillnow.txt created and maintained permanently
+
+System Analysis
+- G.go() manages view visibility via classList.active — NOT CSS display:none
+- v-sps/v-word had inline `display:flex` + placeholder text — this prevented
+  content injection from renderWordRound()/renderSPS() from being visible
+  because placeholder text remained and flex was hardcoded
+- word puzzle launch: launchWord() sets wordContainer.innerHTML — works correctly
+  once placeholder is cleared
+- SPS renderSPS() injects into spsContainer.innerHTML — needs flex centering
+  on container since we removed inline styles
+
+Root Cause
+1. Inline `display:flex` + placeholder text on v-word/v-sps in index.html
+   prevented proper content injection by sps.js
+2. JS (launchSPS/launchWord) did not set display:flex on container
+   after we removed it from HTML
+3. Loading toast div had no positioning — was appearing center-screen
+4. Pause button had CSS ::before { content:'II' } AND HTML ⏸ emoji — doubled icon
+
+Architecture Plan
+- View display management: JS-only via classList.active (G.go)
+- SPS/Word containers: set display:flex programmatically in launchSPS/launchWord
+- Loading toast: position:absolute, bottom:40px with white card style
+- Story replay: close pause overlay → G.go('v-story') → Story.init()
+
+Implementation Plan
+1. Remove inline display:flex and placeholder text from v-sps, v-word, v-story
+2. In sps.js launchSPS(): add display/flex CSS on container after init
+3. In sps.js launchWord(): add display/flex/column CSS on container after init
+4. Fix loading toast in engine.js: absolute positioned bottom white card
+5. Fix pause CSS ::before to content:''
+6. Fix replayStory to close pause + navigate fullscreen
+
+Solution
+Applied in session. Files modified: index.html, sps.js, engine.js.
+Committed to GitHub main branch.
+
+Improved Prompt
+Fix the following in Kku's Quest game (c:\CUSTOM\WORKS\V02):
+1. Word puzzle renders blank after SPS Phase 1 — v-word container has 
+   placeholder text preventing content injection. Remove placeholder, 
+   add display:flex programmatically in launchWord().
+2. SPS game shows as transparent glassy overlay — render as white card.
+3. Loading toast appears center screen — move to bottom with white bg.
+4. Pause button shows ⏸ twice — remove CSS ::before content:'II'.
+5. Story replay from pause shows as transparent overlay — navigate fullscreen.
+
+---------------------------------
