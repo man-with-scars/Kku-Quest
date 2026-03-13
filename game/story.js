@@ -195,6 +195,7 @@ window.Story = (function () {
         return;
       }
 
+      console.log("Story complete, attempting transition to Map...");
       window.STATE.storyDone = true;
       if (bgMusic) {
         bgMusic.pause();
@@ -204,9 +205,17 @@ window.Story = (function () {
       if (window.GameNotifications && window.GameNotifications.requestPermission) {
         window.GameNotifications.requestPermission();
       }
-      window.G.go('v-map');
+      if (window.G && typeof window.G.go === 'function') {
+        window.G.go('v-map');
+      } else {
+        console.error("Game engine (G.go) not found during story transition.");
+      }
       container.innerHTML = ''; // Clear story view content
-      if (window.QuestMap && window.QuestMap.init) window.QuestMap.init(document.getElementById('v-map'));
+      if (window.QuestMap && window.QuestMap.init) {
+        window.QuestMap.init(document.getElementById('v-map'));
+      } else {
+        console.error("QuestMap.init not found.");
+      }
     };
 
     // Replace container content with transition animation

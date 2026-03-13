@@ -625,41 +625,19 @@ window.Phase2 = (function () {
     }
 
     function startGame() {
-        console.log("Starting SPA transition to game...");
+        console.log("Redirecting to game...");
 
         // Save session
         if (window.SessionManager) {
             SessionManager.save({ phase: 'game', level: 1 });
-            SessionManager.pushState('game', 1);
         }
 
-        // Force the body and app background to match the game (Cream)
-        document.body.style.setProperty('background', '#FFF8F0', 'important');
-
-        // Hide landing UI
-        const app = document.getElementById('app');
-        if (app) app.style.display = 'none';
-
-        // Show Game Phase
-        const gamePhase = document.getElementById('game-phase');
-        if (gamePhase) {
-            gamePhase.style.display = 'flex';
-            gamePhase.classList.add('active');
+        // Redirect to game
+        if (window.KKU_CONFIG && window.KKU_CONFIG.GAME_URL) {
+            window.location.href = window.KKU_CONFIG.GAME_URL;
+        } else {
+            window.location.href = '../game/index.html';
         }
-
-        // Cleanup destiny
-        const destiny = document.getElementById('destiny-screen');
-        if (destiny) destiny.classList.remove('active');
-
-        // Boot Game Engine
-        setTimeout(() => {
-            const gameObj = window.Game || (window.G && window.G.Game);
-            if (gameObj && typeof gameObj.init === 'function') {
-                gameObj.init().catch(err => {
-                    console.error("Game.init failed:", err);
-                });
-            }
-        }, 100);
     }
 
     /* ─── Dev mode: Handled globally in index.html ─── */

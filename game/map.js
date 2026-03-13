@@ -13,7 +13,7 @@ window.QuestMap = (function () {
    */
   function createStyle() {
     const css = `
-      #v-map {
+      #v-map.active {
         display: flex;
         flex-direction: column;
         align-items: center;
