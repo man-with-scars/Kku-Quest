@@ -4,6 +4,7 @@
 
 (function () {
     'use strict';
+    console.log("engine.js loading...");
 
     // ── Mutable Game State ─────────────────────────────────────
     window.STATE = {
@@ -118,6 +119,7 @@
     // ── Navigation ──────────────────────────────────────────────
     window.G = {
         go: function (viewId) {
+            console.log(`G.go('${viewId}')`);
             // Force hide ALL views regardless of location to prevent overlap
             document.querySelectorAll('.view').forEach(view => {
                 view.classList.remove('active');

@@ -218,127 +218,153 @@ window.QuestMap = (function () {
    * Renders the map view.
    */
   function render() {
-    const C = window.GAME_CONFIG;
-    const S = window.STATE;
-    const levels = C.LEVEL_FILES;
-    const total = 12;
-    const completedCount = S.completed.size;
-    const progressPercent = (completedCount / total) * 100;
+    try {
+      console.log("QuestMap.render() starting...");
+      const C = window.GAME_CONFIG;
+      const S = window.STATE;
+      
+      if (!C || !S) {
+        throw new Error("Missing GAME_CONFIG or STATE");
+      }
 
-    container.innerHTML = `
-      <div class="map-header">
-        <h1 style="font-family:'Fredoka', cursive; color:var(--purple); margin-bottom:10px;">The Quest Progress</h1>
-        <div class="progress-container">
-          <div class="progress-fill" style="width: ${progressPercent}%"></div>
+      const levels = C.LEVEL_FILES || [];
+      const total = 12;
+      const completedCount = (S.completed && S.completed.size) || 0;
+      const progressPercent = (completedCount / total) * 100;
+
+      console.log(`Progress: ${completedCount}/${total} levels completed.`);
+
+      let html = `
+        <div class="map-header">
+          <h1 style="font-family:'Fredoka', cursive; color:var(--purple); margin-bottom:10px;">The Quest Progress</h1>
+          <div class="progress-container">
+            <div class="progress-fill" style="width: ${progressPercent}%"></div>
+          </div>
+          <div style="font-size:14px; color:var(--sub);">${completedCount} / ${total} Levels Found</div>
         </div>
-        <div style="font-size:14px; color:var(--sub);">${completedCount} / ${total} Levels Found</div>
-      </div>
 
-      <div class="fragment-shelf">
-        ${
-      // Compute static shuffled structure initially
-      (() => {
-        let order = C.FRAGMENTS.slice();
-        // Deterministic shuffle logic
+        <div class="fragment-shelf">`;
+
+      // Fragments
+      try {
+        let order = (C.FRAGMENTS || []).slice();
+        // Deterministic but safe shuffle
         for (let i = order.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.sin(i * 999) * 10000) % (i + 1);
+          const j = Math.floor(Math.abs(Math.sin(i * 999)) * (i + 1)) % (i + 1);
           [order[i], order[j]] = [order[j], order[i]];
         }
-        return order.map(f => {
-          const isEarned = S.fragments[f.id] !== undefined;
-          const rot = isEarned ? Math.floor(Math.random() * 30 - 15) : 0;
-          const filter = isEarned ? 'sepia(30%) contrast(1.1)' : 'grayscale(1) blur(2px)';
-          const clip = isEarned ? 'polygon(5% 5%, 95% 0%, 100% 90%, 0% 100%)' : 'none';
+        html += order.map(f => {
+            const isEarned = S.fragments && S.fragments[f.id] !== undefined;
+            const rot = isEarned ? Math.floor(Math.random() * 30 - 15) : 0;
+            const filter = isEarned ? 'sepia(30%) contrast(1.1)' : 'grayscale(1) blur(2px)';
+            const clip = isEarned ? 'polygon(5% 5%, 95% 0%, 100% 90%, 0% 100%)' : 'none';
+            return `
+                <div class="frag-slot ${isEarned ? 'earned' : ''}" style="transform: rotate(${rot}deg); filter: ${filter}; clip-path: ${clip};">
+                  ${isEarned ? S.fragments[f.id] : '?'}
+                </div>
+              `;
+          }).join('');
+      } catch (e) {
+        console.error("Fragment shelf render failed:", e);
+        html += "<div>Frag Error</div>";
+      }
+
+      html += `</div><div class="level-list" id="map-stage">`;
+
+      // Levels
+      html += levels.map((file, idx) => {
+          const id = file.replace('level-', '').replace('.js', '');
+          const reg = (window.LEVEL_REGISTRY || []).find(r => {
+            return String(r.id).toLowerCase() === String(id).toLowerCase() ||
+              Number(r.id) === Number(id);
+          });
+          const config = reg
+            ? { title: reg.title, type: reg.type || 'trap', icon: reg.icon || '❓' }
+            : { title: `Level ${id}`, type: 'trap', icon: '❓' };
+          
+          const isCompleted = S.completed && S.completed.has(id);
+          const isUnlocked = checkLock(id, idx);
+          const displayTitle = id === 'marry' ? 'Level 11' : (id === 'keylock' ? 'Level 12' : config.title);
+
           return `
-              <div class="frag-slot ${isEarned ? 'earned' : ''}" style="transform: rotate(${rot}deg); filter: ${filter}; clip-path: ${clip};">
-                ${isEarned ? S.fragments[f.id] : '?'}
+              <div class="level-row ${isUnlocked ? '' : 'locked'} ${isCompleted ? 'completed' : ''}" 
+                   onclick="window.QuestMap.handleLevelClick('${id}', ${isUnlocked}, event)">
+                <div class="level-icon">${isUnlocked ? config.icon : '🔒'}</div>
+                <div class="level-info">
+                  <div class="level-name">
+                    ${displayTitle}
+                    ${isCompleted ? '<span class="badge badge-finished">FINISHED</span>' : ''}
+                  </div>
+                </div>
+                <button class="btn-play">${isCompleted ? 'REPLAY' : 'PLAY ▶'}</button>
               </div>
             `;
-        }).join('')
-      })()
-      }
-      </div>
+        }).join('');
 
-      <div class="level-list" id="map-stage">
-        ${levels.map((file, idx) => {
-        const id = file.replace('level-', '').replace('.js', '');
-        const reg = (window.LEVEL_REGISTRY || []).find(r => {
-          return String(r.id).toLowerCase() === String(id).toLowerCase() ||
-            Number(r.id) === Number(id);
-        });
-        const config = reg
-          ? { title: reg.title, type: reg.type || 'trap', icon: reg.icon || '❓' }
-          : { title: `Level ${id}`, type: 'trap', icon: '❓' };
-        const isCompleted = S.completed.has(id);
-        const isUnlocked = checkLock(id, idx);
-        const displayTitle = id === 'marry' ? 'Level 11' : (id === 'keylock' ? 'Level 12' : config.title);
-
-        return `
-            <div class="level-row ${isUnlocked ? '' : 'locked'} ${isCompleted ? 'completed' : ''}" 
-                 onclick="window.QuestMap.handleLevelClick('${id}', ${isUnlocked})">
-              <div class="level-icon">${isUnlocked ? config.icon : '🔒'}</div>
-              <div class="level-info">
-                <div class="level-name">
-                  ${displayTitle}
-                  ${isCompleted ? '<span class="badge badge-finished">FINISHED</span>' : ''}
-                </div>
-              </div>
-              <button class="btn-play">${isCompleted ? 'REPLAY' : 'PLAY ▶'}</button>
-            </div>
-          `;
-      }).join('')}
-      </div>
-    `;
+      html += `</div>`;
+      container.innerHTML = html;
+      console.log("QuestMap.render() complete.");
+    } catch (err) {
+      console.error("QuestMap.render() CRITICAL FAIL:", err);
+      if (container) container.innerHTML = `<div style="color:red; padding:20px;">Render Error: ${err.message}</div>`;
+    }
   }
 
   /**
    * Logic for level locking.
    */
   function checkLock(id, idx) {
-    // Force sequential locking to override DevMode for progression enforcement
+    if (!window.STATE) return false;
+    // Force sequential locking
     if (!window.STATE.storyDone) return false;
 
     // First level: storyDone
     if (idx === 0) return true;
 
     if (window.STATE.devMode) return true;
+    
     // Previous level must be in completed set
     const prevFile = window.GAME_CONFIG.LEVEL_FILES[idx - 1];
+    if (!prevFile) return false;
     const prevId = prevFile.replace('level-', '').replace('.js', '');
     const normPrevId = isNaN(prevId) ? prevId : String(parseInt(prevId));
-    return window.STATE.completed.has(normPrevId);
+    return window.STATE.completed && window.STATE.completed.has(normPrevId);
   }
 
   function startLevel(id) {
+    console.log(`Starting level: ${id}`);
     if (window.launchLevel) window.launchLevel(id);
   }
 
-  function handleLevelClick(id, isUnlocked) {
+  function handleLevelClick(id, isUnlocked, event) {
+    console.log(`Level click: ${id}, unlocked: ${isUnlocked}`);
     if (isUnlocked) {
-    if (window.STATE.completed.has(id)) {
-      window.STATE.completed.delete(id);
-      // Optionally remove relevant fragment
-      const fragObj = window.GAME_CONFIG.FRAGMENTS.find(f => String(f.level) === String(id));
-      if (fragObj && window.STATE.fragments[fragObj.id]) {
-        delete window.STATE.fragments[fragObj.id];
-      }
-      if (window.SessionManager) {
-        SessionManager.save({ phase: 'game', level: 'map', gameState: { ...window.STATE, completed: Array.from(window.STATE.completed) } });
-      }
-      startLevel(id);
-    } else {
+      if (window.STATE.completed && window.STATE.completed.has(id)) {
+        window.STATE.completed.delete(id);
+        const fragObj = window.GAME_CONFIG.FRAGMENTS.find(f => String(f.level) === String(id));
+        if (fragObj && window.STATE.fragments && window.STATE.fragments[fragObj.id]) {
+          delete window.STATE.fragments[fragObj.id];
+        }
+        if (window.SessionManager) {
+          SessionManager.save({ phase: 'game', level: 'map', gameState: { ...window.STATE, completed: Array.from(window.STATE.completed) } });
+        }
         startLevel(id);
-      }
+      } else {
+          startLevel(id);
+        }
     } else {
       window.sfx('bad');
-      const row = event.currentTarget;
-      row.classList.add('shake');
-      setTimeout(() => row.classList.remove('shake'), 300);
+      const row = event ? event.currentTarget : null;
+      if (row) {
+        row.classList.add('shake');
+        setTimeout(() => row.classList.remove('shake'), 300);
+      }
     }
   }
 
   return {
     init: function (v) {
+      console.log("QuestMap.init() called.");
       container = v;
       if (!styleInjected) {
         createStyle();
