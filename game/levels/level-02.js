@@ -105,6 +105,7 @@ window.LEVEL_REGISTRY.push({
       @keyframes bubbleFloat {
         0% { transform: translateY(0) scale(0.5); opacity: 0.8; }
         100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
+      }
       @keyframes ripplePulse {
         0% { transform: scale(0.8); opacity: 0.2; }
         50% { opacity: 0.5; }

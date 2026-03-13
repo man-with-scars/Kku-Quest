@@ -250,18 +250,19 @@
 
     window.levelAdvancementLogic = function (id) {
         // Special case for puzzle IDs or non-numeric IDs
-        if (id === 'sps' || id === 'word' || isNaN(id)) {
+        if (id === 'sps' || id === 'word') {
             window.G.go('v-map');
             return;
         }
 
-        // Find next level number
-        let nextNum = parseInt(id) + 1;
-        if (id == '10b') nextNum = 11;
+        // Build the ordered level sequence
+        const LEVEL_SEQUENCE = [1,2,3,4,5,6,7,8,9,10,'10b',11];
+        const idx = LEVEL_SEQUENCE.findIndex(l => String(l) === String(id));
 
-        if (nextNum <= 10) {
-            window.launchLevel(nextNum);
+        if (idx !== -1 && idx + 1 < LEVEL_SEQUENCE.length) {
+            window.launchLevel(LEVEL_SEQUENCE[idx + 1]);
         } else {
+            // Finished all levels
             window.G.go('v-map');
         }
     };

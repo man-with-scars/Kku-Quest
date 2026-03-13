@@ -128,7 +128,21 @@ window.LEVEL_REGISTRY.push({
     }
 
     // Recording Logic
-    async function startRec() {
+    let isRecordingSession = false;
+
+    async function toggleRec() {
+      if (isRecordingSession) {
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+          mediaRecorder.stop();
+          isRecordingSession = false;
+          mic.style.transform = 'scale(1)';
+          mic.style.boxShadow = '';
+          clearInterval(this.noteTimer);
+          window.sfx('click');
+        }
+        return;
+      }
+
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         mediaRecorder = new MediaRecorder(stream);
@@ -161,7 +175,7 @@ window.LEVEL_REGISTRY.push({
           stream.getTracks().forEach(t => t.stop());
         };
         mediaRecorder.start();
-        isRecording = true;
+        isRecordingSession = true;
         mic.style.transform = 'scale(1.2)';
         mic.style.boxShadow = '0 0 20px var(--purple)';
 
@@ -171,19 +185,7 @@ window.LEVEL_REGISTRY.push({
       } catch (err) { console.error('Rec failed:', err); }
     }
 
-    function stopRec() {
-      if (mediaRecorder && mediaRecorder.state === 'recording') {
-        mediaRecorder.stop();
-        isRecording = false;
-        mic.style.transform = 'scale(1)';
-        mic.style.boxShadow = '';
-        clearInterval(this.noteTimer);
-        window.sfx('click');
-      }
-    }
-
-    mic.onmousedown = mic.ontouchstart = (e) => { e.preventDefault(); startRec.call(mic); };
-    mic.onmouseup = mic.onmouseleave = mic.ontouchend = (e) => { e.preventDefault(); stopRec.call(mic); };
+    mic.onclick = (e) => { e.preventDefault(); toggleRec(); };
 
     // Bonus Logic
     videoInput.onchange = (e) => {

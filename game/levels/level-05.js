@@ -161,8 +161,21 @@ window.LEVEL_REGISTRY.push({
       reader.readAsDataURL(file);
     };
 
-    // TASK 2 logic (Mic)
-    async function startRec() {
+    let isRecording = false;
+
+    async function toggleRec() {
+      if (isRecording) {
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+          mediaRecorder.stop();
+          mic.innerHTML = '🎤';
+          mic.classList.remove('mic-recording');
+          waveform.classList.remove('wave-anim');
+          window.sfx('click');
+        }
+        isRecording = false;
+        return;
+      }
+
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         mediaRecorder = new MediaRecorder(stream);
@@ -193,6 +206,8 @@ window.LEVEL_REGISTRY.push({
           stream.getTracks().forEach(t => t.stop());
         };
         mediaRecorder.start();
+        isRecording = true;
+        mic.innerHTML = '⏹️';
         mic.classList.add('mic-recording');
         waveform.style.display = 'flex';
         waveform.classList.add('wave-anim');
@@ -200,17 +215,7 @@ window.LEVEL_REGISTRY.push({
       } catch (err) { console.error('Mic failed:', err); }
     }
 
-    function stopRec() {
-      if (mediaRecorder && mediaRecorder.state === 'recording') {
-        mediaRecorder.stop();
-        mic.classList.remove('mic-recording');
-        waveform.classList.remove('wave-anim');
-        window.sfx('click');
-      }
-    }
-
-    mic.onmousedown = mic.ontouchstart = (e) => { e.preventDefault(); startRec(); };
-    mic.onmouseup = mic.onmouseleave = mic.ontouchend = (e) => { e.preventDefault(); stopRec(); };
+    mic.onclick = (e) => { e.preventDefault(); toggleRec(); };
 
     btnCont.onclick = () => {
       window.sfx('win');
