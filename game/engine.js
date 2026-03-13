@@ -710,7 +710,7 @@
 
         function init() {
             if (!bgm) {
-                bgm = new Audio('../landing/background.mp3');
+                bgm = new Audio('../landing/recording/background.mp3');
                 bgm.loop = true;
                 bgm.volume = 0.4;
             }
