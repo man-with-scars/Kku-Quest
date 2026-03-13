@@ -315,20 +315,18 @@ window.QuestMap = (function () {
 
   function handleLevelClick(id, isUnlocked) {
     if (isUnlocked) {
-      if (window.STATE.completed.has(id)) {
-        window.showConfirmDialog("Replaying this level will reset your current progress.", () => {
-          window.STATE.completed.delete(id);
-          // Optionally remove relevant fragment
-          const fragObj = window.GAME_CONFIG.FRAGMENTS.find(f => String(f.level) === String(id));
-          if (fragObj && window.STATE.fragments[fragObj.id]) {
-            delete window.STATE.fragments[fragObj.id];
-          }
-          if (window.SessionManager) {
-            SessionManager.save({ phase: 'game', level: 'map', gameState: { ...window.STATE, completed: Array.from(window.STATE.completed) } });
-          }
-          startLevel(id);
-        });
-      } else {
+    if (window.STATE.completed.has(id)) {
+      window.STATE.completed.delete(id);
+      // Optionally remove relevant fragment
+      const fragObj = window.GAME_CONFIG.FRAGMENTS.find(f => String(f.level) === String(id));
+      if (fragObj && window.STATE.fragments[fragObj.id]) {
+        delete window.STATE.fragments[fragObj.id];
+      }
+      if (window.SessionManager) {
+        SessionManager.save({ phase: 'game', level: 'map', gameState: { ...window.STATE, completed: Array.from(window.STATE.completed) } });
+      }
+      startLevel(id);
+    } else {
         startLevel(id);
       }
     } else {

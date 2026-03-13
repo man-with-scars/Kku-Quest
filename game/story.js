@@ -178,45 +178,20 @@ window.Story = (function () {
     if (btnBegin) btnBegin.onclick = () => {
       if (autoTimer) clearTimeout(autoTimer);
 
-      // If was replay, show choice modal or just go back
+      // If was replay, just go back
       if (window.STATE.storyDone) {
-        wrap.innerHTML = `
-          <div class="panel-wrap" style="background:rgba(0,0,0,0.8); border-radius:30px; padding:60px;">
-            <h2 style="color:white; font-family:'Fredoka', cursive; margin-bottom:40px;">What's Next?</h2>
-            <div style="display:flex; flex-direction:column; gap:20px;">
-              <button id="btn-restart-all" class="story-btn" style="background:var(--rose); color:white; font-size:18px;">RESTART QUEST FROM BEGINNING</button>
-              <button id="btn-continue-map" class="story-btn" style="background:var(--grass); color:white; font-size:18px;">CONTINUE FROM WHERE I LEFT OFF</button>
-            </div>
-          </div>
-        `;
-        wrap.querySelector('#btn-restart-all').onclick = () => {
-          if (confirm("This will clear all map progress. Are you sure?")) {
-            window.STATE.completedLevels = [];
-            // We do NOT clear fragments or SessionManager full clear based on new requirements.
-            if (window.SessionManager) window.SessionManager.save();
+        if (bgMusic) { bgMusic.pause(); bgMusic = null; }
+        if (window.AudioManager) window.AudioManager.unsuppress();
 
-            if (bgMusic) { bgMusic.pause(); bgMusic = null; }
-            if (window.AudioManager) window.AudioManager.unsuppress();
-
-            window.G.go('v-map');
-            container.innerHTML = '';
-            if (window.QuestMap && window.QuestMap.init) window.QuestMap.init(document.getElementById('v-map'));
-          }
-        };
-        wrap.querySelector('#btn-continue-map').onclick = () => {
-          if (bgMusic) { bgMusic.pause(); bgMusic = null; }
-          if (window.AudioManager) window.AudioManager.unsuppress();
-
-          if (window.STATE.preStoryView) {
-            window.G.go(window.STATE.preStoryView);
-            window.resumeGame();
-            window.STATE.preStoryView = null;
-          } else {
-            window.G.go('v-map');
-            if (window.QuestMap && window.QuestMap.init) window.QuestMap.init(document.getElementById('v-map'));
-          }
-          container.innerHTML = '';
-        };
+        if (window.STATE.preStoryView) {
+          window.G.go(window.STATE.preStoryView);
+          if (typeof window.resumeGame === 'function') window.resumeGame();
+          window.STATE.preStoryView = null;
+        } else {
+          window.G.go('v-map');
+          if (window.QuestMap && window.QuestMap.init) window.QuestMap.init(document.getElementById('v-map'));
+        }
+        container.innerHTML = '';
         return;
       }
 

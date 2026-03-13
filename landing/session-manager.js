@@ -58,18 +58,12 @@ window.SessionManager = (function () {
         document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
 
         if (s.phase === 'game') {
-            // Restore Game
-            const gamePhase = document.getElementById('game-phase');
-            if (gamePhase) {
-                gamePhase.classList.add('active');
-                document.getElementById('app').style.display = 'none';
-
-                // If game engine is loaded, try to jump to level
-                const gameObj = window.Game || (window.G && window.G.Game);
-                if (gameObj && s.level) {
-                    // Level jumping logic depends on engine state, 
-                    // usually engine handles its own window.STATE restoration
-                }
+            // Restore Game via literal redirect (SPA decoupling pattern)
+            document.getElementById('app').style.display = 'none';
+            if (window.KKU_CONFIG && window.KKU_CONFIG.GAME_URL) {
+                window.location.href = window.KKU_CONFIG.GAME_URL;
+            } else {
+                window.location.href = '../game/index.html';
             }
         } else if (s.phase) {
             // Restore Phase 1-4

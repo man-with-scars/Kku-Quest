@@ -172,7 +172,7 @@
         },
 
         isPaused: function () {
-            return document.getElementById('pause-overlay').classList.contains('active');
+            return false;
         },
 
         updateHUD: updateHUD
@@ -437,29 +437,6 @@
         }, 2000);
     };
 
-    window.pauseGame = function () {
-        const overlay = document.getElementById('pause-overlay');
-        if (overlay) overlay.classList.add('active');
-        if (window.Story && window.Story.pause) window.Story.pause();
-        if (window.SPS && window.SPS.pause) window.SPS.pause();
-        if (window.AudioManager) window.AudioManager.pause();
-    };
-
-    window.resumeGame = function () {
-        const overlay = document.getElementById('pause-overlay');
-        if (overlay) overlay.classList.remove('active');
-        if (window.Story && window.Story.resume) window.Story.resume();
-        if (window.SPS && window.SPS.resume) window.SPS.resume();
-        if (window.AudioManager) window.AudioManager.play();
-    };
-
-    window.restartGame = function () {
-        if (confirm("Restart from Level 1? Current progress will be lost.")) {
-            window.STATE.completed.clear();
-            if (window.SessionManager) window.SessionManager.clear();
-            window.location.reload();
-        }
-    };
 
     window.levelAdvancementLogic = function (currentId) {
         if (currentId == 10) {
@@ -475,9 +452,6 @@
     };
 
     window.replayStory = function () {
-        // Close pause overlay
-        const overlay = document.getElementById('pause-overlay');
-        if (overlay) overlay.classList.remove('active');
         if (window.AudioManager) window.AudioManager.suppress();
 
         // Navigate to story fullscreen
@@ -697,18 +671,6 @@
                     }
                 }
 
-                // Setup Pause Overlay Buttons
-                const btnPause = document.getElementById('btn-pause');
-                if (btnPause) btnPause.onclick = window.pauseGame;
-
-                const btnResume = document.getElementById('btn-resume');
-                if (btnResume) btnResume.onclick = window.resumeGame;
-
-                const btnReplay = document.getElementById('btn-replay-story');
-                if (btnReplay) btnReplay.onclick = window.replayStory;
-
-                const btnRestart = document.getElementById('btn-restart-game');
-                if (btnRestart) btnRestart.onclick = window.restartGame;
 
                 // Audio Toggles
                 const btnToggleBGM = document.getElementById('btn-toggle-bgm');

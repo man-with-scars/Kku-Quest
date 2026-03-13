@@ -36,18 +36,13 @@ window.FinalOverlay = (function () {
         }
 
         btn.addEventListener('click', function () {
-            // Success! Hide this overlay and Phase 4, then show Game Phase
+            // Success! Proceed to the main Game URL via hard navigation.
             overlay.classList.remove('active');
 
-            const phase4 = document.getElementById('phase4');
-            if (phase4) phase4.classList.remove('active');
-
-            const gamePhase = document.getElementById('game-phase');
-            if (gamePhase) {
-                gamePhase.classList.add('active');
-                if (window.Game && typeof window.Game.init === 'function') {
-                    window.Game.init();
-                }
+            if (window.KKU_CONFIG && window.KKU_CONFIG.GAME_URL) {
+                window.location.href = window.KKU_CONFIG.GAME_URL;
+            } else {
+                window.location.href = '../game/index.html'; // Safe fallback
             }
         });
     }

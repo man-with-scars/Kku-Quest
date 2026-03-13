@@ -760,7 +760,6 @@
 
             <div class="hud-right">
                 <div id="hud-frags">💎 Fragments Collected: 0 / 5</div>
-                <button id="btn-pause" title="Pause">⏸</button>
             </div>
         </header>
 
@@ -805,8 +804,6 @@
             <div id="v-death" class="view">
                 <h1 style="font-family:'Fredoka', cursive; font-size:48px; margin-bottom:10px;">Game Over</h1>
                 <p style="font-size:20px; color:var(--rose); margin-bottom:30px;">The journey paused... for now.</p>
-                <button onclick="window.restartGame()"
-                    style="padding:15px 40px; background:var(--rose); color:white; border:none; border-radius:30px; font-size:20px; cursor:pointer; font-family:'Fredoka';">RESTART</button>
             </div>
 
             <!-- Dynamic level views will be injected here -->
@@ -820,35 +817,7 @@
 
     <!-- OVERLAYS -->
     <div id="blackhole-overlay" class="overlay"></div>
-    <div id="pause-overlay" class="overlay">
-        <div
-            style="background:var(--parchment); padding:40px; border-radius:30px; border:4px solid var(--amber); text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.5); min-width:320px;">
-            <h2 style="font-family:'Fredoka'; font-size:32px; color:var(--purple); margin-bottom:30px;">Options</h2>
 
-            <div style="display:flex; flex-direction:column; gap:15px;">
-                <button id="btn-resume"
-                    style="padding:15px; background:var(--gold); color:white; border:none; border-radius:15px; font-size:18px; font-weight:700; cursor:pointer; transition:transform 0.2s;">RESUME
-                    GAME</button>
-
-                <div style="display:flex; gap:10px;">
-                    <button id="btn-toggle-bgm"
-                        style="flex:1; padding:12px; background:var(--sky); color:white; border:none; border-radius:12px; font-size:14px; font-weight:600; cursor:pointer;">MUSIC:
-                        ON</button>
-                    <button id="btn-toggle-sfx"
-                        style="flex:1; padding:12px; background:var(--sky); color:white; border:none; border-radius:12px; font-size:14px; font-weight:600; cursor:pointer;">SFX:
-                        ON</button>
-                </div>
-
-                <button id="btn-replay-story"
-                    style="padding:12px; background:var(--purple); color:white; border:none; border-radius:12px; font-size:16px; font-weight:600; cursor:pointer;">REPLAY
-                    STORY</button>
-
-                <button id="btn-restart-game"
-                    style="padding:12px; background:var(--rose); color:white; border:none; border-radius:12px; font-size:16px; font-weight:600; cursor:pointer;">RESTART
-                    GAME</button>
-            </div>
-        </div>
-    </div>
     <div id="hint-overlay" class="overlay"></div>
     <div id="fragment-popup" class="overlay"></div>
     <div id="dev-login" class="overlay"></div>
