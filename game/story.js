@@ -274,14 +274,16 @@ window.Story = (function () {
   }
 
   function skip() {
-    window.STATE.storyDone = true;
     if (bgMusic) {
       bgMusic.pause();
-      bgMusic = null;
+      bgMusic.currentTime = 0;
     }
     if (window.AudioManager) window.AudioManager.unsuppress();
+    window.STATE.storyDone = true;
     window.G.go('v-map');
-    if (window.QuestMap && window.QuestMap.init) window.QuestMap.init(document.getElementById('v-map'));
+    if (window.QuestMap && window.QuestMap.init) {
+      window.QuestMap.init(document.getElementById('v-map'));
+    }
   }
 
   function pause() {

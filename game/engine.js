@@ -137,9 +137,10 @@
             // Sync HUD visibility
             const hud = document.getElementById('hud');
             if (hud) {
-                const isTitle = viewId === 'v-title' || viewId === 'v-loading';
-                hud.style.opacity = isTitle ? '0' : '1';
-                hud.style.pointerEvents = isTitle ? 'none' : 'auto';
+                const hideHUD = ['v-title', 'v-loading', 'v-story', 'v-intro', 'v-fall', 'v-finding'];
+                const shouldHide = hideHUD.includes(viewId);
+                hud.style.opacity = shouldHide ? '0' : '1';
+                hud.style.pointerEvents = shouldHide ? 'none' : 'auto';
             }
 
             // Hide God Mode pass button if not in a level
