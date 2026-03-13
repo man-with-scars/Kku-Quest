@@ -197,7 +197,7 @@ window.Story = (function () {
         };
         wrap.querySelector('#btn-continue-map').onclick = () => {
           window.G.go('v-map');
-          if (window.Map && window.Map.init) window.Map.init(document.getElementById('v-map'));
+          if (window.QuestMap && window.QuestMap.init) window.QuestMap.init(document.getElementById('v-map'));
         };
         return;
       }
@@ -281,7 +281,7 @@ window.Story = (function () {
     }
     if (window.AudioManager) window.AudioManager.unsuppress();
     window.G.go('v-map');
-    if (window.Map && window.Map.init) window.Map.init(document.getElementById('v-map'));
+    if (window.QuestMap && window.QuestMap.init) window.QuestMap.init(document.getElementById('v-map'));
   }
 
   function pause() {
