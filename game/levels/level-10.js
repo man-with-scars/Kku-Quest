@@ -80,8 +80,8 @@ window.LEVEL_REGISTRY.push({
                   </p>
                   <div id="l6-options" class="options-grid">
             ${shuffled.map((opt, i) => `
-              <button class="opt-btn" data-correct="${opt.correct}" style="animation: bounceIn 0.5s ${0.8 + i * 0.1}s both;">
-                ${opt.text}
+              <button class="opt-btn" data-correct="${opt === t.correct}" style="animation: bounceIn 0.5s ${0.8 + i * 0.1}s both;">
+                ${opt}
               </button>
             `).join('')}
           </div>

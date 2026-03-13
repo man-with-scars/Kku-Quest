@@ -123,6 +123,7 @@
             // Force hide ALL views regardless of location to prevent overlap
             document.querySelectorAll('.view').forEach(view => {
                 view.classList.remove('active');
+                view.style.display = 'none'; // Explicitly hide
                 view.style.zIndex = '1';
                 if (view.id !== viewId && view.id.startsWith('v-L')) {
                     view.innerHTML = ''; // completely tear down the DOM for levels
@@ -136,6 +137,7 @@
                 v.className = 'view';
                 document.getElementById('stage').appendChild(v);
             }
+            v.style.display = 'flex'; // Use flex for active view
             v.classList.add('active');
             v.style.zIndex = '50'; // Bring active view to front
             window.STATE.currentView = viewId;
@@ -240,6 +242,12 @@
     };
 
     window.levelAdvancementLogic = function (id) {
+        // Special case for puzzle IDs or non-numeric IDs
+        if (id === 'sps' || id === 'word' || isNaN(id)) {
+            window.G.go('v-map');
+            return;
+        }
+
         // Find next level number
         let nextNum = parseInt(id) + 1;
         if (id == '10b') nextNum = 11;

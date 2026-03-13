@@ -23,7 +23,9 @@
     kkuScore: 0,
     aiScore: 0,
     tries: 0,
-    locked: false
+    locked: false,
+    magicUses: 0,
+    tieCount: 0
   };
 
   let wordState = {
@@ -181,7 +183,9 @@
       aiScore: 0,
       tries: 0,
       locked: false,
-      callback: cb
+      callback: cb,
+      magicUses: window.STATE.magicUses || 0,
+      tieCount: 0
     };
 
     renderSPS();
@@ -272,23 +276,34 @@
       }
     } else {
       // Phase 2: Kku must win 3 rounds to advance. AI is competitive.
-      if (spsState.kkuScore >= 3) {
-        // Kku already won enough — let game complete
-        aiIdx = (idx + 2) % 3;
-        result = 'win';
+      // AI competes genuinely — 40% chance AI wins, 30% tie, 30% Kku wins
+      const roll = Math.random();
+      if (roll < 0.4) {
+        aiIdx = (idx + 1) % 3; // AI wins
+        result = 'lose';
+      } else if (roll < 0.7) {
+        aiIdx = idx; // Natural tie
+        result = 'tie';
       } else {
-        // AI competes genuinely — 40% chance AI wins, 30% tie, 30% Kku wins
-        const roll = Math.random();
-        if (roll < 0.4) {
-          aiIdx = (idx + 1) % 3; // AI wins
-          result = 'lose';
-        } else if (roll < 0.7) {
-          aiIdx = idx; // tie
-          result = 'tie';
-        } else {
-          aiIdx = (idx + 2) % 3; // Kku wins
+        aiIdx = (idx + 2) % 3; // Kku wins
+        result = 'win';
+      }
+
+      // MAGIC POWER LOGIC: If tie and magic available, use it to WIN
+      if (result === 'tie' && spsState.magicUses > 0) {
+          console.log("MAGIC USED! Transforming TIE into WIN.");
+          spsState.magicUses--;
+          window.STATE.magicUses = spsState.magicUses;
           result = 'win';
-        }
+          // Force AI to pick the losing choice
+          aiIdx = (idx + 2) % 3; 
+          
+          // Visual hint of magic
+          const box = document.getElementById('sps-window');
+          if (box) {
+              box.style.boxShadow = '0 0 50px var(--purple)';
+              setTimeout(() => box.style.boxShadow = '', 1000);
+          }
       }
     }
 
@@ -310,7 +325,7 @@
       triggerPhase2Win();
     } else {
       spsState.locked = false;
-      document.getElementById('round-status').textContent = `TRIES: ${spsState.tries}`;
+      document.getElementById('round-status').textContent = `TRIES: ${spsState.tries} | MAGIC: ${spsState.magicUses}`;
       document.querySelectorAll('.sps-picker').forEach(btn => {
         btn.disabled = false;
         btn.classList.remove('dim');
