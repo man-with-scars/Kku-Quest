@@ -184,29 +184,31 @@
 
   function renderSPS() {
     spsContainer.innerHTML = `
-      <div id="sps-window" style="background:rgba(255,255,255,0.15); backdrop-filter:blur(20px); border-radius:30px; padding:40px; border:1px solid rgba(255,255,255,0.2); box-shadow:0 10px 40px rgba(0,0,0,0.3); color:white;">
+      <div id="sps-window" style="width:100%; max-width:600px; background:white; border-radius:30px; padding:40px; box-shadow:0 10px 40px rgba(0,0,0,0.15); color:var(--ink);">
+        <h2 style="font-family:'Fredoka', cursive; color:var(--purple); text-align:center; margin-bottom:24px;">⚔️ Stone · Paper · Scissors</h2>
         <div class="sps-arena">
           <div class="sps-side">
             <div class="sps-score" id="kku-score">${spsState.kkuScore}</div>
-            <div class="sps-choice-display" id="kku-display" style="background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.3); color:white;">❔</div>
+            <div class="sps-choice-display" id="kku-display">❔</div>
             <div class="sps-btn-group">
-              ${CHOICES.map((c, i) => `<button class="sps-picker" id="pick-${i}" onclick="window.SPS.choose(${i})" style="background:rgba(255,255,255,0.2); color:white; border-color:rgba(255,255,255,0.3);">${c}</button>`).join('')}
+              ${CHOICES.map((c, i) => `<button class="sps-picker" id="pick-${i}" onclick="window.SPS.choose(${i})">${c}</button>`).join('')}
             </div>
-            <div class="panel-label" style="color:white;">KKU</div>
+            <div class="panel-label">KKU</div>
           </div>
 
           <div style="text-align:center;">
-            <div style="font-size:24px; color:white; opacity:0.6; margin-bottom:10px;">VS</div>
-            <div id="round-status" style="font-size:12px; font-weight:bold; color:white;">TRIES: ${spsState.tries}</div>
+            <div style="font-size:24px; color:var(--sub); margin-bottom:10px;">VS</div>
+            <div id="round-status" style="font-size:12px; font-weight:bold; color:var(--sub);">TRIES: ${spsState.tries}</div>
           </div>
 
           <div class="sps-side">
             <div class="sps-score" id="ai-score">${spsState.aiScore}</div>
-            <div class="sps-choice-display" id="ai-display" style="background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.3); color:white;">❔</div>
-            <div class="sps-think" id="ai-status" style="color:white; opacity:0.6;">Ready...</div>
-            <div class="panel-label" style="color:white;">AI ARCHITECT</div>
+            <div class="sps-choice-display" id="ai-display">❔</div>
+            <div class="sps-think" id="ai-status">Ready...</div>
+            <div class="panel-label">AI ARCHITECT</div>
           </div>
         </div>
+        <div id="sps-progress" style="text-align:center; margin-top:16px; font-size:13px; color:var(--sub);"></div>
       </div>
     `;
   }
@@ -234,26 +236,54 @@
     aiEl.style.animation = 'thinkPulse 1.5s infinite';
     await new Promise(r => setTimeout(r, 600));
 
-    // Determine AI pick based on scripted state machine
+    // Determine AI pick — realistic AI logic
     let aiIdx = 0;
     let result = ''; // 'tie', 'win', 'lose'
 
-    // Fix: Ensure we use simple 1 or 2 mapping internally, but handle the provided 'trap code' correctly
     const mode = spsState.phase >= 4 ? 1 : spsState.phase;
+    const round = spsState.round;
 
     if (mode === 1) {
-      if (spsState.round < 3) { // Tie for 3 rounds then win
+      // Phase 1: AI starts strong — ties first 2 rounds, then challenges Kku.
+      // Pattern: tie, tie, AI wins → triggers word puzzle
+      if (round < 2) {
         aiIdx = idx;
         result = 'tie';
+      } else if (round < 5) {
+        // AI gets smart — randomly wins or ties (never lets Kku win in Phase 1)
+        const roll = Math.random();
+        if (roll < 0.5) {
+          aiIdx = (idx + 1) % 3; // AI wins
+          result = 'lose';
+        } else {
+          aiIdx = idx; // tie
+          result = 'tie';
+        }
       } else {
-        // AI wins forcibly to trigger word puzzle
+        // After 5 tries — AI forcibly wins to trigger word puzzle
         aiIdx = (idx + 1) % 3;
         result = 'lose';
       }
     } else {
-      // Phase 2: Kku wins
-      aiIdx = (idx + 2) % 3;
-      result = 'win';
+      // Phase 2: Kku must win 3 rounds to advance. AI is competitive.
+      if (spsState.kkuScore >= 3) {
+        // Kku already won enough — let game complete
+        aiIdx = (idx + 2) % 3;
+        result = 'win';
+      } else {
+        // AI competes genuinely — 40% chance AI wins, 30% tie, 30% Kku wins
+        const roll = Math.random();
+        if (roll < 0.4) {
+          aiIdx = (idx + 1) % 3; // AI wins
+          result = 'lose';
+        } else if (roll < 0.7) {
+          aiIdx = idx; // tie
+          result = 'tie';
+        } else {
+          aiIdx = (idx + 2) % 3; // Kku wins
+          result = 'win';
+        }
+      }
     }
 
     const aiPick = CHOICES[aiIdx];
@@ -267,9 +297,10 @@
     spsState.round++;
 
     // Check Phase Completion
-    if (mode === 1 && spsState.round >= 6) {
+    const progEl = document.getElementById('sps-progress');
+    if (mode === 1 && spsState.round >= 5) {
       triggerPhase1Loss();
-    } else if (mode === 2 && spsState.round >= 9) {
+    } else if (mode === 2 && spsState.kkuScore >= 3) {
       triggerPhase2Win();
     } else {
       spsState.locked = false;

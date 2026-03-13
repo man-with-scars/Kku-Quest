@@ -458,10 +458,21 @@
     };
 
     window.replayStory = function () {
-        window.resumeGame();
+        // Close pause overlay
+        const overlay = document.getElementById('pause-overlay');
+        if (overlay) overlay.classList.remove('active');
+        if (window.AudioManager) window.AudioManager.suppress();
+
+        // Navigate to story fullscreen
         window.G.go('v-story');
+
+        const storyEl = document.getElementById('v-story');
+        if (storyEl) {
+            storyEl.style.background = 'var(--parchment, #FFF8F0)';
+        }
+
         if (window.Story && window.Story.init) {
-            window.Story.init(document.getElementById('v-story'));
+            window.Story.init(storyEl);
         }
     };
 
@@ -553,11 +564,11 @@
                     loadingView.innerHTML = `
                         <video id="load-video" src="../landing/story-videos/00.mp4" muted playsinline webkit-playsinline
                             style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:-1;"></video>
-                        <div id="load-info" style="background:rgba(0,0,0,0.4); padding:20px; border-radius:15px; text-align:center; color:white; transition: opacity 0.5s;">
-                            <div style="width:200px; height:10px; background:rgba(255,255,255,0.2); border-radius:5px; position:relative; margin-bottom:10px;">
-                                <div id="load-bar" style="height:100%; background:var(--gold); width:0%; border-radius:5px; transition:width 0.2s;"></div>
+                        <div id="load-info" style="position:absolute; bottom:40px; left:50%; transform:translateX(-50%); background:white; padding:14px 30px; border-radius:50px; text-align:center; color:#222; min-width:280px; box-shadow:0 4px 20px rgba(0,0,0,0.2); transition: opacity 0.5s;">
+                            <div style="width:220px; height:8px; background:rgba(0,0,0,0.1); border-radius:4px; position:relative; margin:0 auto 8px auto;">
+                                <div id="load-bar" style="height:100%; background:var(--gold, #f0b429); width:0%; border-radius:4px; transition:width 0.2s;"></div>
                             </div>
-                            <div style="font-size:14px; font-family:'Fredoka', cursive; letter-spacing:1px;">GATHERING FRAGMENTS...</div>
+                            <div style="font-size:13px; font-family:'Fredoka', cursive; letter-spacing:1px; color:#444;">GATHERING FRAGMENTS...</div>
                         </div>
                     `;
                 }
