@@ -317,11 +317,7 @@ window.LEVEL_REGISTRY.push({
 
       document.getElementById('btn-final-cont').onclick = () => {
         winCard.remove();
-        if (window.SPS && window.SPS.launch) {
-          window.SPS.launch(11, () => window.levelDone(11));
-        } else {
-          window.levelDone(11);
-        }
+        window.levelDone(11);
       };
     };
   }

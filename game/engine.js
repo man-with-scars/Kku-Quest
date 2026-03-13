@@ -292,11 +292,17 @@
     }
 
     window.launchLevel = async function (id) {
+        if (!id || String(id) === 'NaN' || String(id) === 'undefined') {
+            console.error('launchLevel aborted: Invalid or missing level ID');
+            window.G.go('v-map');
+            return;
+        }
+
         try {
             await loadLevelScript(id);
         } catch (e) {
-            console.warn(`Level ${id} script missing. Auto-advancing...`);
-            setTimeout(() => window.levelDone(id), 1000);
+            console.warn(`Level ${id} script missing. Falling back to map...`);
+            window.G.go('v-map');
             return;
         }
 
@@ -306,8 +312,8 @@
         );
 
         if (!reg) {
-            console.warn(`Level ${id} registry entry missing. Auto-advancing...`);
-            setTimeout(() => window.levelDone(id), 1000);
+            console.warn(`Level ${id} registry entry missing. Falling back to map...`);
+            window.G.go('v-map');
             return;
         }
 

@@ -375,9 +375,10 @@
 
   function triggerPhase2Win() {
     window.sfx('win');
-    spsContainer.innerHTML += `<div style="position:absolute; inset:0; pointer-events:none; display:flex; align-items:center; justify-content:center;">
-      <div style="font-size:120px; animation:popIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);">🏆</div>
-    </div>`;
+    const winOverlay = document.createElement('div');
+    winOverlay.style.cssText = 'position:absolute; inset:0; pointer-events:none; display:flex; align-items:center; justify-content:center; z-index: 100;';
+    winOverlay.innerHTML = `<div style="font-size:120px; animation:popIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);">🏆</div>`;
+    spsContainer.appendChild(winOverlay);
 
     // Confetti spawn (simplified)
     for (let i = 0; i < 20; i++) {
@@ -531,29 +532,49 @@
 
     document.getElementById('btn-scroll-ok').onclick = () => {
       // 2. Potion Overlay
-      overlay.className = 'full-overlay light';
+      overlay.className = 'full-overlay';
+      overlay.style.cssText += 'background:black; overflow:hidden; display:flex; align-items:center; justify-content:center;';
       overlay.innerHTML = `
-        <div style="text-align:center; animation:popIn 0.8s;">
-          <div style="font-size:100px; animation:float 3s infinite;">🧪</div>
-          <h2 style="font-family:'Fredoka', cursive; color:var(--purple);">The Elf Potion</h2>
-          <p style="color:var(--sub); margin:20px 0;">Drink this to unlock your magical potential.</p>
-          <button class="dev-btn" id="btn-potion-drink" style="background:var(--purple);">DRINK IT</button>
+        <!-- Background Video -->
+        <video id="potion-vid" autoplay muted loop playsinline
+          style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.6; pointer-events:none; transition: opacity 0.8s;">
+          <source src="../landing/story-videos/001.mp4" type="video/mp4">
+        </video>
+
+        <!-- Ghostly UI -->
+        <div id="potion-ui" style="position:relative; z-index:10; text-align:center; animation:popIn 2s; transition: opacity 1s;">
+          <h2 style="font-family:'Fredoka', cursive; color:rgba(255,255,255,0.25); font-size:24px; margin-bottom:10px; letter-spacing:4px; text-shadow:0 0 30px rgba(255,255,255,0.15);">The Elf Potion</h2>
+          <p style="color:rgba(255,255,255,0.15); font-family:'Lora',serif; font-style:italic; font-size:13px; margin:0 0 40px; letter-spacing:1px;">Drink to unlock your magical potential.</p>
+          <button class="dev-btn" id="btn-potion-drink" style="background:transparent; border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.3); font-size:12px; letter-spacing:3px; padding:10px 35px; border-radius:30px; cursor:pointer; transition:0.5s; backdrop-filter:blur(2px);">DRINK IT</button>
         </div>
       `;
 
       document.getElementById('btn-potion-drink').onclick = () => {
-        // 3. Transformation
         window.sfx('win');
-        overlay.innerHTML = `<div style="font-size:200px; animation:bhspin 2s forwards;">✨</div>`;
-
+        const ui = document.getElementById('potion-ui');
+        const vid = document.getElementById('potion-vid');
+        
+        ui.style.opacity = '0';
+        vid.style.opacity = '0';
+        
         setTimeout(() => {
-          overlay.remove();
-          window.STATE.spsElf = true;
-          const kkuEmoji = document.getElementById('kku-emoji');
-          if (kkuEmoji) kkuEmoji.textContent = '🧝‍♀️';
-
-          launchSPS(2); // Start Phase 2
-        }, 2000);
+          vid.src = "../landing/story-videos/002.mp4";
+          vid.loop = false;
+          vid.load();
+          vid.play();
+          vid.style.opacity = '1'; // Full focus on the transformation drama
+          
+          vid.onended = () => {
+            vid.style.opacity = '0';
+            setTimeout(() => {
+              overlay.remove();
+              window.STATE.spsElf = true;
+              const kkuEmoji = document.getElementById('kku-emoji');
+              if (kkuEmoji) kkuEmoji.textContent = '🧝‍♀️';
+              launchSPS(2); // Start Phase 2
+            }, 800);
+          };
+        }, 800);
       };
     };
   }
