@@ -264,7 +264,7 @@ window.Story = (function () {
 
     // Start Background Music
     if (!bgMusic) {
-      bgMusic = new Audio('../landing/storybgm.mp3');
+      bgMusic = new Audio('../landing/recording/storybgm.mp3');
       bgMusic.loop = true;
       bgMusic.volume = 0.5;
       bgMusic.play().catch(e => console.log("Music play blocked by browser."));
