@@ -621,7 +621,7 @@
                     titleView.style.background = "url('levels/landing.jpeg') no-repeat center center / cover";
 
                     titleView.innerHTML = `
-                        <button id="btn-start-game" style="padding:15px 45px; background:var(--gold); border:none; border-radius:35px; color:white; font-size:24px; font-family:'Fredoka', cursive; cursor:pointer; box-shadow:0 8px 25px rgba(240,180,41,0.5); transition:transform 0.2s; position:absolute; bottom:15%; left:50%; transform:translateX(-50%); z-index:10;">START</button>
+                        <button id="btn-start-game" style="padding:15px 45px; background:var(--gold); border:none; border-radius:35px; color:white; font-size:24px; font-family:'Fredoka', cursive; cursor:pointer; box-shadow:0 8px 25px rgba(240,180,41,0.5); transition:transform 0.2s; position:absolute; bottom:15%; left:50%; transform:translateX(-50%); z-index:10;">START ADVENTURE</button>
                     `;
                     const startBtn = titleView.querySelector('#btn-start-game');
                     if (startBtn) {
