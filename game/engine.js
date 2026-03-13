@@ -171,7 +171,19 @@
             renderHearts();
             window.sfx('bad');
             if (window.STATE.lives <= 0) {
-                window.G.go('v-death');
+                if (window.STATE.currentView === 'v-L11') {
+                    window.G.go('v-death');
+                } else if (window.SPS && window.SPS.launch) {
+                    window.STATE.lives = 3;
+                    renderHearts();
+                    const currentLevelId = window.STATE.currentView.replace('v-L', '');
+                    const randomPhase = Math.random() < 0.5 ? 1 : 2;
+                    window.SPS.launch(randomPhase, () => {
+                        if (window.launchLevel) window.launchLevel(currentLevelId);
+                    });
+                } else {
+                    window.G.go('v-death');
+                }
             }
         },
 

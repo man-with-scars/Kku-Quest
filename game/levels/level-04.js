@@ -177,21 +177,11 @@ window.LEVEL_REGISTRY.push({
 
           card.style.pointerEvents = 'none';
 
-          // Trap: Launch SPS Phase 2
-          if (window.SPS && window.SPS.launch) {
-            window.SPS.launch(2, () => {
-              if (window.showHint) window.showHint(4);
-              setTimeout(() => {
-                if (window.launchLevel) window.launchLevel(2);
-              }, 3500);
-            });
-          } else {
-            // Fallback if SPS fails
-            setTimeout(() => {
-              card.style.animation = '';
+          setTimeout(() => {
               card.style.pointerEvents = 'auto';
-            }, 500);
-          }
+              btn.classList.remove('wrong');
+              card.style.animation = '';
+          }, 1000);
         }
       };
     });

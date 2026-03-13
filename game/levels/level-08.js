@@ -200,15 +200,10 @@ window.LEVEL_REGISTRY.push({
 
           card.style.pointerEvents = 'none';
 
-          // Launch Trap
-          if (window.SPS && window.SPS.launch) {
-            window.SPS.launch(6, () => {
-              if (window.showHint) window.showHint(8);
-              setTimeout(() => {
-                if (window.launchLevel) window.launchLevel(6);
-              }, 3500);
-            });
-          }
+          setTimeout(() => {
+              card.style.pointerEvents = 'auto';
+              btn.classList.remove('wrong');
+          }, 1000);
         }
       };
     });

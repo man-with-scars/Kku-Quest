@@ -192,15 +192,9 @@ window.LEVEL_REGISTRY.push({
           window.sfx('bad');
           window.G.loseLife();
           btn.classList.add('wrong');
-
-          if (window.SPS && window.SPS.launch) {
-            window.SPS.launch(1, () => {
-              if (window.showHint) window.showHint(10);
-              setTimeout(() => {
-                if (window.launchLevel) window.launchLevel(10);
-              }, 3500);
-            });
-          }
+          setTimeout(() => {
+              btn.classList.remove('wrong');
+          }, 1000);
         }
       };
     });
