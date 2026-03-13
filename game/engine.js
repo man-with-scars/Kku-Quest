@@ -218,27 +218,22 @@
     };
 
     window.showLevelComplete = function (id) {
-        const view = document.getElementById('v-complete');
-        if (!view) return;
-
-        // Customise based on if it's the last standard level
-        const msg = view.querySelector('p');
-        const frag = window.STATE.lastFrag; // Retrieve the fragment just awarded!
-
-        if (frag && msg) {
-            msg.innerHTML = `Fragment Found: <b>${frag.value}</b>`;
-            msg.style.display = 'block';
-            window.STATE.lastFrag = null; // consume it
-        } else if (msg) {
-            msg.style.display = 'none';
+        const frag = window.STATE.lastFrag;
+        if (frag) {
+            // Show toast and auto advance
+            const overlay = document.createElement('div');
+            overlay.style.cssText = "position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; animation:fadeIn 0.3s;";
+            overlay.innerHTML = `<h1 style="font-family:'Fredoka', cursive; font-size:48px; margin-bottom:10px; color:var(--gold);">Level Clear!</h1><p style="font-size:24px;">Fragment Found: <b style="color:var(--gold); font-size:32px;">${frag.value}</b></p>`;
+            document.body.appendChild(overlay);
+            window.STATE.lastFrag = null;
+            setTimeout(() => {
+                overlay.remove();
+                window.levelAdvancementLogic(id);
+            }, 3000);
+        } else {
+            // Instant advance
+            window.levelAdvancementLogic(id);
         }
-
-        const btnNext = document.getElementById('btn-next-level');
-        if (btnNext) {
-            btnNext.onclick = () => window.levelAdvancementLogic(id);
-        }
-
-        window.G.go('v-complete');
     };
 
     window.levelAdvancementLogic = function (id) {

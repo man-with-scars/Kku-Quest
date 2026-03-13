@@ -78,7 +78,7 @@ window.LEVEL_REGISTRY.push({
                   <p class="riddle-text" style="font-family:'Lora', serif; font-style:italic; font-size:18px; color:#B45309; margin-bottom:25px;">
                     ${t.riddle}
                   </p>
-                  <div id="l6-options" class="options-grid">
+                  <div class="options-grid">
             ${shuffled.map((opt, i) => `
               <button class="opt-btn" data-correct="${opt === t.correct}" style="animation: bounceIn 0.5s ${0.8 + i * 0.1}s both;">
                 ${opt}
@@ -194,10 +194,10 @@ window.LEVEL_REGISTRY.push({
           btn.classList.add('wrong');
 
           if (window.SPS && window.SPS.launch) {
-            window.SPS.launch(8, () => {
+            window.SPS.launch(1, () => {
               if (window.showHint) window.showHint(10);
               setTimeout(() => {
-                if (window.launchLevel) window.launchLevel(8);
+                if (window.launchLevel) window.launchLevel(10);
               }, 3500);
             });
           }

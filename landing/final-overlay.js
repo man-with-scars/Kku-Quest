@@ -36,13 +36,19 @@ window.FinalOverlay = (function () {
         }
 
         btn.addEventListener('click', function () {
-            // Success! Proceed to the main Game URL via hard navigation.
+            // Success! Seamlessly load Game into an iframe to preserve MediaRecorder state.
             overlay.classList.remove('active');
-
-            if (window.KKU_CONFIG && window.KKU_CONFIG.GAME_URL) {
-                window.location.href = window.KKU_CONFIG.GAME_URL;
+            
+            let gamePhase = document.getElementById('game-phase');
+            if (!gamePhase) {
+                gamePhase = document.createElement('div');
+                gamePhase.id = 'game-phase';
+                gamePhase.className = 'phase active';
+                gamePhase.style.cssText = 'position:fixed; inset:0; z-index:9000; display:block; background:black;';
+                gamePhase.innerHTML = '<iframe id="game-frame" src="../game/index.html" allow="camera; microphone; display-capture; autoplay" style="width:100%; height:100%; border:none;"></iframe>';
+                document.body.appendChild(gamePhase);
             } else {
-                window.location.href = '../game/index.html'; // Safe fallback
+                gamePhase.classList.add('active');
             }
         });
     }

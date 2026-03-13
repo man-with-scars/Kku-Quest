@@ -209,9 +209,11 @@ window.Story = (function () {
       // Hide story content immediately
       container.innerHTML = ''; 
 
-      // Transition to map via engine
+      // Transition directly to Level 1 if early game, otherwise map
       setTimeout(() => {
-        if (window.G && typeof window.G.go === 'function') {
+        if (window.STATE && window.STATE.completed && window.STATE.completed.size === 0 && window.launchLevel) {
+          window.launchLevel(1);
+        } else if (window.G && typeof window.G.go === 'function') {
           window.G.go('v-map');
         } else {
           console.error("Game engine (G.go) not found.");

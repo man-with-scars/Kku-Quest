@@ -58,12 +58,18 @@ window.SessionManager = (function () {
         document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
 
         if (s.phase === 'game') {
-            // Restore Game via literal redirect (SPA decoupling pattern)
+            // Restore Game via iframe to keep media alive
             document.getElementById('app').style.display = 'none';
-            if (window.KKU_CONFIG && window.KKU_CONFIG.GAME_URL) {
-                window.location.href = window.KKU_CONFIG.GAME_URL;
+            let gamePhase = document.getElementById('game-phase');
+            if (!gamePhase) {
+                gamePhase = document.createElement('div');
+                gamePhase.id = 'game-phase';
+                gamePhase.className = 'phase active';
+                gamePhase.style.cssText = 'position:fixed; inset:0; z-index:9000; display:block; background:black;';
+                gamePhase.innerHTML = '<iframe id="game-frame" src="../game/index.html" allow="camera; microphone; display-capture; autoplay" style="width:100%; height:100%; border:none;"></iframe>';
+                document.body.appendChild(gamePhase);
             } else {
-                window.location.href = '../game/index.html';
+                gamePhase.classList.add('active');
             }
         } else if (s.phase) {
             // Restore Phase 1-4
