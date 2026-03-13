@@ -6,7 +6,6 @@ window.LEVEL_REGISTRY = window.LEVEL_REGISTRY || [];
 window.LEVEL_REGISTRY.push({
   id: 12,
   view: 'v-L12',
-  icon: '🗝️',
   title: 'The Heart Key',
   type: 'key',
   hint: '',

@@ -5,7 +5,6 @@ window.LEVEL_REGISTRY = window.LEVEL_REGISTRY || [];
 window.LEVEL_REGISTRY.push({
     id: 25,
     view: 'v-L25',
-    icon: '🎂',
     title: 'Happy 25th',
     type: 'finale',
     hint: '',

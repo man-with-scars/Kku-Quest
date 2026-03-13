@@ -6,7 +6,6 @@ window.LEVEL_REGISTRY = window.LEVEL_REGISTRY || [];
 window.LEVEL_REGISTRY.push({
   id: 4,
   view: 'v-L4',
-  icon: '🎬',
   title: 'Cinema Enigma',
   hint: '',
 

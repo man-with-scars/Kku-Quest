@@ -6,7 +6,6 @@ window.LEVEL_REGISTRY = window.LEVEL_REGISTRY || [];
 window.LEVEL_REGISTRY.push({
   id: 11,
   view: 'v-L11',
-  icon: '💍',
   title: 'The Prophecy',
   type: 'boss',
   hint: '',

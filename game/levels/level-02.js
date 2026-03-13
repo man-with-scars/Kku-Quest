@@ -6,13 +6,12 @@ window.LEVEL_REGISTRY = window.LEVEL_REGISTRY || [];
 window.LEVEL_REGISTRY.push({
   id: 2,
   view: 'v-L2',
-  icon: '🐟',
   title: 'Taste the Truth',
   hint: '',
 
   build(el) {
     const options = [
-      { text: "🍗 Anything with chicken", correct: false },
+      { text: "🍗 Anything that's chicken", correct: false },
       { text: "🥩 Mutton on the bone", correct: false },
       { text: "🥘 A rich beef curry", correct: false },
       { text: "🐟 Seafood — the ocean's finest", correct: true }

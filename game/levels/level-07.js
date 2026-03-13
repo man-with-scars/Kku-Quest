@@ -6,7 +6,6 @@ window.LEVEL_REGISTRY = window.LEVEL_REGISTRY || [];
 window.LEVEL_REGISTRY.push({
   id: 7,
   view: 'v-L7',
-  icon: '💬',
   title: 'Time Capsule',
   hint: '',
 

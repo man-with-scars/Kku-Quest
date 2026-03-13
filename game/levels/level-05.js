@@ -6,7 +6,6 @@ window.LEVEL_REGISTRY = window.LEVEL_REGISTRY || [];
 window.LEVEL_REGISTRY.push({
   id: 5,
   view: 'v-L5',
-  icon: '💎',
   title: 'Vault of Proof',
   type: 'collect',
   hint: '',

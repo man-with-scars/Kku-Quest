@@ -6,7 +6,6 @@ window.LEVEL_REGISTRY = window.LEVEL_REGISTRY || [];
 window.LEVEL_REGISTRY.push({
   id: 9,
   view: 'v-L9',
-  icon: '📦',
   title: 'Grand Vault',
   type: 'collect',
   hint: '',

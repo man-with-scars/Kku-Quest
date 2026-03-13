@@ -6,7 +6,6 @@ window.LEVEL_REGISTRY = window.LEVEL_REGISTRY || [];
 window.LEVEL_REGISTRY.push({
   id: 10,
   view: 'v-L10',
-  icon: '🍦',
   title: 'Triple Trials',
   type: 'trap',
   hint: '',

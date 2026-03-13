@@ -6,7 +6,6 @@ window.LEVEL_REGISTRY = window.LEVEL_REGISTRY || [];
 window.LEVEL_REGISTRY.push({
   id: 3,
   view: 'v-L3',
-  icon: '📸',
   title: 'Memory Vault',
   type: 'collect',
   hint: '',

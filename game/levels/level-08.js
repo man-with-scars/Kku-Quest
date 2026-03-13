@@ -6,7 +6,6 @@ window.LEVEL_REGISTRY = window.LEVEL_REGISTRY || [];
 window.LEVEL_REGISTRY.push({
   id: 8,
   view: 'v-L8',
-  icon: '🎵',
   title: "Singer's Enigma",
   type: 'trap',
   hint: '',

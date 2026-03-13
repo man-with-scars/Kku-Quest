@@ -6,7 +6,6 @@ window.LEVEL_REGISTRY = window.LEVEL_REGISTRY || [];
 window.LEVEL_REGISTRY.push({
   id: 6,
   view: 'v-L6',
-  icon: '📱',
   title: 'Social Labyrinth',
   hint: '',
 

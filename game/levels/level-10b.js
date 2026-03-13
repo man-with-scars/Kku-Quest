@@ -6,7 +6,6 @@ window.LEVEL_REGISTRY = window.LEVEL_REGISTRY || [];
 window.LEVEL_REGISTRY.push({
   id: '10b',
   view: 'v-L10b',
-  icon: '🎤',
   title: 'The Singing Door',
   type: 'collect',
   hint: '',

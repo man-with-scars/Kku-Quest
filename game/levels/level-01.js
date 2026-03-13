@@ -6,7 +6,6 @@ window.LEVEL_REGISTRY = window.LEVEL_REGISTRY || [];
 window.LEVEL_REGISTRY.push({
   id: 1,
   view: 'v-L1',
-  icon: '🚗',
   title: 'The First Clue',
   hint: '',
 
