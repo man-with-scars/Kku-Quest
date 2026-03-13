@@ -321,8 +321,10 @@
             stage.appendChild(v);
         }
 
-        // Build if not already built (checks if view has children or custom flag)
-        if (!v.hasChildNodes() && typeof reg.build === 'function') {
+        // Always rebuild trap/stateful levels to reset progress; lazy-build collect/story levels
+        const shouldRebuild = reg.type === 'trap' || !v.hasChildNodes();
+        if (shouldRebuild && typeof reg.build === 'function') {
+            v.innerHTML = ''; // Clear stale DOM before rebuilding
             try {
                 reg.build(v);
                 console.log(`Built level ${id} on-demand.`);
