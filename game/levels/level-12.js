@@ -17,8 +17,11 @@ window.LEVEL_REGISTRY.push({
     let selectedTileIdx = null;
 
     // Digits from fragments
-    const digits = fullCode.split('').map((d, i) => ({ val: d, id: i }));
-    const shuffledDigits = [...digits].sort(() => Math.random() - 0.5);
+    const shuffledDigits = [...digits];
+    for (let i = shuffledDigits.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledDigits[i], shuffledDigits[j]] = [shuffledDigits[j], shuffledDigits[i]];
+    }
 
     function render() {
       el.innerHTML = `
@@ -35,8 +38,11 @@ window.LEVEL_REGISTRY.push({
             </p>
           </div>
 
-          <div id="keylock-card" class="riddle-card" style="z-index:10; border:4px solid var(--gold);">
-            
+          <!-- Show Question Button (Hidden initially) -->
+          <button id="l12-show" style="position:absolute; bottom:30px; right:30px; padding:15px 25px; border-radius:30px; background:var(--purple); color:white; font-family:'Fredoka', cursive; font-size:18px; border:none; box-shadow:0 4px 15px rgba(0,0,0,0.2); cursor:pointer; display:none; z-index:20; transition: transform 0.2s;">❓ Show Keylock</button>
+
+          <div id="keylock-card" class="riddle-card" style="z-index:10; border:4px solid var(--gold); position:relative;">
+            <button id="l12-close" style="position:absolute; top:15px; right:20px; background:none; border:none; font-size:24px; cursor:pointer; color:var(--rose); transition:transform 0.2s;">✖</button>
             <div style="margin-bottom:20px;">
               <p style="font-size:12px; color:var(--sub); margin-bottom:8px;">Collected Fragments:</p>
               <div style="display:flex; justify-content:center; gap:8px;">
@@ -122,6 +128,24 @@ window.LEVEL_REGISTRY.push({
           handleFail();
         }
       };
+
+      const closeBtn = document.getElementById('l12-close');
+      const showBtn = document.getElementById('l12-show');
+      const card = document.getElementById('keylock-card');
+      if (closeBtn && showBtn && card) {
+        closeBtn.onclick = () => {
+          card.style.opacity = '0';
+          card.style.pointerEvents = 'none';
+          card.style.transform = 'translateY(20px)';
+          showBtn.style.display = 'block';
+        };
+        showBtn.onclick = () => {
+          card.style.opacity = '1';
+          card.style.pointerEvents = 'auto';
+          card.style.transform = 'translateY(0)';
+          showBtn.style.display = 'none';
+        };
+      }
     }
 
     function placeTile(slotIdx) {

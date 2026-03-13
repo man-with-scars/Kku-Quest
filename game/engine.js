@@ -173,14 +173,21 @@
     window.levelDone = function (id) {
         // Normalize ID to string without leading zeros for robust set checking
         const normId = isNaN(id) ? id : String(parseInt(id));
+        const isNewCompletion = !window.STATE.completed.has(normId);
         window.STATE.completed.add(normId);
         window.sfx('up');
 
-        // Assign fragment if applicable
-        const frag = window.GAME_CONFIG.FRAGMENTS.find(f => f.level == id);
-        if (frag) {
-            window.STATE.fragments[frag.id] = frag.value;
-            showFragmentPopup(frag);
+        // Assign random fragment if this is a fragment-yielding level and not replayed
+        const fragmentLevels = window.GAME_CONFIG.FRAGMENTS.map(f => String(f.level));
+        if (fragmentLevels.includes(normId) && isNewCompletion) {
+            const collectedIds = Object.keys(window.STATE.fragments).map(Number);
+            const availableFrags = window.GAME_CONFIG.FRAGMENTS.filter(f => !collectedIds.includes(f.id));
+            if (availableFrags.length > 0) {
+                const randomFrag = availableFrags[Math.floor(Math.random() * availableFrags.length)];
+                window.STATE.fragments[randomFrag.id] = randomFrag.value;
+                window.STATE.lastFrag = randomFrag; // save for completion screen
+                showFragmentPopup(randomFrag);
+            }
         }
 
         // Web notification if available
@@ -203,11 +210,12 @@
 
         // Customise based on if it's the last standard level
         const msg = view.querySelector('p');
-        const frag = window.GAME_CONFIG.FRAGMENTS.find(f => f.level == id);
+        const frag = window.STATE.lastFrag; // Retrieve the fragment just awarded!
 
         if (frag && msg) {
-            msg.innerHTML = `Fragment Found: <b>${frag.value}</b> ✨`;
+            msg.innerHTML = `Fragment Found: <b>${frag.value}</b>`;
             msg.style.display = 'block';
+            window.STATE.lastFrag = null; // consume it
         } else if (msg) {
             msg.style.display = 'none';
         }

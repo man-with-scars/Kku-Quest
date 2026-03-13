@@ -18,8 +18,12 @@ window.LEVEL_REGISTRY.push({
       { text: "🎧 Phone and earphones, just two of us", correct: true }
     ];
 
-    // Shuffle options
-    const shuffled = options.sort(() => Math.random() - 0.5);
+    // Shuffle options properly
+    const shuffled = [...options];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
 
     el.innerHTML = `
       <div id="l4-stage" style="width:100%; height:100%; position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center;">
@@ -30,8 +34,12 @@ window.LEVEL_REGISTRY.push({
           <div id="l4-clapper-snap" style="font-size:40px; opacity:0; margin-top:-20px; font-family:'Fredoka One', cursive; color:var(--purple);">SNAP!</div>
         </div>
 
+        <!-- Show Question Button (Hidden initially) -->
+        <button id="l4-show" style="position:absolute; bottom:30px; right:30px; padding:15px 25px; border-radius:30px; background:var(--purple); color:white; font-family:'Fredoka', cursive; font-size:18px; border:none; box-shadow:0 4px 15px rgba(0,0,0,0.2); cursor:pointer; display:none; z-index:20; transition: transform 0.2s;">❓ Show Riddle</button>
+
         <!-- Riddle Card -->
-        <div id="l4-card" class="riddle-card" style="opacity:0; transform:translateY(20px); pointer-events:none;">
+        <div id="l4-card" class="riddle-card" style="opacity:0; transform:translateY(20px); pointer-events:none; position:relative;">
+          <button id="l4-close" style="position:absolute; top:15px; right:20px; background:none; border:none; font-size:24px; cursor:pointer; color:var(--rose); transition:transform 0.2s;">✖</button>
           <div class="riddle-text">
             "Not a theatre's roar, not a living-room glow —<br>
             Chu's ideal cinema is quiet and low.<br>
@@ -132,6 +140,23 @@ window.LEVEL_REGISTRY.push({
         }, 600);
       }, 800);
     }, 300);
+
+    const closeBtn = document.getElementById('l4-close');
+    const showBtn = document.getElementById('l4-show');
+    if (closeBtn && showBtn && card) {
+      closeBtn.onclick = () => {
+        card.style.opacity = '0';
+        card.style.pointerEvents = 'none';
+        card.style.transform = 'translateY(20px)';
+        showBtn.style.display = 'block';
+      };
+      showBtn.onclick = () => {
+        card.style.opacity = '1';
+        card.style.pointerEvents = 'auto';
+        card.style.transform = 'translateY(0)';
+        showBtn.style.display = 'none';
+      };
+    }
 
     // Option Logic
     el.querySelectorAll('.opt-btn').forEach(btn => {

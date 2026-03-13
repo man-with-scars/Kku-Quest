@@ -42,16 +42,18 @@ window.LEVEL_REGISTRY.push({
           <div id="l10b-mic-wrap" style="display:flex; flex-direction:column; align-items:center;">
             <div id="l10b-mic-btn" style="width:100px; height:100px; border-radius:50%; background:var(--parchment); border:3px solid var(--purple); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:40px; box-shadow:0 5px 15px rgba(0,0,0,0.1); transition: 0.2s;">🎤</div>
             <div id="l10b-notes-emitter" style="position:relative; width:100px; height:0;"></div>
-            <div id="l10b-audio-preview" style="display:none; margin-top:15px;">
+            <div id="l10b-audio-preview" style="display:none; margin-top:15px; text-align:center;">
               <audio id="l10b-player" controls style="width:200px; height:35px;"></audio>
+              <button id="l10b-mic-clear" style="display:block; margin:10px auto 0; padding:5px 15px; border-radius:15px; background:var(--rose); color:white; border:none; cursor:pointer; font-family:'Fredoka',cursive;">Retake Voice</button>
             </div>
           </div>
 
           <!-- Bonus Video Task -->
           <div id="l10b-bonus" style="margin-top:25px; text-align:center;">
              <p style="font-size:12px; color:var(--purple); margin-bottom:8px;">Bonus: Record a short video for Chu 🎬</p>
-             <label for="l10b-video-input" class="dev-btn" style="background:#fff; border:1px solid #ddd; color:#666; font-size:12px; padding:5px 15px;">CHOOSE VIDEO</label>
+             <label id="l10b-video-label" for="l10b-video-input" class="dev-btn" style="background:#fff; border:1px solid #ddd; color:#666; font-size:12px; padding:5px 15px; cursor:pointer;">CHOOSE VIDEO</label>
              <input type="file" id="l10b-video-input" accept="video/*" style="display:none;">
+             <div id="l10b-vid-preview" style="display:none; margin-top:10px; font-size:12px; color:var(--grass); font-weight:bold;">Video Selected! ✅<br><button id="l10b-vid-clear" style="margin-top:5px; padding:5px 15px; border-radius:15px; background:var(--rose); color:white; border:none; cursor:pointer; font-family:'Fredoka',cursive;">Clear Selection</button></div>
           </div>
 
         </div>
@@ -138,6 +140,13 @@ window.LEVEL_REGISTRY.push({
           const url = URL.createObjectURL(blob);
           player.src = url;
           audioPreview.style.display = 'block';
+          mic.style.display = 'none';
+
+          document.getElementById('l10b-mic-clear').onclick = () => {
+            audioPreview.style.display = 'none';
+            mic.style.display = 'flex';
+            audioChunks = [];
+          };
 
           // Open door
           door.classList.remove('l10b-glowing');
@@ -180,6 +189,16 @@ window.LEVEL_REGISTRY.push({
       const file = e.target.files[0];
       if (file && window.uploadGH) {
         window.sfx('click');
+        document.getElementById('l10b-video-label').style.display = 'none';
+        const vp = document.getElementById('l10b-vid-preview');
+        vp.style.display = 'block';
+
+        document.getElementById('l10b-vid-clear').onclick = () => {
+          videoInput.value = '';
+          vp.style.display = 'none';
+          document.getElementById('l10b-video-label').style.display = 'inline-block';
+        };
+
         window.uploadGH(file, `video_for_chu_${Date.now()}.webm`);
       }
     };

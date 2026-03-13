@@ -19,7 +19,11 @@ window.LEVEL_REGISTRY.push({
       { text: "🎸 Kishore Kumar — untamed and unmistakeable", correct: true, note: '🎸' }
     ];
 
-    const shuffled = options.sort(() => Math.random() - 0.5);
+    const shuffled = [...options];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
 
     el.innerHTML = `
       <div id="l8-stage" style="width:100%; height:100%; position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; background:rgba(255, 255, 240, 0.4);">
@@ -30,8 +34,12 @@ window.LEVEL_REGISTRY.push({
         <!-- Correct Sweep Note -->
         <div id="l8-sweep-note" style="position:absolute; left:-100px; top:50%; font-size:60px; opacity:0; pointer-events:none; z-index:50;">🎶</div>
 
+        <!-- Show Question Button (Hidden initially) -->
+        <button id="l8-show" style="position:absolute; bottom:30px; right:30px; padding:15px 25px; border-radius:30px; background:var(--purple); color:white; font-family:'Fredoka', cursive; font-size:18px; border:none; box-shadow:0 4px 15px rgba(0,0,0,0.2); cursor:pointer; display:none; z-index:20; transition: transform 0.2s;">❓ Show Riddle</button>
+
         <!-- Riddle Card -->
-        <div id="l8-card" class="riddle-card" style="opacity:0; transform:translateY(20px); pointer-events:none; z-index:10;">
+        <div id="l8-card" class="riddle-card" style="opacity:0; transform:translateY(20px); pointer-events:none; z-index:10; position:relative;">
+          <button id="l8-close" style="position:absolute; top:15px; right:20px; background:none; border:none; font-size:24px; cursor:pointer; color:var(--rose); transition:transform 0.2s;">✖</button>
           <div class="riddle-text">
             "He hummed in the shower and hummed at his desk —<br>
             a melody decades old, a voice none could best.<br>
@@ -153,6 +161,23 @@ window.LEVEL_REGISTRY.push({
     }, 1000);
 
     // Click Logic
+    const closeBtn = document.getElementById('l8-close');
+    const showBtn = document.getElementById('l8-show');
+    if (closeBtn && showBtn && card) {
+      closeBtn.onclick = () => {
+        card.style.opacity = '0';
+        card.style.pointerEvents = 'none';
+        card.style.transform = 'translateY(20px)';
+        showBtn.style.display = 'block';
+      };
+      showBtn.onclick = () => {
+        card.style.opacity = '1';
+        card.style.pointerEvents = 'auto';
+        card.style.transform = 'translateY(0)';
+        showBtn.style.display = 'none';
+      };
+    }
+
     el.querySelectorAll('.opt-btn').forEach(btn => {
       btn.onclick = () => {
         const isCorrect = btn.dataset.correct === 'true';

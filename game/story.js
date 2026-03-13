@@ -190,14 +190,32 @@ window.Story = (function () {
           </div>
         `;
         wrap.querySelector('#btn-restart-all').onclick = () => {
-          if (confirm("This will clear all progress. Are you sure?")) {
-            if (window.SessionManager) window.SessionManager.clear();
-            window.location.reload();
+          if (confirm("This will clear all map progress. Are you sure?")) {
+            window.STATE.completedLevels = [];
+            // We do NOT clear fragments or SessionManager full clear based on new requirements.
+            if (window.SessionManager) window.SessionManager.save();
+
+            if (bgMusic) { bgMusic.pause(); bgMusic = null; }
+            if (window.AudioManager) window.AudioManager.unsuppress();
+
+            window.G.go('v-map');
+            container.innerHTML = '';
+            if (window.QuestMap && window.QuestMap.init) window.QuestMap.init(document.getElementById('v-map'));
           }
         };
         wrap.querySelector('#btn-continue-map').onclick = () => {
-          window.G.go('v-map');
-          if (window.QuestMap && window.QuestMap.init) window.QuestMap.init(document.getElementById('v-map'));
+          if (bgMusic) { bgMusic.pause(); bgMusic = null; }
+          if (window.AudioManager) window.AudioManager.unsuppress();
+
+          if (window.STATE.preStoryView) {
+            window.G.go(window.STATE.preStoryView);
+            window.resumeGame();
+            window.STATE.preStoryView = null;
+          } else {
+            window.G.go('v-map');
+            if (window.QuestMap && window.QuestMap.init) window.QuestMap.init(document.getElementById('v-map'));
+          }
+          container.innerHTML = '';
         };
         return;
       }

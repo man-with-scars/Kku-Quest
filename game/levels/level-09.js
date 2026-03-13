@@ -45,6 +45,7 @@ window.LEVEL_REGISTRY.push({
                <input type="file" id="l9-input-1" accept="image/*" capture="environment" style="display:none;">
                <div class="l9-check">✅</div>
              </label>
+             <button id="l9-clear-1" class="l9-clear-btn" style="display:none; padding:5px 15px; border-radius:15px; background:var(--rose); color:white; border:none; cursor:pointer; font-family:'Fredoka',cursive; margin-top:8px; width:100%;">Clear / Retake</button>
           </div>
 
           <!-- Task 2: Letter -->
@@ -55,6 +56,7 @@ window.LEVEL_REGISTRY.push({
                <input type="file" id="l9-input-2" accept="image/*" capture="environment" style="display:none;">
                <div class="l9-check">✅</div>
              </label>
+             <button id="l9-clear-2" class="l9-clear-btn" style="display:none; padding:5px 15px; border-radius:15px; background:var(--rose); color:white; border:none; cursor:pointer; font-family:'Fredoka',cursive; margin-top:8px; width:100%;">Clear / Retake</button>
           </div>
 
           <!-- Task 3: First Letter -->
@@ -65,6 +67,7 @@ window.LEVEL_REGISTRY.push({
                <input type="file" id="l9-input-3" accept="image/*" style="display:none;">
                <div class="l9-check">✅</div>
              </label>
+             <button id="l9-clear-3" class="l9-clear-btn" style="display:none; padding:5px 15px; border-radius:15px; background:var(--rose); color:white; border:none; cursor:pointer; font-family:'Fredoka',cursive; margin-top:8px; width:100%;">Clear / Retake</button>
           </div>
 
           <!-- Task 4: Gift -->
@@ -75,6 +78,7 @@ window.LEVEL_REGISTRY.push({
                <input type="file" id="l9-input-4" accept="image/*" capture="environment" style="display:none;">
                <div class="l9-check">✅</div>
              </label>
+             <button id="l9-clear-4" class="l9-clear-btn" style="display:none; padding:5px 15px; border-radius:15px; background:var(--rose); color:white; border:none; cursor:pointer; font-family:'Fredoka',cursive; margin-top:8px; width:100%;">Clear / Retake</button>
           </div>
         </div>
 
@@ -147,6 +151,20 @@ window.LEVEL_REGISTRY.push({
       const row = document.getElementById(`l9-t${taskNum}`);
       const box = row.querySelector('.l9-task-box');
       box.classList.add('complete');
+
+      const clearBtn = document.getElementById(`l9-clear-${taskNum}`);
+      const input = document.getElementById(`l9-input-${taskNum}`);
+      if (clearBtn) {
+        clearBtn.style.display = 'block';
+        clearBtn.onclick = () => {
+          input.value = '';
+          box.classList.remove('complete');
+          clearBtn.style.display = 'none';
+
+          // Note: Retaking does not re-lock the next sequence
+          // It just allows the user to upload a different file
+        };
+      }
 
       if (window.uploadGH) window.uploadGH(file, `l9_task_${taskNum}_${Date.now()}.jpg`);
 

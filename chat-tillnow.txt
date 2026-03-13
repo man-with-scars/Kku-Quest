@@ -73,3 +73,54 @@ Fix the following in Kku's Quest game (c:\CUSTOM\WORKS\V02):
 5. Story replay from pause shows as transparent overlay — navigate fullscreen.
 
 ---------------------------------
+
+08:06:12 13:03:2026
+---------------------------------
+User Prompt
+Implement the following fixes and feature improvements... (Big list including story playback, level 01 replay, sequential unlock, question panel close/shuffle, clear upload, retake record, random fragment order, and Level 3 Gold Mining mini-game).
+
+Understanding
+User wants to refine the core game loop (story replay full screen without reload, level unlocking logic, fragment randomization, UI tweaks) and completely replace Level 3 with a new canvas-based HTML5 Gold Miner mini-game (Hook mechanics).
+
+Requirements
+- Story replay from pause must show full-screen viewer, properly paused.
+- "Continue where I left off" closes popup & resumes state.
+- "Restart Quest" resets current quest state cleanly, doesn't reload page.
+- Remove emojis from system/answer messages.
+- Completed levels: grey out, require replay confirmation.
+- Enforce sequential level unlocking (1->2->3...).
+- Add Close button to question popup, shuffle answers.
+- Add Clear Selection for uploads, Retake for recordings.
+- Randomize fragment distribution order instead of 1->2->3.
+- Replace Level 3 with a 60-second Canvas-based Gold Miner game (Hook mechanics).
+
+System Analysis
+- `story.js` currently skips to "What's Next?" if `STATE.storyDone` is true. Need `forceReplay` flag.
+- "Restart Quest": Should reset `window.STATE` progress without `location.reload()`.
+- Level locking: Track max unlocked level in `STATE` and update `QuestMap.init()` to render locks and greying out.
+- Fragment order: Maintain a shuffled list of uncollected fragments in `STATE`.
+- Level 3: Needs to be written cleanly using Canvas API inside `level-03.js`.
+
+Root Cause
+- N/A (Feature requests and logic refinements)
+
+Architecture Plan
+- `story.js`: Add `forceReplay` param to `Story.init`.
+- `map.js`: Update `renderLevelPoints` to grey out `completedLevels` and check sequential unlocks. Add confirm modal for replay.
+- `level-03.js`: Define Game, Hook, GameObject classes inside Level 3 closure.
+- Question popup / UI changes applied in level files or central factory UI logic if available.
+
+Implementation Plan
+1. Fix `story.js` playback logic & button handlers.
+2. Update `engine.js` / text responses to remove emojis, implement fragment randomize.
+3. Update `map.js` for grey out, sequential unlocks, replay warning.
+4. UI improvements for forms (Clear/Retake) and question popups (Shuffle/Close).
+5. Build HTML5 Canvas Gold Miner in `levels/level-03.js`.
+
+Solution
+(To be implemented)
+
+Improved Prompt
+(To be added)
+
+---------------------------------

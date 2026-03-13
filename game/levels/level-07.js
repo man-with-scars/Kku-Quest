@@ -38,10 +38,11 @@ window.LEVEL_REGISTRY.push({
                   <span style="font-size:12px; margin-top:10px;">Upload a Chat Screenshot</span>
                   <input type="file" id="l7-chat-input" accept="image/*" style="display:none;">
                 </label>
-                <div id="l7-p1-preview-wrap" style="display:none; margin-top:10px;">
-                   <div class="polaroid-frame">
+                <div id="l7-p1-preview-wrap" style="display:none; margin-top:10px; text-align:center;">
+                   <div class="polaroid-frame" style="margin:0 auto;">
                       <div id="l7-p1-preview" class="preview-img"></div>
                    </div>
+                   <button id="l7-p1-clear" style="margin-top:10px; padding:5px 15px; border-radius:15px; background:var(--rose); color:white; border:none; cursor:pointer; font-family:'Fredoka',cursive;">Clear / Retake</button>
                 </div>
              </div>
           </div>
@@ -55,10 +56,11 @@ window.LEVEL_REGISTRY.push({
                   <span style="font-size:12px; margin-top:10px;">Take a shared selfie</span>
                   <input type="file" id="l7-selfie-input" accept="image/*" capture="user" style="display:none;">
                 </label>
-                <div id="l7-p2-preview-wrap" style="display:none; margin-top:10px;">
-                   <div class="heart-frame">
+                <div id="l7-p2-preview-wrap" style="display:none; margin-top:10px; text-align:center;">
+                   <div class="heart-frame" style="margin:0 auto;">
                       <div id="l7-p2-preview" class="preview-img"></div>
                    </div>
+                   <button id="l7-p2-clear" style="margin-top:10px; padding:5px 15px; border-radius:15px; background:var(--rose); color:white; border:none; cursor:pointer; font-family:'Fredoka',cursive;">Clear / Retake</button>
                 </div>
              </div>
           </div>
@@ -150,6 +152,13 @@ window.LEVEL_REGISTRY.push({
         wrap.style.display = 'block';
         document.getElementById('l7-p1-preview').style.backgroundImage = `url(${re.target.result})`;
 
+        document.getElementById('l7-p1-clear').onclick = () => {
+          input1.value = '';
+          wrap.style.display = 'none';
+          document.getElementById('l7-zone1').style.display = 'flex';
+          isTask1Done = false;
+        };
+
         isTask1Done = true;
         // Slide to Task 2
         setTimeout(() => {
@@ -174,6 +183,14 @@ window.LEVEL_REGISTRY.push({
         const wrap = document.getElementById('l7-p2-preview-wrap');
         wrap.style.display = 'block';
         document.getElementById('l7-p2-preview').style.backgroundImage = `url(${re.target.result})`;
+
+        document.getElementById('l7-p2-clear').onclick = () => {
+          input2.value = '';
+          wrap.style.display = 'none';
+          document.getElementById('l7-zone2').style.display = 'flex';
+          isTask2Done = false;
+          btnCont.style.display = 'none';
+        };
 
         isTask2Done = true;
         btnCont.style.display = 'block';

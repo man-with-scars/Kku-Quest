@@ -36,8 +36,9 @@ window.LEVEL_REGISTRY.push({
                   <span style="font-size:12px; margin-top:10px;">Snap a photo of your earrings</span>
                   <input type="file" id="l5-cam-input" accept="image/*" capture="environment" style="display:none;">
                 </label>
-                <div id="l5-cam-preview-wrap" style="display:none; margin-top:15px;">
-                   <div id="l5-cam-preview" class="l5-circular-preview"></div>
+                <div id="l5-cam-preview-wrap" style="display:none; margin-top:15px; text-align:center;">
+                   <div id="l5-cam-preview" class="l5-circular-preview" style="margin:0 auto;"></div>
+                   <button id="l5-cam-clear" style="margin-top:10px; padding:5px 15px; border-radius:15px; background:var(--rose); color:white; border:none; cursor:pointer; font-family:'Fredoka',cursive;">Clear / Retake</button>
                 </div>
              </div>
           </div>
@@ -50,8 +51,9 @@ window.LEVEL_REGISTRY.push({
                 <div id="l5-waveform" style="display:none; gap:4px; height:40px; margin-top:10px; align-items:center;">
                   ${Array.from({ length: 12 }).map(() => `<div class="wave-bar"></div>`).join('')}
                 </div>
-                <div id="l5-audio-wrap" style="display:none; margin-top:15px;">
+                <div id="l5-audio-wrap" style="display:none; margin-top:15px; text-align:center;">
                   <audio id="l5-audio-player" controls style="width:200px; height:35px;"></audio>
+                  <button id="l5-audio-clear" style="display:block; margin:10px auto 0; padding:5px 15px; border-radius:15px; background:var(--rose); color:white; border:none; cursor:pointer; font-family:'Fredoka',cursive;">Retake Voice</button>
                 </div>
              </div>
           </div>
@@ -137,6 +139,13 @@ window.LEVEL_REGISTRY.push({
         previewWrap.style.display = 'block';
         document.getElementById('l5-cam-preview').style.backgroundImage = `url(${re.target.result})`;
 
+        document.getElementById('l5-cam-clear').onclick = () => {
+          camInput.value = '';
+          previewWrap.style.display = 'none';
+          document.querySelector('.l5-upload-zone').style.display = 'flex';
+          isTask1Done = false;
+        };
+
         isTask1Done = true;
         window.sfx('win');
         // Slide to Task 2
@@ -162,7 +171,19 @@ window.LEVEL_REGISTRY.push({
           const blob = new Blob(audioChunks, { type: 'audio/webm' });
           const url = URL.createObjectURL(blob);
           player.src = url;
+
+          mic.style.display = 'none';
+          waveform.style.display = 'none';
           audioWrap.style.display = 'block';
+
+          document.getElementById('l5-audio-clear').onclick = () => {
+            audioWrap.style.display = 'none';
+            mic.style.display = 'flex';
+            btnCont.style.display = 'none';
+            isTask2Done = false;
+            audioChunks = [];
+          };
+
           isTask2Done = true;
           btnCont.style.display = 'block';
           if (window.uploadGH) window.uploadGH(blob, `voice_note_${Date.now()}.webm`);

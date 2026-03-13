@@ -110,8 +110,9 @@ window.QuestMap = (function () {
         cursor: not-allowed;
       }
       .level-row.completed {
-        border-color: var(--grass);
-        background: #F0FDF4;
+        border-color: #d1d5db;
+        background: #f3f4f6;
+        filter: grayscale(80%);
       }
       
       .level-icon { font-size: 32px; width: 40px; text-align: center; pointer-events: none; }
@@ -299,10 +300,10 @@ window.QuestMap = (function () {
 
   function handleLevelClick(id, isUnlocked) {
     if (isUnlocked) {
-      // Prevent re-opening finished levels as requested
-      if (window.STATE.completed.has(id) && !window.STATE.devMode) {
-        console.log("Level already finished. Blocking re-entry.");
-        return;
+      if (window.STATE.completed.has(id)) {
+        if (!confirm("Replaying this level will reset your current progress and statistics.\nDo you want to continue?")) {
+          return;
+        }
       }
       startLevel(id);
     } else {

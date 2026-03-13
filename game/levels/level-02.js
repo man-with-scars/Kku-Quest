@@ -18,8 +18,12 @@ window.LEVEL_REGISTRY.push({
       { text: "🐟 Seafood — the ocean's finest", correct: true }
     ];
 
-    // Shuffle options
-    const shuffled = options.sort(() => Math.random() - 0.5);
+    // Shuffle options properly
+    const shuffled = [...options];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
 
     el.innerHTML = `
       <div id="l2-stage" style="width:100%; height:100%; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; background:rgba(230, 245, 255, 0.3);">
@@ -27,8 +31,12 @@ window.LEVEL_REGISTRY.push({
         <!-- Ripple Effect -->
         <div id="l2-ripple" style="position:absolute; width:600px; height:600px; border-radius:50%; pointer-events:none;"></div>
 
+        <!-- Show Question Button (Hidden initially) -->
+        <button id="l2-show" style="position:absolute; bottom:30px; right:30px; padding:15px 25px; border-radius:30px; background:var(--purple); color:white; font-family:'Fredoka', cursive; font-size:18px; border:none; box-shadow:0 4px 15px rgba(0,0,0,0.2); cursor:pointer; display:none; z-index:20; transition: transform 0.2s;">❓ Show Riddle</button>
+
         <!-- Riddle Card -->
-        <div id="l2-card" class="riddle-card" style="opacity:0; transform:translateY(20px); pointer-events:none; z-index:10;">
+        <div id="l2-card" class="riddle-card" style="opacity:0; transform:translateY(20px); pointer-events:none; z-index:10; position:relative;">
+          <button id="l2-close" style="position:absolute; top:15px; right:20px; background:none; border:none; font-size:24px; cursor:pointer; color:var(--rose); transition:transform 0.2s;">✖</button>
           <div class="riddle-text">
             "No horns, no wings — it breathes in brine,<br>
             Chu's hand reaches past the menu every time.<br>
@@ -111,10 +119,28 @@ window.LEVEL_REGISTRY.push({
     document.head.appendChild(style);
 
     const card = el.querySelector('#l2-card');
+    const closeBtn = el.querySelector('#l2-close');
+    const showBtn = el.querySelector('#l2-show');
+
     if (card) {
       card.style.opacity = '1';
       card.style.transform = 'translateY(0)';
       card.style.pointerEvents = 'auto';
+    }
+
+    if (closeBtn && showBtn && card) {
+      closeBtn.onclick = () => {
+        card.style.opacity = '0';
+        card.style.pointerEvents = 'none';
+        card.style.transform = 'translateY(20px)';
+        showBtn.style.display = 'block';
+      };
+      showBtn.onclick = () => {
+        card.style.opacity = '1';
+        card.style.pointerEvents = 'auto';
+        card.style.transform = 'translateY(0)';
+        showBtn.style.display = 'none';
+      };
     }
 
     // Option Logic
