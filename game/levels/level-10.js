@@ -185,8 +185,9 @@ window.LEVEL_REGISTRY.push({
           } else {
             setTimeout(() => {
               window.sfx('win');
-              window.levelDone(10);
-            }, 800);
+              window.STATE && window.STATE.completed && window.STATE.completed.add('10');
+              window.launchLevel(11);
+            }, 1200);
           }
         } else {
           window.sfx('bad');
