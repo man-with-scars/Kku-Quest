@@ -104,6 +104,12 @@ window.LEVEL_REGISTRY.push({
     const bNo = document.getElementById('basket-no');
     const heart = document.getElementById('ruby-heart');
 
+    // Set No button to absolute positioning immediately so it can flee from Phase 0
+    btnNo.style.position = 'absolute';
+    btnNo.style.right = '80px';
+    btnNo.style.top = '50%';
+    btnNo.style.transform = 'translateY(-50%)';
+
     // Petal Rain
     function createPetal() {
       const p = document.createElement('div');
@@ -117,23 +123,62 @@ window.LEVEL_REGISTRY.push({
     }
     const petalInterval = setInterval(createPetal, 400);
 
-    // Phase 0: YES Click
+    // Phase 0: YES Click — burst like a soap bubble then advance
     btnYes.onclick = () => {
+      if (btnYes.dataset.popping) return;
+      btnYes.dataset.popping = '1';
       window.sfx('win');
-      btnYes.style.transition = 'all 0.3s';
-      btnYes.style.opacity = '0';
-      btnYes.style.transform = 'scale(0)';
+
+      // Bubble pop animation
+      btnYes.style.transition = 'all 0.15s cubic-bezier(0.6,0,0.4,1)';
+      btnYes.style.transform = 'scale(1.3)';
+      btnYes.style.opacity = '0.9';
+      btnYes.style.boxShadow = '0 0 0 6px rgba(255,255,255,0.5), 0 0 0 12px rgba(255,255,255,0.2)';
+
+      // Spray bubble particles
+      const arena = document.getElementById('marry-arena');
+      const rect = btnYes.getBoundingClientRect();
+      const arenaRect = arena.getBoundingClientRect();
+      const cx = rect.left - arenaRect.left + rect.width / 2;
+      const cy = rect.top - arenaRect.top + rect.height / 2;
+      for (let i = 0; i < 18; i++) {
+        const dot = document.createElement('div');
+        const angle = (i / 18) * Math.PI * 2;
+        const dist = 60 + Math.random() * 60;
+        const size = 6 + Math.random() * 10;
+        dot.style.cssText = `
+          position:absolute; width:${size}px; height:${size}px;
+          border-radius:50%; pointer-events:none; z-index:200;
+          background:rgba(255,255,255,${0.4 + Math.random() * 0.5});
+          border:1px solid rgba(255,255,255,0.8);
+          left:${cx}px; top:${cy}px;
+          transform:translate(-50%,-50%);
+          transition: all 0.5s cubic-bezier(0.2,0.8,0.4,1);
+        `;
+        arena.appendChild(dot);
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            dot.style.transform = `translate(calc(-50% + ${Math.cos(angle)*dist}px), calc(-50% + ${Math.sin(angle)*dist}px)) scale(0)`;
+            dot.style.opacity = '0';
+          });
+        });
+        setTimeout(() => dot.remove(), 600);
+      }
+
       setTimeout(() => {
-        btnYes.style.display = 'none';
-        phase = 1;
-        // NO button setup for Phase 1
-        btnNo.style.position = 'absolute';
-      }, 300);
+        btnYes.style.transform = 'scale(0)';
+        btnYes.style.opacity = '0';
+        setTimeout(() => {
+          btnYes.style.display = 'none';
+          phase = 1;
+          btnNo.style.position = 'absolute';
+        }, 150);
+      }, 150);
     };
 
-    // Phase 1: Elusive NO
+    // Phase 0+1: Elusive NO — flees from mouse always
     el.onmousemove = (e) => {
-      if (phase !== 1) return;
+      if (phase > 1) return;
       const rect = btnNo.getBoundingClientRect();
       const cx = rect.left + rect.width / 2;
       const cy = rect.top + rect.height / 2;
