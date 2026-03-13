@@ -1,8 +1,8 @@
 // game/map.js
-// Exposes: window.Map = { init, refresh }
+// Exposes: window.QuestMap = { init, refresh }
 // Responsibility: Level selection and progress tracking.
 
-window.Map = (function () {
+window.QuestMap = (function () {
   'use strict';
 
   let container = null;
@@ -259,7 +259,7 @@ window.Map = (function () {
 
       return `
             <div class="level-row ${isUnlocked ? '' : 'locked'} ${isCompleted ? 'completed' : ''}" 
-                 onclick="window.Map.handleLevelClick('${id}', ${isUnlocked})">
+                 onclick="window.QuestMap.handleLevelClick('${id}', ${isUnlocked})">
               <div class="level-icon">${isUnlocked ? config.icon : '🔒'}</div>
               <div class="level-info">
                 <div class="level-name">
@@ -312,7 +312,7 @@ window.Map = (function () {
     }
   }
 
-  window.Map = {
+  window.QuestMap = {
     init: function (v) {
       container = v;
       render();

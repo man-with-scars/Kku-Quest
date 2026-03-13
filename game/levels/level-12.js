@@ -4,8 +4,8 @@
 
 window.LEVEL_REGISTRY = window.LEVEL_REGISTRY || [];
 window.LEVEL_REGISTRY.push({
-  id: 'keylock',
-  view: 'v-LKeylock',
+  id: 12,
+  view: 'v-L12',
   icon: '🗝️',
   title: 'The Heart Key',
   type: 'key',
@@ -147,7 +147,7 @@ window.LEVEL_REGISTRY.push({
         if (window.triggerFinalSequence) {
           window.triggerFinalSequence();
         } else {
-          window.levelDone('keylock');
+          window.levelDone(12);
         }
       }, 1500);
     }

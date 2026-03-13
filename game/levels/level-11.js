@@ -4,8 +4,8 @@
 
 window.LEVEL_REGISTRY = window.LEVEL_REGISTRY || [];
 window.LEVEL_REGISTRY.push({
-  id: 'marry',
-  view: 'v-LMarry',
+  id: 11,
+  view: 'v-L11',
   icon: '💍',
   title: 'The Prophecy',
   type: 'boss',
@@ -274,9 +274,9 @@ window.LEVEL_REGISTRY.push({
       document.getElementById('btn-final-cont').onclick = () => {
         winCard.remove();
         if (window.SPS && window.SPS.launch) {
-          window.SPS.launch(11, () => window.levelDone('marry'));
+          window.SPS.launch(11, () => window.levelDone(11));
         } else {
-          window.levelDone('marry');
+          window.levelDone(11);
         }
       };
     };

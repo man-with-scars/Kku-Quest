@@ -14,7 +14,7 @@ window.GAME_CONFIG = {
     LEVEL_FILES: [
         'level-01.js', 'level-02.js', 'level-03.js', 'level-04.js', 'level-05.js',
         'level-06.js', 'level-07.js', 'level-08.js', 'level-09.js', 'level-10.js',
-        'level-marry.js', 'level-keylock.js'
+        'level-11.js', 'level-12.js'
     ],
 
     REWARDS: {},

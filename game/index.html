@@ -88,6 +88,7 @@
             z-index: 100;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             color: white;
+            opacity: 0;
             transition: opacity 0.5s;
         }
 
@@ -275,6 +276,11 @@
 
         .view.active {
             display: flex;
+        }
+
+        #v-loading {
+            z-index: 1000;
+            background: #000;
         }
 
         #v-title {

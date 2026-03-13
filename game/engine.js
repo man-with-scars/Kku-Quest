@@ -130,8 +130,8 @@
             window.STATE.currentView = viewId;
 
             // Render the map whenever we navigate to it
-            if (viewId === 'v-map' && window.Map && window.Map.init) {
-                window.Map.init(v);
+            if (viewId === 'v-map' && window.QuestMap && window.QuestMap.init) {
+                window.QuestMap.init(v);
             }
 
             // Sync HUD visibility
@@ -443,6 +443,19 @@
         }
     };
 
+    window.levelAdvancementLogic = function (currentId) {
+        if (currentId == 10) {
+            window.launchLevel(11); // Merry (BOSS)
+        } else if (currentId == 11) {
+            window.launchLevel(12); // Keylock
+        } else if (currentId == 12) {
+            window.triggerFinalSequence();
+        } else {
+            const next = parseInt(currentId) + 1;
+            window.launchLevel(next);
+        }
+    };
+
     window.replayStory = function () {
         window.resumeGame();
         window.G.go('v-story');
@@ -557,12 +570,20 @@
 
                     // Play video once - NON-BLOCKING
                     if (video) {
-                        video.play().catch(e => console.log("Video play blocked"));
+                        video.muted = true;
+                        video.load();
 
-                        // Wait for EXACTLY 7 seconds as requested
+                        const attemptPlay = () => {
+                            video.play().then(() => {
+                                document.removeEventListener('click', attemptPlay);
+                            }).catch(e => console.warn("Video blocked", e));
+                        };
+                        document.addEventListener('click', attemptPlay);
+                        attemptPlay();
+
+                        // Wait for EXACTLY 7 seconds
                         const fixedWait = new Promise(r => setTimeout(r, 7000));
 
-                        // Fake progress matching 7s roughly
                         let p = 0;
                         const pInterval = setInterval(() => {
                             p += 2;
@@ -576,6 +597,7 @@
 
                         await fixedWait;
                         clearInterval(pInterval);
+                        document.removeEventListener('click', attemptPlay);
                     }
                 } catch (e) {
                     console.warn("Soft-error during async init:", e);
@@ -810,7 +832,9 @@
                     // Fallback if Story.skip isn't implemented
                     window.STATE.storyDone = true;
                     window.G.go('v-map');
-                    if (window.Map && window.Map.init) window.Map.init(document.getElementById('v-map'));
+                    if (window.QuestMap && window.QuestMap.init) {
+                        window.QuestMap.init(document.getElementById('v-map'));
+                    }
                 }
             } else if (window.STATE.currentLevel) {
                 console.log("Dev: Skipping Level", window.STATE.currentLevel);
